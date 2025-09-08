@@ -4,17 +4,20 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom"
-import Layout from './layout.tsx'
-import BookPage from './pages/client/book.tsx'
-import AboutPage from './pages/client/about.tsx'
-import LoginPage from './pages/client/auth/login.tsx'
-import RegisterPage from './pages/client/auth/register.tsx'
+
 import './styles/global.scss'
+import Layout from './layout'
+import BookPage from 'pages/client/book'
+import AboutPage from 'pages/client/about'
+import LoginPage from 'pages/client/auth/login.tsx'
+import RegisterPage from 'pages/client/auth/register'
+import HomePage from 'pages/client/home.tsx'
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
+      { index: true, element: <HomePage /> },
       {
         path: "/book",
         element: <BookPage />
