@@ -1,0 +1,3 @@
+dom
+npm i --save-exact sass@1.80.4
+npm  i --save-exact --save-dev vite-tsconfig-paths@5.0.1
