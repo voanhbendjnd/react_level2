@@ -13,22 +13,22 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/"
+        "src/*"
       ],
       "assets/*": [
-        "./src/assets/*"
+        "src/assets/*"
       ],
       "components/*": [
-        "./src/components/*"
+        "src/components/*"
       ],
       "pages/*": [
-        "./src/pages/*"
+        "src/pages/*"
       ],
       "styles/*": [
-        "./src/styles/*"
+        "src/styles/*"
       ],
       "services/*": [
-        "./src/services/*"
+        "src/services/*"
       ]
     },
     /* Bundler mode */
@@ -42,11 +42,14 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

@@ -1,17 +1,44 @@
-import { Button, Divider, Form, Input, type FormProps } from "antd";
-import { Link } from "react-router-dom";
+import { registerAPI } from "@/services/api";
+import { App, Button, Divider, Form, Input } from "antd";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 type FieldType = {
     name?: string;
     password?: string;
     confirmPassword?: string;
-    phone?: String;
-    email?: String;
+    phone?: string;
+    email?: string;
 };
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('>>> Success:', values);
-};
+
 const RegisterPage = () => {
+    const { message, notification } = App.useApp();
+    const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
+    const navigate = useNavigate();
+    // Đặt kiểu dữ liệu cho values nếu cần
+    const onFinish = async (values: FieldType) => {
+        console.log('>>> Success:', values);
+        setLoading(true);
+        const res = await registerAPI(
+            values.name || "",
+            values.email || "",
+            values.password || "",
+            values.confirmPassword || "",
+            values.phone || ""
+        );
+
+        if (res.data) {
+            message.success("Đăng ký người dùng thành công");
+            navigate('/login')
+        } else {
+            // Thay vì Modal, dùng notification hoặc message để hiển thị lỗi
+            notification.error({
+                message: "Đã gặp phải lỗi khi đăng ký người dùng",
+                description: res.message || "Lỗi không xác định." // Kiểm tra res.message trước khi hiển thị
+            });
+        }
+        setLoading(false)
+    };
     return (
         <div
             style={{
@@ -85,14 +112,21 @@ const RegisterPage = () => {
                         name="confirmPassword"
                         rules={[
                             { required: true, message: 'Mật khẩu không được bỏ trống' },
-
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Mật khẩu không khớp!'));
+                                },
+                            }),
                         ]}
                     >
                         <Input.Password />
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" loading={true} onClick={() => { form.submit() }}>Đăng ký</Button>
+                        <Button type="primary" loading={loading} htmlType="submit">Đăng ký</Button>
                     </Form.Item>
                 </Form>
                 <Divider />

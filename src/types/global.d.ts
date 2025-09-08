@@ -27,4 +27,13 @@ declare global {
             
         }
     }
+    interface IRegister{
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        role: string;
+        createdAt: string;
+        createdBy: string;
+    }
 }
