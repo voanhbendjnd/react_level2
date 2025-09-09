@@ -1,12 +1,8 @@
 import axios from "services/axios.customize"
 
-export const loginAPI = (email: string, password: string) => {
+export const loginAPI = (username: string, password: string) => {
     const url_backend = "/api/v1/auth/login"
-    const data = {
-        email: email,
-        password: password
-    }
-    return  axios.post<IBackendRes<ILogin>>(url_backend, {email, password})
+    return  axios.post<IBackendRes<ILogin>>(url_backend, {username, password})
 }
 
 export const registerAPI = (name: string, email: string, password: string, confirmPassword: string, phone: string) => {
