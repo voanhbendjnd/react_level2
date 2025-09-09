@@ -2,8 +2,9 @@ import { loginAPI } from "@/services/api";
 import { App, Button, Checkbox, Divider, Form, Input, type FormProps } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import bgImage from "/src/assets/2784.jpg";
 import bgImageMain from "/src/assets/hinh-nen-toi-4k_061742487.jpg"
+import { useCurrentApp } from "@/components/context/app.context";
+// match between backend and frontend
 type FieldType = {
   username?: string;
   password?: string;
@@ -12,6 +13,7 @@ type FieldType = {
 
 
 const LoginPage = () => {
+  const { setIsAuthenticated, setUser } = useCurrentApp();
   const { message, notification } = App.useApp();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,6 +22,9 @@ const LoginPage = () => {
     const res = await loginAPI(values.username || "", values.password || "")
     setLoading(true)
     if (res && res.data) {
+      setIsAuthenticated(true)
+      setUser(res.data.user)
+      localStorage.setItem('access_token', res.data.access_token)
       message.success("Đăng nhập thành công")
       navigate("/")
     }
@@ -73,7 +78,11 @@ const LoginPage = () => {
           <Form.Item<FieldType>
             label={<span style={{ color: "white" }}>Email</span>}
             name="username"
-            rules={[{ required: true, message: 'Please input your username!' }]}
+            rules={[
+              { required: true, message: 'Email không được để trống!' },
+              { type: "email", message: "Email không đúng định dạng" },
+
+            ]}
           >
             <Input />
           </Form.Item>
@@ -81,7 +90,7 @@ const LoginPage = () => {
           <Form.Item<FieldType>
             label={<span style={{ color: "white" }}>Mật khẩu</span>}
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: 'Password không được để trống!' }]}
           >
             <Input.Password />
           </Form.Item>

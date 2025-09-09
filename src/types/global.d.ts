@@ -36,4 +36,15 @@ declare global {
         createdAt: string;
         createdBy: string;
     }
+    interface IUser{
+            id: string;
+            name: string;
+            email: string;
+            name: string;
+            role: string;
+            avatar: string;
+    }
+    interface IFetchAccount{
+        user: IUser;
+    }
 }
