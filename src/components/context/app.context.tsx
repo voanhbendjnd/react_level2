@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
 
+// * Nơi lưu trữ thông tin người dùng từ ge Account
+//
+//
 interface IAppContext {
     isAuthenticated: boolean; // check người dùng đăng nhập chưa
     user: IUser | null;

@@ -13,6 +13,7 @@ const Layout = () => {
             const res = await fetchAccountAPI()
             if (res.data) {
                 setUser(res.data.user)
+                setIsAuthenticated(true);
             }
             setIsAppLoading(false);
         }
