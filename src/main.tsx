@@ -6,31 +6,30 @@ import {
 } from "react-router-dom"
 
 import './styles/global.scss'
+import { AppProvider, useCurrentApp } from 'components/context/app.context'
+import ProtectedRoute from '@/components/auth/private.page'
+import HomePage from './pages/client/home'
+import AboutPage from './pages/client/about'
+import LoginPage from './pages/client/auth/login'
+import RegisterPage from './pages/client/auth/register'
+import BookPage from './pages/client/book'
 import Layout from './layout'
-import BookPage from 'pages/client/book'
-import AboutPage from 'pages/client/about'
-import LoginPage from 'pages/client/auth/login.tsx'
-import RegisterPage from 'pages/client/auth/register'
-import HomePage from 'pages/client/home.tsx'
 import { App } from 'antd'
-import { AppProvider } from 'components/context/app.context'
-import ProtectedRoute from '@/components/auth'
+import AdminPage from './pages/admin/admin'
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
+
       {
-        path: "/book",
-        element: <BookPage />
-      },
-      {
-        path: "/about",
+        path: "about",
         element: <AboutPage />
       },
       {
-        path: "/checkout",
+        path: "checkout",
         element: (
           <ProtectedRoute>
             <div>
@@ -38,14 +37,7 @@ const router = createBrowserRouter([
             </div>
           </ProtectedRoute>
         )
-      }, {
-        path: "/admin",
-        element: (
-          <ProtectedRoute>
-            <div>Admin page</div>
-          </ProtectedRoute>
-        )
-      }
+      },
     ]
   },
   {
@@ -56,6 +48,39 @@ const router = createBrowserRouter([
     path: "/register",
     element:
       <RegisterPage />
+  }, {
+    path: "admin",
+    element:
+      <AdminPage />,
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedRoute>
+            <div>Dashboard</div>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "book",
+        element:
+          <ProtectedRoute>
+            <BookPage />
+          </ProtectedRoute>
+      },
+      {
+        path: "order",
+        element: <ProtectedRoute>
+          <div>Order page</div>
+        </ProtectedRoute>
+      },
+      {
+        path: "user",
+        element: <ProtectedRoute>
+          <div>User page </div>
+        </ProtectedRoute>
+      },
+    ]
   }
 
 

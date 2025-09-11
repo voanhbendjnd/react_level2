@@ -1,4 +1,8 @@
-import React, { createContext, useContext, useState } from "react";
+import { fetchAccountAPI } from "@/services/api";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import AppHeader from "../layout/app.header";
+import { Outlet } from "react-router-dom";
+import { ClimbingBoxLoader } from "react-spinners";
 
 // * Nơi lưu trữ thông tin người dùng từ ge Account
 //
@@ -7,7 +11,7 @@ interface IAppContext {
     isAuthenticated: boolean; // check người dùng đăng nhập chưa
     user: IUser | null;
     setIsAuthenticated: (v: boolean) => void;
-    setUser: (v: IUser) => void;
+    setUser: (v: IUser | null) => void;
     isAppLoading: boolean;
     setIsAppLoading: (v: boolean) => void;
 
@@ -21,13 +25,49 @@ export const AppProvider = (props: TProps) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [user, setUser] = useState<IUser | null>(null);
     const [isAppLoading, setIsAppLoading] = useState<boolean>(false);
-
+    // get account 
+    useEffect(() => {
+        const fetchAccount = async () => {
+            setIsAppLoading(true);
+            const res = await fetchAccountAPI();
+            if (res.data) {
+                setUser(res.data.user)
+                setIsAuthenticated(true);
+            }
+            setIsAppLoading(false)
+        }
+        fetchAccount();
+    }, [])
     return (
-        <CurrentAppContext.Provider value={{
-            isAuthenticated, user, setIsAuthenticated, setUser, setIsAppLoading, isAppLoading
-        }}>
-            {props.children}
-        </CurrentAppContext.Provider>
+        <>
+            {!isAppLoading ?
+                <CurrentAppContext.Provider
+                    value={{
+                        isAuthenticated, user, isAppLoading, setIsAppLoading, setUser, setIsAuthenticated
+                    }}
+                >
+                    {props.children}
+                </CurrentAppContext.Provider>
+                :
+                <div
+                    style={{
+                        position: "fixed",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)"
+                    }}
+                >
+                    <ClimbingBoxLoader
+                        size={30}
+                        color="#ccc"
+                    />
+
+                </div>
+            }
+        </>
+
+
+
     )
 }
 export const useCurrentApp = () => {

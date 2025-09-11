@@ -31,7 +31,11 @@ export const fetchAccountAPI = () => {
     const url_backend = "/api/v1/auth/account";
     return axios.get<IBackendRes<IFetchAccount>>(url_backend, {
         headers: {
-            delay:"1"
+            delay:"1000"
         }
     })
+}
+export const logoutAPI = () => {
+    const url_backend = "/api/v1/auth/logout";
+    return axios.post<IBackendRes<IRegister>>(url_backend);
 }
