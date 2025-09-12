@@ -89,7 +89,7 @@ const AdminPage = () => {
                                 children: [
                                     {
                                         key: "user-crud",
-                                        label: "CRUD",
+                                        label: <Link to={"/admin/user"}>CRUD</Link>,
                                         icon: <UserOutlined />,
                                     }
                                 ]

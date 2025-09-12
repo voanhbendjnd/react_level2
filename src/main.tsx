@@ -6,7 +6,7 @@ import {
 } from "react-router-dom"
 
 import './styles/global.scss'
-import { AppProvider, useCurrentApp } from 'components/context/app.context'
+import { AppProvider } from 'components/context/app.context'
 import ProtectedRoute from '@/components/auth/private.page'
 import HomePage from './pages/client/home'
 import AboutPage from './pages/client/about'
@@ -14,8 +14,12 @@ import LoginPage from './pages/client/auth/login'
 import RegisterPage from './pages/client/auth/register'
 import BookPage from './pages/client/book'
 import Layout from './layout'
-import { App } from 'antd'
+import { App, ConfigProvider } from 'antd'
 import AdminPage from './pages/admin/admin'
+import ManageUserPage from './pages/admin/manage.user'
+import enUS from 'antd/locale/en_US'
+import enVN from 'antd/locale/vi_VN'
+
 
 const router = createBrowserRouter([
   {
@@ -77,7 +81,7 @@ const router = createBrowserRouter([
       {
         path: "user",
         element: <ProtectedRoute>
-          <div>User page </div>
+          <ManageUserPage />
         </ProtectedRoute>
       },
     ]
@@ -89,8 +93,11 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App>
       <AppProvider>
+        {/* configprovider set ngon ngu */}
+        <ConfigProvider locale={enVN}>
+          <RouterProvider router={router} />
 
-        <RouterProvider router={router} />
+        </ConfigProvider>
 
       </AppProvider>
     </App>
