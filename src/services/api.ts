@@ -41,6 +41,6 @@ export const logoutAPI = () => {
 }
 
 export const fetchUsersAPI = (current: number, pageSize: number) => {
-    const url_backend = `/api/v1/users?page=${current}&pageSize=${pageSize}`;
+    const url_backend = `/api/v1/users?page=${current}&size=${pageSize}`;
     return axios.get <IBackendRes<IModelPaginate<IUsersTable>>>(url_backend);
 }

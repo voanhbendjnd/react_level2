@@ -11,7 +11,7 @@ import vi_VN from 'antd/locale/vi_VN';
 import { useRef, useState } from 'react';
 
 interface IUsersTable {
-    id: number;
+    id: string;
     name: string;
     email: string;
     createdAt: string | number;
@@ -24,9 +24,7 @@ const UserTable = () => {
         pageSize: 5,
         pages: 0,
         total: 0,
-    })
-
-
+    });
 
     const columns: ProColumns<IUsersTable>[] = [
         {
@@ -38,7 +36,6 @@ const UserTable = () => {
                 )
             },
             search: false,
-            sorter: (a, b) => a.id - b.id, // Sửa: so sánh số thay vì string
             width: 80,
         },
         {
@@ -101,7 +98,7 @@ const UserTable = () => {
     };
 
     // Hàm xử lý xóa
-    const handleDelete = (id: number) => {
+    const handleDelete = (id: string) => {
         console.log('Xóa ID:', id);
     };
 
@@ -124,27 +121,19 @@ const UserTable = () => {
                     type: 'checkbox',
                 }}
                 rowKey="id"
-                // BỎ PAGINATION CONFIG - Để ProTable tự quản lý
                 pagination={{
                     showSizeChanger: true,
                     showQuickJumper: true,
-                    // total: meta.pages,
                     showTotal: (total, range) => {
-                        // Tính số trang thực tế
-                        const currentPageSize = range[1] - range[0] + 1;
-                        const totalPages = Math.ceil(total / (currentPageSize > 0 ? Math.max(currentPageSize, 1) : 5));
                         return (
                             <div>
                                 Hiển thị {range[0]}-{range[1]} trong tổng số {total} bản ghi
-                                ({totalPages} trang)
                             </div>
                         );
                     },
                     pageSizeOptions: ['5', '10', '20', '50'],
                     defaultPageSize: 5,
-                    // Tự động ẩn pagination nếu chỉ có 1 trang
                     hideOnSinglePage: false,
-                    // Đảm bảo không có trang trống
                     simple: false,
                 }}
                 search={{
@@ -174,39 +163,35 @@ const UserTable = () => {
                 request={async (params, sort, filter) => {
                     console.log('=== REQUEST PARAMS ===');
                     console.log('Params:', params);
+                    console.log('Current page:', params.current);
+                    console.log('Page size:', params.pageSize);
                     console.log('Sort:', sort);
                     console.log('Filter:', filter);
 
                     try {
-                        // Gọi API với page và pageSize từ params
-                        const currentPage = params.current || 1;
-                        const pageSize = params.pageSize || 5;
-
-                        console.log(`Fetching page ${currentPage} with size ${pageSize}`);
-
-                        const res = await fetchUsersAPI(currentPage, 40);
+                        // Gọi API với đúng tham số
+                        const res = await fetchUsersAPI(
+                            params?.current ?? 1,
+                            params?.pageSize ?? 5
+                        );
 
                         console.log('=== API RESPONSE ===');
                         console.log('Full response:', res);
 
-                        // Kiểm tra cấu trúc response
-                        if (!res || !res.data) {
-                            console.error('Invalid response structure');
-                            return {
-                                data: [],
-                                success: false,
-                                total: 0,
-                            };
+                        // Cập nhật meta state
+                        if (res.data) {
+                            setMeta(res.data.meta);
+                            console.log('Meta updated:', res.data.meta);
                         }
 
                         const responseData = {
-                            data: res.data.result || [],
+                            data: res.data?.result || [],
                             success: true,
-                            total: res.data.meta?.total || 0,
+                            total: res.data?.meta?.total || 0,
                         };
 
-                        console.log('=== PROCESSED DATA ===');
-                        console.log('Data count:', responseData.data.length);
+                        console.log('=== RETURN DATA ===');
+                        console.log('Data length:', responseData.data.length);
                         console.log('Total:', responseData.total);
                         console.log('Success:', responseData.success);
 
