@@ -8,12 +8,12 @@ declare global {
     }
     interface IModelPaginate<T>{
         meta: {
-            current: number;
+            page: number;
             pageSize: number;
             pages: number;
             total: number;
         },
-        results: T[]
+        result: T[]
     }
     interface ILogin{
         access_token: string;
@@ -63,13 +63,5 @@ declare global {
 
     }
 
-    interface IModelPaginate<T>{
-        meta: {
-            current: number;
-            pageSize: number;
-            pages: number;
-            total: number;
-        },
-        result:T[]
-    }
+    
 }
