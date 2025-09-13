@@ -1,40 +1,39 @@
+import { fetchUsersAPI } from '@/services/api';
 import type {
-    ProColumnType,
-    ProFormInstance,
+    ActionType,
+    ProColumns,
 } from '@ant-design/pro-components';
 import {
     ProTable,
 } from '@ant-design/pro-components';
-import { Button, ConfigProvider } from 'antd';
+import { Button, ConfigProvider, Space } from 'antd';
 import vi_VN from 'antd/locale/vi_VN';
 import { useRef } from 'react';
 
-type DataType = {
-    age: number;
-    address: string;
-    name: string;
-    time: number;
-    key: number;
-    description: string;
-};
+/**
+ * Định nghĩa Interface cho dữ liệu người dùng
+ */
 
-const columns: ProColumnType<DataType>[] = [
+
+
+const columns: ProColumns<IUsersTable>[] = [
     {
-        title: 'Tên',
-        dataIndex: 'name',
+        title: 'id',
+        dataIndex: 'id', // backend
         // CHÍNH XÁC: Tùy chỉnh placeholder cho ô tìm kiếm
         fieldProps: {
             placeholder: 'Vui lòng nhập tên',
         },
+        sorter: (a, b) => a.id.localeCompare(b.id)
     },
     {
         title: 'Tên',
-        dataIndex: 'name',
-        valueType: 'text',
-        // CHÍNH XÁC: Tùy chỉnh placeholder cho ô chọn ngày
+        dataIndex: 'name', // backend
+        // CHÍNH XÁC: Tùy chỉnh placeholder cho ô tìm kiếm
         fieldProps: {
-            placeholder: 'Vui lòng chọn thời gian',
+            placeholder: 'Vui lòng nhập tên',
         },
+        sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
         title: 'Địa chỉ',
@@ -49,6 +48,9 @@ const columns: ProColumnType<DataType>[] = [
             'New York': {
                 text: 'New York',
             },
+            'can tho': {
+                text: 'Cần Thơ'
+            }
         },
         // CHÍNH XÁC: Tùy chỉnh placeholder cho ô chọn địa chỉ
         fieldProps: {
@@ -56,109 +58,74 @@ const columns: ProColumnType<DataType>[] = [
         },
     },
     {
-        // date time là có thêm giờ phút giây
         title: "Ngày tạo",
-        dataIndex: "time",
+        dataIndex: "createdAt",
         valueType: "date",
-        sorter: (a, b) => a.time - b.time,
+        // sorter: (a, b) => a.createdAt - b.createdAt,
     },
     {
         title: 'Thao tác',
         key: 'action',
         valueType: 'option',
-        width: "200px",
+        width: 150,
         render: () => [
-            <Button
-                style={{
-                    backgroundColor: "#FFC107",
-                }}
-            >Cập nhật</Button>,
-            <Button
-                style={{
-                    backgroundColor: "red",
-                }}
-            >
-                Xóa
-            </Button>
+            <Space key="action-space">
+                <Button
+                    style={{
+                        backgroundColor: "#FFC107"
+                    }}
+                >Cập nhật</Button>,
+                <Button
+                    style={{
+                        backgroundColor: "red"
+                    }}
+                >
+                    Xóa
+                </Button>
+            </Space>
         ],
     },
 ];
 
-const genData = (total: number) => {
-    if (total < 1) {
-        return [];
-    }
-    const data: DataType[] = [];
-    for (let i = 1; i <= total; i += 1) {
-        data.push({
-            key: i,
-            name: 'John Brown',
-            age: i + 10,
-            time: 1661136793649 + i * 1000,
-            address: i % 2 === 0 ? 'london' : 'New York',
-            description: `My name is John Brown, I am ${i}2 years old, living in New York No. ${i} Lake Park.`,
-        });
-    }
-    return data;
-};
-
 const UserTable = () => {
-    const ref = useRef<ProFormInstance>();
+    const actionRef = useRef<ActionType>();
 
     return (
-        // Bọc ProTable trong ConfigProvider để thiết lập ngôn ngữ
         <ConfigProvider locale={vi_VN}>
-            <ProTable
-                formRef={ref}
+            <ProTable<IUsersTable>
+                columns={columns}
+                actionRef={actionRef}
                 bordered
-                size="middle"
+                size="large"
                 headerTitle="Bảng thông tin người dùng"
                 tooltip="Thêm sửa xóa người dùng"
                 showHeader={true}
-                // footer={() => 'Đây là phần chân trang'}
-                expandable={{
-                    expandedRowRender: (record: DataType) => (
-                        <p>{record.description}</p>
-                    ),
-                }}
                 rowSelection={{}}
                 pagination={{
                     pageSize: 5,
                     current: 1,
-                    total: 100,
-                }}
-                search={{
-                    span: 12,
-                    labelWidth: 80,
-                    filterType: 'query',
-                    layout: 'horizontal',
-                    // CHÍNH XÁC: Tùy chỉnh chữ trên nút tìm kiếm
-                    // searchText: 'Tìm kiếm',
-                    resetText: 'Làm mới',
-                }}
-                options={{
-                    density: true,
-                    fullScreen: true,
-                    setting: true,
                 }}
                 toolBarRender={() => [
                     <Button key="refresh" type="primary">
                         Làm mới
                     </Button>,
                 ]}
-                columns={columns}
-                dataSource={genData(100)}
+                // SỬ DỤNG 'request' THAY CHO 'dataSource'
+                request={async (params, sort, filter) => {
+                    // Gọi hàm giả lập API
+                    console.log(params)
+                    console.log(sort);
+                    console.log(filter)
+                    const res = await fetchUsersAPI();
+                    return {
+                        data: res.data?.result,
+                        "page": 1,
+                        "success": true,
+                        "total": res.data?.meta.total
+                    }
+                }}
                 locale={{
                     emptyText: 'Không có dữ liệu',
-                    filterConfirm: 'Tìm kiếm',
-                    filterReset: 'Làm lại',
-
-                    // jumpTo: 'Đến trang',
-                    // page: 'Trang',
-                    // prev_page: 'Trang trước',
-                    // next_page: 'Trang tiếp',
-                    // prev_5: '5 trang trước',
-                    // next_5: '5 trang tiếp',
                 }}
             />
         </ConfigProvider>

@@ -17,7 +17,6 @@ import Layout from './layout'
 import { App, ConfigProvider } from 'antd'
 import AdminPage from './pages/admin/admin'
 import ManageUserPage from './pages/admin/manage.user'
-import enUS from 'antd/locale/en_US'
 import enVN from 'antd/locale/vi_VN'
 
 
