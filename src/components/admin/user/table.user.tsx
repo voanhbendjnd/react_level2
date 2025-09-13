@@ -1,4 +1,5 @@
 import { fetchUsersAPI } from '@/services/api';
+import { dataRangeValidate } from '@/services/helper';
 import type {
     ActionType,
     ProColumns,
@@ -14,7 +15,14 @@ interface IUsersTable {
     id: string;
     name: string;
     email: string;
-    createdAt: string | number;
+    createdAt: string;
+    createdAtRange: string;
+}
+type TSearch = {
+    name: string;
+    email: string;
+    createdAt: string;
+    createdAtRange: string;
 }
 
 const UserTable = () => {
@@ -37,6 +45,7 @@ const UserTable = () => {
             },
             search: false,
             width: 80,
+            sorter: true,
         },
         {
             title: 'Tên',
@@ -55,13 +64,22 @@ const UserTable = () => {
         },
         {
             title: "Ngày tạo",
-            dataIndex: "createdAt",
-            valueType: "dateTime",
-            search: false,
+            dataIndex: "createdAtRange",
+            valueType: "dateRange",
+            search: true,
             render: (_, record) => {
                 const date = new Date(record.createdAt);
                 return date.toLocaleString('vi-VN');
             },
+            hideInTable: true,
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "createdAt",
+            valueType: "date",
+            search: false,
+            sorter: true,
+
         },
         {
             title: 'Thao tác',
@@ -109,10 +127,10 @@ const UserTable = () => {
 
     return (
         <ConfigProvider locale={vi_VN}>
-            <ProTable<IUsersTable>
+            <ProTable<IUsersTable, TSearch>
                 columns={columns}
-                actionRef={actionRef}
-                bordered
+                actionRef={actionRef} // cho phép tải lại bảng, reset
+                bordered // thêm viền cho các ô
                 size="large"
                 headerTitle="Bảng thông tin người dùng"
                 tooltip="Thêm sửa xóa người dùng"
@@ -169,10 +187,38 @@ const UserTable = () => {
                     console.log('Filter:', filter);
 
                     try {
+                        let query = "";
+                        if (params) {
+                            query += `page=${params.current}&size=${params.pageSize}`
+                        }
+
+                        if (params.email || params.name) {
+                            query += `&filter=`
+                        }
+                        if (params.email) {
+                            query += `email~'${params.email}'`
+                        }
+                        if (params.name) {
+                            query += params.email ? ` and name~'${params.name}'` : `name~'${params.name}'`
+                        }
+                        const createDateRange = dataRangeValidate(params.createdAtRange);
+                        if (createDateRange) {
+                            if (params.email || params.name) {
+                                query += ` and `
+                            }
+                            else {
+                                query += `&filter=`
+                            }
+                            console.log("date", createDateRange[0]);
+                            console.log("date", createDateRange[1]);
+
+
+                            query += `createdAt>='${createDateRange[0]}' and createdAt<='${createDateRange[1]}'`;
+
+                        }
                         // Gọi API với đúng tham số
                         const res = await fetchUsersAPI(
-                            params?.current ?? 1,
-                            params?.pageSize ?? 5
+                            query
                         );
 
                         console.log('=== API RESPONSE ===');
