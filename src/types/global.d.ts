@@ -60,6 +60,7 @@ declare global {
         createdBy: string;
         updatedAt: string;
         updatedBy: string;
+        role: string;
 
     }
 

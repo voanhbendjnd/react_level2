@@ -10,6 +10,7 @@ import {
 import { Button, ConfigProvider, Space } from 'antd';
 import vi_VN from 'antd/locale/vi_VN';
 import { useRef, useState } from 'react';
+import UserDetail from './user.detail';
 
 interface IUsersTable {
     id: string;
@@ -27,6 +28,8 @@ type TSearch = {
 
 const UserTable = () => {
     const actionRef = useRef<ActionType>();
+    const [dataDetail, setDataDetail] = useState<IUsersTable>();
+    const [isOpenModalDetail, setIsOpenModalDetail] = useState(false);
     const [meta, setMeta] = useState({
         page: 1,
         pageSize: 5,
@@ -40,9 +43,14 @@ const UserTable = () => {
             dataIndex: 'id',
             render(dom, entity, index, action, schema) {
                 return (
-                    <a href="#">{entity.id}</a>
+                    <a href="#" onClick={() => {
+                        setDataDetail(entity)
+                        setIsOpenModalDetail(true);
+
+                    }}>{entity.id}</a>
                 )
             },
+
             search: false,
             width: 80,
             sorter: true,
@@ -189,7 +197,8 @@ const UserTable = () => {
                     try {
                         let query = "";
                         if (params) {
-                            query += `page=${params.current}&size=${params.pageSize}`
+                            query += `page=${params.current}
+                            &size=${params.pageSize}`
                         }
 
                         if (params.email || params.name) {
@@ -215,6 +224,10 @@ const UserTable = () => {
 
                             query += `createdAt>='${createDateRange[0]}' and createdAt<='${createDateRange[1]}'`;
 
+                        }
+
+                        if (sort && sort.createdAt) {
+                            query += `&sort=createdAt,${sort.createdAt === "ascend" ? "asc" : "desc"}`
                         }
                         // Gọi API với đúng tham số
                         const res = await fetchUsersAPI(
@@ -257,6 +270,12 @@ const UserTable = () => {
                 locale={{
                     emptyText: 'Không có dữ liệu',
                 }}
+            />
+            <UserDetail
+                dataDetail={dataDetail}
+                setDataDetail={setDataDetail}
+                isOpenModalDetail={isOpenModalDetail}
+                setIsOpenModalDetail={setIsOpenModalDetail}
             />
         </ConfigProvider>
     );
