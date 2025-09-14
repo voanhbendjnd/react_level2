@@ -8,15 +8,18 @@ import {
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, Result, theme } from 'antd';
+import { Avatar, Button, Layout, Menu, Result, theme } from 'antd';
 import { Link, Outlet } from 'react-router-dom';
 import { useCurrentApp } from '@/components/context/app.context';
 import { ClimbingBoxLoader } from 'react-spinners';
 
 const { Header, Sider } = Layout;
 const AdminPage = () => {
+
     const { isAppLoading, isAuthenticated, user } = useCurrentApp();
     const [collapsed, setCollapsed] = useState(false);
+    const avatarURL = `http://localhost:8080/api/v1/images/user/${user?.avatar}`
+
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -36,6 +39,7 @@ const AdminPage = () => {
             )
         }
     }
+
     else {
         return (
             <div
@@ -109,16 +113,41 @@ const AdminPage = () => {
                 </Sider>
                 <Layout>
                     <Header style={{ padding: 0, background: colorBgContainer }}>
-                        <Button
-                            type="text"
-                            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                            onClick={() => setCollapsed(!collapsed)}
+                        <div
                             style={{
-                                fontSize: '16px',
-                                width: 64,
-                                height: 64,
-                            }}
-                        />
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center"
+                            }}>
+                            <div>
+                                <Button
+                                    type="text"
+                                    icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                                    onClick={() => setCollapsed(!collapsed)}
+                                    style={{
+                                        fontSize: '16px',
+                                        width: 64,
+                                        height: 64,
+                                    }}
+                                />
+                            </div>
+                            <div
+                                style={{
+                                    alignItems: "center",
+                                    marginRight: "20px"
+                                }}>
+                                <Avatar size={40}
+                                    src={avatarURL}
+                                    style={{
+                                        marginRight: "10px"
+                                    }}
+                                >USER</Avatar>
+                                {user.name}
+                            </div>
+
+                        </div>
+
+
                     </Header>
                     <Outlet />
                 </Layout>

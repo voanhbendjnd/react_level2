@@ -1,5 +1,5 @@
 import { FORMATE_DATE_VN } from "@/services/helper";
-import { Badge, Descriptions, Drawer } from "antd";
+import { Avatar, Descriptions, Drawer } from "antd";
 import type { DescriptionsProps } from "antd/lib";
 import dayjs from "dayjs";
 
@@ -11,7 +11,7 @@ interface IProps {
 }
 const UserDetail = (props: IProps) => {
     const { dataDetail, isOpenModalDetail, setIsOpenModalDetail, setDataDetail } = props;
-
+    const avatarURL = `http://localhost:8080/api/v1/images/user/${dataDetail?.avatar}`
     const items: DescriptionsProps['items'] = [
         {
             key: 'id',
@@ -41,13 +41,17 @@ const UserDetail = (props: IProps) => {
             key: 'role',
             label: 'Quyền',
             children: <p>{dataDetail?.role}</p>,
-            span: 3,
+        },
+        {
+            key: 'avatar',
+            label: 'Ảnh đại diện',
+            children: <Avatar size={40} src={avatarURL}>USER</Avatar>,
+            span: 3
         },
         {
             key: 'createdAt',
             label: 'Ngày tạo',
             children: <p>{dayjs(dataDetail?.createdAt).format(FORMATE_DATE_VN)}</p>,
-            span: 3,
         },
         {
             key: 'updatedAt',

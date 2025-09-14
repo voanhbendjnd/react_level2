@@ -1,4 +1,4 @@
-import { fetchUsersAPI } from '@/services/api';
+import { deleteUserAPI, fetchUsersAPI } from '@/services/api';
 import { dataRangeValidate } from '@/services/helper';
 import type {
     ActionType,
@@ -7,17 +7,28 @@ import type {
 import {
     ProTable,
 } from '@ant-design/pro-components';
-import { Button, ConfigProvider, Space } from 'antd';
+import { Button, ConfigProvider, message, notification, Space } from 'antd';
 import vi_VN from 'antd/locale/vi_VN';
 import { useRef, useState } from 'react';
 import UserDetail from './user.detail';
+import UserForm from './user.form';
+import { ExportOutlined } from '@ant-design/icons';
+import ImportModalUser from './data/import.user';
 
-interface IUsersTable {
+interface IUserTable {
     id: string;
     name: string;
     email: string;
+    address: string;
+    phone: string;
+    gender: string;
+    avatar: string;
     createdAt: string;
-    createdAtRange: string;
+    createdBy: string;
+    updatedAt: string;
+    updatedBy: string;
+    role: string;
+    // createdAtRange: string;
 }
 type TSearch = {
     name: string;
@@ -27,7 +38,13 @@ type TSearch = {
 }
 
 const UserTable = () => {
+    // Hàm refresh
+    const handleRefresh = () => {
+        actionRef.current?.reload();
+    };
     const actionRef = useRef<ActionType>();
+    const [isOpenModalImport, setIsOpenModalImport] = useState(false);
+    const [isOpenFormModal, setIsOpenFormModal] = useState(false);
     const [dataDetail, setDataDetail] = useState<IUsersTable>();
     const [isOpenModalDetail, setIsOpenModalDetail] = useState(false);
     const [meta, setMeta] = useState({
@@ -37,7 +54,7 @@ const UserTable = () => {
         total: 0,
     });
 
-    const columns: ProColumns<IUsersTable>[] = [
+    const columns: ProColumns<IUserTable>[] = [
         {
             title: 'ID',
             dataIndex: 'id',
@@ -97,18 +114,13 @@ const UserTable = () => {
             render: (_, record) => [
                 <Space key="action-space">
                     <Button
-                        type="primary"
-                        style={{
-                            backgroundColor: "#FFC107",
-                            borderColor: "#FFC107",
-                            color: "#000"
-                        }}
+                        color="default" variant="filled"
                         onClick={() => handleUpdate(record)}
                     >
                         Cập nhật
                     </Button>
                     <Button
-                        danger
+                        color="default" variant="dashed"
                         onClick={() => handleDelete(record.id)}
                     >
                         Xóa
@@ -124,20 +136,27 @@ const UserTable = () => {
     };
 
     // Hàm xử lý xóa
-    const handleDelete = (id: string) => {
-        console.log('Xóa ID:', id);
+    const handleDelete = async (id: string) => {
+        const res = await deleteUserAPI(id);
+        if (res.data) {
+            message.success("Delete user successful");
+            handleRefresh();
+        }
+        else {
+            notification.error({
+                message: "Xóa người dùng thất bại",
+                description: JSON.stringify(res.message)
+            })
+        }
     };
 
-    // Hàm refresh
-    const handleRefresh = () => {
-        actionRef.current?.reload();
-    };
+
 
     return (
         <ConfigProvider locale={vi_VN}>
-            <ProTable<IUsersTable, TSearch>
+            <ProTable<IUserTable, TSearch>
                 columns={columns}
-                actionRef={actionRef} // cho phép tải lại bảng, reset
+                actionRef={actionRef} // cho phép tải lại bảng, reset = loadUser()
                 bordered // thêm viền cho các ô
                 size="large"
                 headerTitle="Bảng thông tin người dùng"
@@ -171,6 +190,14 @@ const UserTable = () => {
                     <Button
                         key="refresh"
                         type="primary"
+                        icon={<ExportOutlined />}
+                        onClick={() => setIsOpenModalImport(true)}
+                    >
+                        Import
+                    </Button>,
+                    <Button
+                        key="refresh"
+                        type="primary"
                         onClick={handleRefresh}
                     >
                         Làm mới
@@ -178,6 +205,9 @@ const UserTable = () => {
                     <Button
                         key="add"
                         type="primary"
+                        onClick={() => {
+                            setIsOpenFormModal(true);
+                        }}
                         style={{
                             backgroundColor: "#52C41A",
                             borderColor: "#52C41A"
@@ -195,39 +225,40 @@ const UserTable = () => {
                     console.log('Filter:', filter);
 
                     try {
-                        let query = "";
-                        if (params) {
-                            query += `page=${params.current}
-                            &size=${params.pageSize}`
-                        }
+                        // Khởi tạo query với page và size
+                        let query = `page=${params.current}&size=${params.pageSize}`;
 
-                        if (params.email || params.name) {
-                            query += `&filter=`
-                        }
+                        // Tạo mảng để chứa các điều kiện filter
+                        const filterConditions: string[] = [];
+                        filterConditions.push(`active:true`)
+                        // Thêm điều kiện filter cho email
                         if (params.email) {
-                            query += `email~'${params.email}'`
+                            filterConditions.push(`email~'${params.email}'`);
                         }
+
+                        // Thêm điều kiện filter cho name
                         if (params.name) {
-                            query += params.email ? ` and name~'${params.name}'` : `name~'${params.name}'`
+                            filterConditions.push(`name~'${params.name}'`);
                         }
+
+                        // Xử lý date range
                         const createDateRange = dataRangeValidate(params.createdAtRange);
-                        if (createDateRange) {
-                            if (params.email || params.name) {
-                                query += ` and `
-                            }
-                            else {
-                                query += `&filter=`
-                            }
-                            console.log("date", createDateRange[0]);
-                            console.log("date", createDateRange[1]);
+                        if (createDateRange && createDateRange.length === 2) {
+                            console.log("Start date:", createDateRange[0]);
+                            console.log("End date:", createDateRange[1]);
 
-
-                            query += `createdAt>='${createDateRange[0]}' and createdAt<='${createDateRange[1]}'`;
-
+                            filterConditions.push(`createdAt>='${createDateRange[0]}' and createdAt<='${createDateRange[1]}'`);
                         }
 
+                        // Nếu có điều kiện filter, thêm vào query
+                        if (filterConditions.length > 0) {
+                            query += `&filter=${filterConditions.join(' and ')}`;
+                        }
+
+                        // Xử lý sorting
+                        query += `&sort=createdAt,desc`;
                         if (sort && sort.createdAt) {
-                            query += `&sort=createdAt,${sort.createdAt === "ascend" ? "asc" : "desc"}`
+                            query += `&sort=createdAt,${sort.createdAt === "ascend" ? "asc" : "desc"}`;
                         }
                         // Gọi API với đúng tham số
                         const res = await fetchUsersAPI(
@@ -276,6 +307,15 @@ const UserTable = () => {
                 setDataDetail={setDataDetail}
                 isOpenModalDetail={isOpenModalDetail}
                 setIsOpenModalDetail={setIsOpenModalDetail}
+            />
+            <UserForm
+                handleRefresh={handleRefresh}
+                setIsOpenFormModal={setIsOpenFormModal}
+                isOpenFormModal={isOpenFormModal}
+            />
+            <ImportModalUser
+                setIsOpenModalImport={setIsOpenModalImport}
+                isOpenModalImport={isOpenModalImport}
             />
         </ConfigProvider>
     );
