@@ -1,13 +1,26 @@
 import Icon, { InboxOutlined } from "@ant-design/icons";
-import { Modal, Table, Upload, message } from 'antd';
+import { App, Modal, Table, Upload, message } from 'antd';
 import type { UploadProps } from 'antd';
+import { useState } from "react";
+import ExcelJS from 'exceljs';
+
 interface IProps {
     isOpenModalImport: boolean;
     setIsOpenModalImport: (v: boolean) => void;
 }
+
+// save data table
+interface IDataImport {
+    name: string;
+    email: string;
+    phone: string;
+}
+
 const ImportModalUser = (props: IProps) => {
     const { isOpenModalImport, setIsOpenModalImport } = props;
     const { Dragger } = Upload;
+    const [dataImport, setDataImport] = useState<IDataImport[]>([]);
+    const { message } = App.useApp();
 
     const propsUpload: UploadProps = {
         name: 'file',
@@ -19,40 +32,96 @@ const ImportModalUser = (props: IProps) => {
                 if (onSuccess) {
                     onSuccess("ok");
                 }
-            }, 1000)
+            }, 1000);
         },
-        onChange(info) {
+        async onChange(info) {
             const { status } = info.file;
             if (status !== 'uploading') {
                 console.log(info.file, info.fileList);
-                setIsOpenModalImport(false);
-                isOpenModalImport
             }
             if (status === 'done') {
                 message.success(`${info.file.name} file uploaded successfully.`);
+                if (info.fileList && info.fileList.length > 0) {
+                    const file = info.fileList[0].originFileObj!;
+                    // load file to buffer
+                    const workbook = new ExcelJS.Workbook();
+                    const arrayBuffer = await file.arrayBuffer();
+                    await workbook.xlsx.load(arrayBuffer);
+
+                    // convert file to json
+                    let jsonData: IDataImport[] = [];
+                    workbook.eachSheet((worksheet) => {
+                        // read first row as data keys
+                        let firstRow = worksheet.getRow(1);
+                        if (!firstRow.cellCount) {
+                            return;
+                        }
+
+                        // Get headers - skip first empty cell
+                        let keys: string[] = [];
+                        firstRow.eachCell((cell, colNumber) => {
+                            keys[colNumber] = cell.text || cell.value?.toString() || '';
+                        });
+
+                        console.log('Headers found:', keys); // Debug log
+
+                        worksheet.eachRow((row, rowNumber) => {
+                            if (rowNumber === 1) {
+                                return; // Skip header row
+                            }
+
+                            let obj: any = {};
+                            row.eachCell((cell, colNumber) => {
+                                const header = keys[colNumber];
+                                if (header) {
+                                    // Map various possible header names to our interface
+                                    let fieldName = header.toLowerCase().trim();
+                                    if (fieldName.includes('name') || fieldName.includes('tên')) {
+                                        obj.name = cell.text || cell.value?.toString() || '';
+                                    } else if (fieldName.includes('email') || fieldName.includes('mail')) {
+                                        obj.email = cell.text || cell.value?.toString() || '';
+                                    } else if (fieldName.includes('phone') || fieldName.includes('số') || fieldName.includes('sdt')) {
+                                        obj.phone = cell.text || cell.value?.toString() || '';
+                                    }
+                                    // Also keep original field name
+                                    obj[header] = cell.text || cell.value?.toString() || '';
+                                }
+                            });
+
+                            console.log('Row data:', obj); // Debug log
+                            if (obj.name || obj.email || obj.phone) {
+                                jsonData.push(obj);
+                            }
+                        });
+                    });
+                    setDataImport(jsonData);
+                }
             } else if (status === 'error') {
                 message.error(`${info.file.name} file upload failed.`);
             }
         },
         onDrop(e) {
-
+            // Handle drop event if needed
         }
-
     };
+
     return (
         <Modal
             title="Import data user"
             width={"50vw"}
             open={isOpenModalImport}
             onOk={() => setIsOpenModalImport(false)}
-            onCancel={() => setIsOpenModalImport(false)}
-            // onText="Import data"
+            onCancel={() => {
+                setIsOpenModalImport(false);
+                setDataImport([]);
+            }}
             okButtonProps={{
-                disabled: true
+                disabled: dataImport.length === 0
             }}
             maskClosable={false}
+            destroyOnClose={true}
         >
-            <Dragger {...props}>
+            <Dragger {...propsUpload}>
                 <p className="ant-upload-drag-icon">
                     <InboxOutlined />
                 </p>
@@ -61,7 +130,7 @@ const ImportModalUser = (props: IProps) => {
                     Support for a single or bulk upload. Strictly prohibit from uploading company data or other
                     band files
                 </p>
-            </Dragger>,
+            </Dragger>
             <div
                 style={{
                     paddingTop: 20
@@ -74,9 +143,13 @@ const ImportModalUser = (props: IProps) => {
                         { dataIndex: "email", title: "Email" },
                         { dataIndex: 'phone', title: "Số điện thoại" },
                     ]}
+                    dataSource={dataImport}
+                    pagination={false}
+                    size="small"
                 />
             </div>
         </Modal>
-    )
-}
+    );
+};
+
 export default ImportModalUser;
