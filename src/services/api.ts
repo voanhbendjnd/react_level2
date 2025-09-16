@@ -49,3 +49,20 @@ export const deleteUserAPI = (id: string) => {
     const url_backend = `/api/v1/users/${id}`;
     return axios.delete<IBackendRes<string>>(url_backend);
 }
+
+export const createUsersAPI = (users : IRegister[]) => {
+    const url_backend = `/api/v1/users/b-create`;
+
+    return axios.post<IBackendRes<IRegister[]>>(url_backend, users);
+}
+
+export const createUsersAPIs = (users: {
+    name: string;
+    password: string;
+    email: string;
+    phone: string;
+}[]) => {
+    const url_backend = `/api/v1/users/b-create`;
+
+    return axios.post<IBackendRes<IRegister[]>>(url_backend, users);
+}

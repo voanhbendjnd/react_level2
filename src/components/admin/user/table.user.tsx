@@ -314,6 +314,7 @@ const UserTable = () => {
                 isOpenFormModal={isOpenFormModal}
             />
             <ImportModalUser
+                handleRefresh={handleRefresh}
                 setIsOpenModalImport={setIsOpenModalImport}
                 isOpenModalImport={isOpenModalImport}
             />

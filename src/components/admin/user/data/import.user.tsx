@@ -3,10 +3,12 @@ import { App, Modal, Table, Upload, message } from 'antd';
 import type { UploadProps } from 'antd';
 import { useState } from "react";
 import ExcelJS from 'exceljs';
+import { createUsersAPI } from "@/services/api";
 
 interface IProps {
     isOpenModalImport: boolean;
     setIsOpenModalImport: (v: boolean) => void;
+    handleRefresh: () => void;
 }
 
 // save data table
@@ -14,14 +16,35 @@ interface IDataImport {
     name: string;
     email: string;
     phone: string;
+    password: string;
+    confirmPassword: string;
+    address: string;
+    role: string;
+    createdAt: string;
+    createdBy: string;
 }
 
 const ImportModalUser = (props: IProps) => {
-    const { isOpenModalImport, setIsOpenModalImport } = props;
+    const { isOpenModalImport, setIsOpenModalImport, handleRefresh } = props;
     const { Dragger } = Upload;
     const [dataImport, setDataImport] = useState<IDataImport[]>([]);
-    const { message } = App.useApp();
+    const { message, notification } = App.useApp();
+    const handleUpdateUsers = async () => {
+        const res = await createUsersAPI(dataImport);
+        if (res.data) {
+            message.success("Tất cả người dùng đã tạo mới")
+            handleRefresh();
 
+        }
+        else {
+            notification.error({
+                message: "Tạo mới người dùng thất bại",
+                description: JSON.stringify(res.message)
+            })
+        }
+        setDataImport([]);
+        setIsOpenModalImport(false)
+    }
     const propsUpload: UploadProps = {
         name: 'file',
         multiple: false,
@@ -83,13 +106,19 @@ const ImportModalUser = (props: IProps) => {
                                     } else if (fieldName.includes('phone') || fieldName.includes('số') || fieldName.includes('sdt')) {
                                         obj.phone = cell.text || cell.value?.toString() || '';
                                     }
+                                    else if (fieldName.includes('password') || fieldName.includes('Mật khẩu') || fieldName.includes('password')) {
+                                        obj.password = cell.text || cell.value?.toString() || '';
+                                    }
+                                    else if (fieldName.includes('confirmPassword') || fieldName.includes('Xác nhận mật khẩu') || fieldName.includes('confirmPassword')) {
+                                        obj.phone = cell.text || cell.value?.toString() || '';
+                                    }
                                     // Also keep original field name
                                     obj[header] = cell.text || cell.value?.toString() || '';
                                 }
                             });
 
                             console.log('Row data:', obj); // Debug log
-                            if (obj.name || obj.email || obj.phone) {
+                            if (obj.name || obj.email || obj.phone || obj.password || obj.confirmPassword) {
                                 jsonData.push(obj);
                             }
                         });
@@ -110,7 +139,7 @@ const ImportModalUser = (props: IProps) => {
             title="Import data user"
             width={"50vw"}
             open={isOpenModalImport}
-            onOk={() => setIsOpenModalImport(false)}
+            onOk={() => handleUpdateUsers()}
             onCancel={() => {
                 setIsOpenModalImport(false);
                 setDataImport([]);
@@ -118,6 +147,7 @@ const ImportModalUser = (props: IProps) => {
             okButtonProps={{
                 disabled: dataImport.length === 0
             }}
+            okText="Chơi"
             maskClosable={false}
             destroyOnClose={true}
         >
@@ -137,11 +167,13 @@ const ImportModalUser = (props: IProps) => {
                 }}
             >
                 <Table
-                    title={() => <span>Dữ liệu import</span>}
+                    title={() => <span>Data import</span>}
                     columns={[
                         { dataIndex: 'name', title: "Tên hiển thị" },
                         { dataIndex: "email", title: "Email" },
                         { dataIndex: 'phone', title: "Số điện thoại" },
+                        { dataIndex: "password", title: "Mật khẩu" },
+                        { dataIndex: 'confirmPassword', title: "Mật khẩu xác nhận" },
                     ]}
                     dataSource={dataImport}
                     pagination={false}
