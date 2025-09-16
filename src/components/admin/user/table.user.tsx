@@ -14,6 +14,7 @@ import UserDetail from './user.detail';
 import UserForm from './user.form';
 import { ExportOutlined } from '@ant-design/icons';
 import ImportModalUser from './data/import.user';
+import { CSVLink } from 'react-csv';
 
 interface IUserTable {
     id: string;
@@ -47,6 +48,7 @@ const UserTable = () => {
     const [isOpenFormModal, setIsOpenFormModal] = useState(false);
     const [dataDetail, setDataDetail] = useState<IUsersTable>();
     const [isOpenModalDetail, setIsOpenModalDetail] = useState(false);
+    const [currentDataTable, setCurrentDataTable] = useState<IUserTable[]>([]);
     const [meta, setMeta] = useState({
         page: 1,
         pageSize: 5,
@@ -188,6 +190,17 @@ const UserTable = () => {
                 }}
                 toolBarRender={() => [
                     <Button
+                        icon={<ExportOutlined />}
+                        type="primary"
+
+                    >
+                        <CSVLink
+                            data={currentDataTable}
+                            filename='export-user.csv'>
+                            Export
+                        </CSVLink>
+                    </Button>,
+                    <Button
                         key="refresh"
                         type="primary"
                         icon={<ExportOutlined />}
@@ -214,7 +227,8 @@ const UserTable = () => {
                         }}
                     >
                         Thêm mới
-                    </Button>
+                    </Button>,
+
                 ]}
                 request={async (params, sort, filter) => {
                     console.log('=== REQUEST PARAMS ===');
@@ -274,6 +288,7 @@ const UserTable = () => {
                         // Cập nhật meta state
                         if (res.data) {
                             setMeta(res.data.meta);
+                            setCurrentDataTable(res.data?.result ?? []);
                             console.log('Meta updated:', res.data.meta);
                         }
 
