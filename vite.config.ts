@@ -8,6 +8,7 @@ export default defineConfig({
     host: 'localhost', // hoặc '0.0.0.0' nếu muốn truy cập từ máy khác
     port: 3000         // đổi port tại đây
   },
+    // assetsInclude: ['**/*.xlsx'], // Handle problem file xlxs
   css: {
     preprocessorOptions: {
       scss: {

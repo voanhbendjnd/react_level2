@@ -256,9 +256,12 @@ const UserTable = () => {
                         }
 
                         // Xử lý sorting
-                        query += `&sort=createdAt,desc`;
                         if (sort && sort.createdAt) {
                             query += `&sort=createdAt,${sort.createdAt === "ascend" ? "asc" : "desc"}`;
+                        }
+                        else {
+                            query += `&sort=createdAt,desc`;
+
                         }
                         // Gọi API với đúng tham số
                         const res = await fetchUsersAPI(
