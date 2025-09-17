@@ -7,12 +7,12 @@ import type {
 import {
     ProTable,
 } from '@ant-design/pro-components';
-import { Button, ConfigProvider, message, notification, Space } from 'antd';
+import { Button, ConfigProvider, message, notification, Popconfirm, Space } from 'antd';
 import vi_VN from 'antd/locale/vi_VN';
 import { useRef, useState } from 'react';
 import UserDetail from './user.detail';
 import UserForm from './user.form';
-import { ExportOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExportOutlined } from '@ant-design/icons';
 import ImportModalUser from './data/import.user';
 import { CSVLink } from 'react-csv';
 import UserUpdate from './user.update';
@@ -51,6 +51,7 @@ const UserTable = () => {
     const [isOpenModalDetail, setIsOpenModalDetail] = useState(false);
     const [currentDataTable, setCurrentDataTable] = useState<IUserTable[]>([]);
     const [isOpenModalUpdate, setIsOpenModalUpdate] = useState<boolean>(false);
+    const [isDeleteUser, setIsDeleteUser] = useState<boolean>(false);
     const [meta, setMeta] = useState({
         page: 1,
         pageSize: 5,
@@ -116,35 +117,39 @@ const UserTable = () => {
             valueType: 'option',
             width: 180,
             render: (_, record) => [
-                <Space key="action-space">
-                    <Button
-                        color="default" variant="filled"
+                <Space key="action-space"
+                    style={{
+                        gap: "20px"
+                    }}>
+                    <EditOutlined
                         onClick={() => {
                             setIsOpenModalUpdate(true)
                             setDataDetail(record)
                         }}
+                        style={{ cursor: "pointer", color: "blue" }}
+
+                    />
+                    <Popconfirm
+                        title="Xác nhận xóa người dùng này?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okButtonProps={{ loading: isDeleteUser }}
+
                     >
-                        Cập nhật
-                    </Button>
-                    <Button
-                        color="default" variant="dashed"
-                        onClick={() => handleDelete(record.id)}
-                    >
-                        Xóa
-                    </Button>
+                        <DeleteOutlined
+                            style={{ cursor: "pointer", color: "red" }} />
+                    </Popconfirm>
+
+
                 </Space>
             ],
         },
     ];
 
-    // Hàm xử lý cập nhật
-    const handleUpdate = (record: IUsersTable) => {
-        console.log('Cập nhật:', record);
-    };
 
     // Hàm xử lý xóa
     const handleDelete = async (id: string) => {
         const res = await deleteUserAPI(id);
+        setIsDeleteUser(true);
         if (res.data) {
             message.success("Delete user successful");
             handleRefresh();
@@ -155,6 +160,7 @@ const UserTable = () => {
                 description: JSON.stringify(res.message)
             })
         }
+        setIsDeleteUser(false)
     };
 
 
