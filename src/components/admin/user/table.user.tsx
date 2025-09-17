@@ -15,6 +15,7 @@ import UserForm from './user.form';
 import { ExportOutlined } from '@ant-design/icons';
 import ImportModalUser from './data/import.user';
 import { CSVLink } from 'react-csv';
+import UserUpdate from './user.update';
 
 interface IUserTable {
     id: string;
@@ -49,6 +50,7 @@ const UserTable = () => {
     const [dataDetail, setDataDetail] = useState<IUsersTable>();
     const [isOpenModalDetail, setIsOpenModalDetail] = useState(false);
     const [currentDataTable, setCurrentDataTable] = useState<IUserTable[]>([]);
+    const [isOpenModalUpdate, setIsOpenModalUpdate] = useState<boolean>(false);
     const [meta, setMeta] = useState({
         page: 1,
         pageSize: 5,
@@ -117,7 +119,10 @@ const UserTable = () => {
                 <Space key="action-space">
                     <Button
                         color="default" variant="filled"
-                        onClick={() => handleUpdate(record)}
+                        onClick={() => {
+                            setIsOpenModalUpdate(true)
+                            setDataDetail(record)
+                        }}
                     >
                         Cập nhật
                     </Button>
@@ -335,6 +340,13 @@ const UserTable = () => {
                 handleRefresh={handleRefresh}
                 setIsOpenModalImport={setIsOpenModalImport}
                 isOpenModalImport={isOpenModalImport}
+            />
+            <UserUpdate
+                isOpenModalUpdate={isOpenModalUpdate}
+                setIsOpenModalUpdate={setIsOpenModalUpdate}
+                dataDetail={dataDetail}
+                setDataDetail={setDataDetail}
+                handleRefresh={handleRefresh}
             />
         </ConfigProvider>
     );

@@ -66,3 +66,8 @@ export const createUsersAPIs = (users: {
 
     return axios.post<IBackendRes<IRegister[]>>(url_backend, users);
 }
+
+export const updateUserAPI = (id: string, email: string, name: string, phone: string) => {
+    const url_backend = `/api/v1/users`
+    return axios.put<IBackendRes<IFetchAccount>>(url_backend, {id, email, name, phone})
+}
