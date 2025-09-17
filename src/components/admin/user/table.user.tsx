@@ -16,6 +16,7 @@ import { DeleteOutlined, EditOutlined, ExportOutlined } from '@ant-design/icons'
 import ImportModalUser from './data/import.user';
 import { CSVLink } from 'react-csv';
 import UserUpdate from './user.update';
+import dayjs from 'dayjs';
 
 interface IUserTable {
     id: string;
@@ -109,6 +110,13 @@ const UserTable = () => {
             valueType: "date",
             search: false,
             sorter: true,
+            render: (_, record) => {
+                return (
+                    <>
+                        {dayjs(record.createdAt).format("DD-MM-YYYY")}
+                    </>
+                )
+            }
 
         },
         {
