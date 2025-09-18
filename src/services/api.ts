@@ -44,6 +44,10 @@ export const fetchUsersAPI = (query: string) => {
     const url_backend = `/api/v1/users?${query}`;
     return axios.get <IBackendRes<IModelPaginate<IUsersTable>>>(url_backend);
 }
+export const fetchBooksAPI = (query: string) => {
+    const url_backend = `/api/v1/books?${query}`;
+    return axios.get<IBackendRes<IModelPaginate<IBooksTable>>>(url_backend)
+}
 
 export const deleteUserAPI = (id: string) => {
     const url_backend = `/api/v1/users/${id}`;

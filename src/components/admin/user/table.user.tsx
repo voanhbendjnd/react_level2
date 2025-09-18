@@ -75,7 +75,7 @@ const UserTable = () => {
             },
 
             search: false,
-            width: 80,
+            width: 200,
             sorter: true,
         },
         {

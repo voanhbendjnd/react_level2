@@ -63,6 +63,15 @@ declare global {
         role: string;
 
     }
+    interface IBooksTable{
+        id: number;
+        title: string;
+        author: string;
+        categories: string;
+        price: number;
+        updatedAt: string;
+        coverImage: string;
+    }
 
     
 }

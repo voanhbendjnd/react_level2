@@ -12,12 +12,12 @@ import HomePage from './pages/client/home'
 import AboutPage from './pages/client/about'
 import LoginPage from './pages/client/auth/login'
 import RegisterPage from './pages/client/auth/register'
-import BookPage from './pages/client/book'
 import Layout from './layout'
 import { App, ConfigProvider } from 'antd'
 import AdminPage from './pages/admin/admin'
 import ManageUserPage from './pages/admin/manage.user'
 import enVN from 'antd/locale/vi_VN'
+import BookPage from './components/admin/book/book.table'
 
 
 const router = createBrowserRouter([

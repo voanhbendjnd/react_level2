@@ -10,13 +10,14 @@ import {
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
+
 import { App, Avatar, Button, Dropdown, Layout, Menu, Result, theme } from 'antd';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useCurrentApp } from '@/components/context/app.context';
 import { ClimbingBoxLoader } from 'react-spinners';
 import { logoutAPI } from '@/services/api';
 
-const { Header, Sider } = Layout;
+const { Header, Sider, Content } = Layout;
 const AdminPage = () => {
     const { message } = App.useApp();
     const { isAppLoading, isAuthenticated, user, setUser, setIsAuthenticated } = useCurrentApp();
@@ -114,7 +115,7 @@ const AdminPage = () => {
                             {
                                 key: 'book',
                                 icon: <BookOutlined />,
-                                label: "Quản lý sách"
+                                label: <Link to={"/admin/book"}>Quản lý sách</Link>
                             },
                             {
                                 key: 'order',
@@ -183,7 +184,10 @@ const AdminPage = () => {
 
 
                     </Header>
-                    <Outlet />
+                    <Content
+                        style={{ padding: '24px 24px', minHeight: 280 }}>
+                        <Outlet />
+                    </Content>
                 </Layout>
             </Layout>
         </div>
