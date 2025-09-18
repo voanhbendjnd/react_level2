@@ -1,25 +1,38 @@
-import { useState } from 'react';
+import { Children, useState } from 'react';
 import {
     BookOutlined,
     IdcardOutlined,
+    LogoutOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    SettingOutlined,
     ShopOutlined,
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Layout, Menu, Result, theme } from 'antd';
-import { Link, Outlet } from 'react-router-dom';
+import { App, Avatar, Button, Dropdown, Layout, Menu, Result, theme } from 'antd';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useCurrentApp } from '@/components/context/app.context';
 import { ClimbingBoxLoader } from 'react-spinners';
+import { logoutAPI } from '@/services/api';
 
 const { Header, Sider } = Layout;
 const AdminPage = () => {
-
-    const { isAppLoading, isAuthenticated, user } = useCurrentApp();
+    const { message } = App.useApp();
+    const { isAppLoading, isAuthenticated, user, setUser, setIsAuthenticated } = useCurrentApp();
     const [collapsed, setCollapsed] = useState(false);
     const avatarURL = `http://localhost:8080/api/v1/images/user/${user?.avatar}`
-
+    const navigate = useNavigate();
+    const logout = async () => {
+        const res = await logoutAPI();
+        if (res) {
+            setUser(null)
+            setIsAuthenticated(false)
+            localStorage.removeItem("access_token")
+            message.success("Đăng xuất thành công")
+            navigate('/')
+        }
+    }
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -131,19 +144,40 @@ const AdminPage = () => {
                                     }}
                                 />
                             </div>
-                            <div
-                                style={{
-                                    alignItems: "center",
-                                    marginRight: "20px"
-                                }}>
-                                <Avatar size={40}
-                                    src={avatarURL}
+                            <Dropdown menu={{
+                                items: [{
+                                    icon: <SettingOutlined />,
+
+                                    key: '',
+                                    label: 'Cài đặt',
+                                }, {
+                                    key: 'logout',
+                                    label: (
+                                        <div
+                                            onClick={logout}
+                                        >
+                                            <LogoutOutlined
+
+                                            />,
+                                            Đăng xuất
+                                        </div>
+                                    )
+                                }
+                                ]
+                            }} trigger={['click']}>
+                                <div
                                     style={{
-                                        marginRight: "10px"
-                                    }}
-                                >USER</Avatar>
-                                {user.name}
-                            </div>
+                                        alignItems: "center",
+                                        marginRight: "20px",
+                                        cursor: 'pointer' // Thêm cursor để người dùng biết có thể click
+                                    }}>
+                                    <Avatar size={40}
+                                        src={avatarURL}
+                                        style={{ marginRight: "10px" }}
+                                    >USER</Avatar>
+                                    {user?.name}
+                                </div>
+                            </Dropdown>
 
                         </div>
 
