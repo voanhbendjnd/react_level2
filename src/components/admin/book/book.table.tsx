@@ -14,6 +14,7 @@ interface IBookTablePage {
     updatedAt: string;
     coverImage: string;
     createdAt: string;
+    imgs: string[];
 }
 type TSearch = {
     title: string;

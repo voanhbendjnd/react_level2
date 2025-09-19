@@ -1,8 +1,8 @@
 import { FORMATE_DATE_VN } from "@/services/helper";
 import { Descriptions, Divider, Drawer, Image, Upload, type DescriptionsProps, type GetProp, type UploadFile, type UploadProps } from "antd";
 import dayjs from "dayjs";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 interface IProps {
     dataDetail?: IBooksTable | undefined;
     setDataDetail: (v: IBooksTable | undefined) => void;
@@ -10,7 +10,6 @@ interface IProps {
     setIsOpenModalDetail: (v: boolean) => void;
 }
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
-
 const getBase64 = (file: FileType): Promise<string> =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -19,34 +18,35 @@ const getBase64 = (file: FileType): Promise<string> =>
         reader.onerror = (error) => reject(error);
     });
 const BookDetail = (props: IProps) => {
-    const [fileList, setFileList] = useState<UploadFile[]>([
-        {
-            uid: '-1',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        },
-        {
-            uid: '-2',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        },
-        {
-            uid: '-3',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        },
-        {
-            uid: '-4',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        },
+    const { dataDetail, setDataDetail, isOpenModalDetail, setIsOpenModalDetail } = props;
 
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    useEffect(() => {
+        if (dataDetail) {
+            let coverImage: any = {}, imgs: UploadFile[] = [];
+            if (dataDetail.coverImage) {
+                coverImage = {
+                    uid: uuidv4(),
+                    name: dataDetail.coverImage,
+                    status: 'done',
+                    url: `http://localhost:8080/api/v1/images/book/${dataDetail.coverImage}`
+                }
+            }
+            if (dataDetail.imgs && dataDetail.imgs.length > 0) {
+                dataDetail.imgs.map(it => {
+                    imgs.push({
+                        uid: uuidv4(),
+                        name: it,
+                        status: 'done',
+                        url: `http://localhost:8080/api/v1/images/book/${it}`
 
-    ]);
+                    })
+                })
+            }
+
+            setFileList([coverImage, ...imgs])
+        }
+    }, [dataDetail])
     const handlePreview = async (file: UploadFile) => {
         if (!file.url && !file.preview) {
             file.preview = await getBase64(file.originFileObj as FileType);
@@ -59,7 +59,6 @@ const BookDetail = (props: IProps) => {
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
-    const { dataDetail, setDataDetail, isOpenModalDetail, setIsOpenModalDetail } = props;
     const items: DescriptionsProps['items'] = [
         {
             key: "id",
@@ -95,7 +94,7 @@ const BookDetail = (props: IProps) => {
         {
             key: "createdAt",
             label: "Ngày tạo",
-            children: <p>{dayjs(dataDetail?.updatedAt).format(FORMATE_DATE_VN)}</p>,
+            children: <p>{dayjs(dataDetail?.createdAt).format(FORMATE_DATE_VN)}</p>,
             span: 1
         },
         {

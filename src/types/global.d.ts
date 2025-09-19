@@ -72,6 +72,7 @@ declare global {
         updatedAt: string;
         createdAt: string;
         coverImage: string;
+        imgs: string[];
     }
 
     
