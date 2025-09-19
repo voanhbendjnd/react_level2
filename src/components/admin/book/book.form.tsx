@@ -11,7 +11,7 @@ interface IProps {
     setIsOpenModalForm: (v: boolean) => void;
     handleRefresh: () => void;
 }
-
+type UserUploadType = "coverImage" | "imgs"
 // Cập nhật kiểu dữ liệu cho FieldType
 type FieldType = {
     title: string;
@@ -38,7 +38,8 @@ const BookForm = (props: IProps) => {
     const [loadingImgs, setLoadingImgs] = useState<boolean>(false);
     const [previewOpen, setPreviewOpen] = useState<boolean>(false);
     const [previewImage, setPreviewImage] = useState<string>('');
-
+    const [fileListImgs, setFileListImgs] = useState<UploadFile[]>([]);
+    const [fileListCoverImage, setFileListCoverImage] = useState<UploadFile[]>([]);
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setIsSubmit(true);
         // Logic gọi API của bạn ở đây
@@ -76,7 +77,7 @@ const BookForm = (props: IProps) => {
         if (!isLt2M) {
             message.error(`Ảnh phải có dung lượng bé hơn ${MAX_UPLOAD_IMAGE_SIZE}MB!`);
         }
-        return isJpgOrPng && isLt2M;
+        return isJpgOrPng && isLt2M || Upload.LIST_IGNORE; // nếu file lớn hơn 2MB thì quăng lỗi
     };
 
     const handlePreview = async (file: UploadFile) => {
@@ -87,7 +88,7 @@ const BookForm = (props: IProps) => {
         setPreviewOpen(true);
     };
 
-    const handleChange = (info: UploadChangeParam, type: "coverImage" | "imgs") => {
+    const handleChange = (info: UploadChangeParam, type: UserUploadType) => {
         if (info.file.status === 'uploading') {
             type === "imgs" ? setLoadingImgs(true) : setLoadingCoverImage(true);
             return;
@@ -106,6 +107,12 @@ const BookForm = (props: IProps) => {
 
     const handleUploadFile: UploadProps['customRequest'] = ({ file, onSuccess, onError }) => {
         console.log("Đang giả lập quá trình tải lên...");
+        // if (type === "coverImage") {
+        //     setFileListCoverImage([{ ...uploadedFile }])
+        // }
+        // else {
+        //     setFileListImgs((prevState) => [...prevState, { ...uploadedFile }])
+        // }
         setTimeout(() => {
             if (onSuccess) {
                 console.log("Tải lên thành công!");
@@ -137,7 +144,9 @@ const BookForm = (props: IProps) => {
             onOk={() => form.submit()}
             onCancel={() => {
                 setIsOpenModalForm(false);
+                form.resetFields();
             }}
+
             maskClosable={false}
             okText={"Tạo mới"}
             cancelText={"Hủy"}
