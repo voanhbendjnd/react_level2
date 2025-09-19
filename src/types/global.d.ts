@@ -70,6 +70,7 @@ declare global {
         categories: string;
         price: number;
         updatedAt: string;
+        createdAt: string;
         coverImage: string;
     }
 

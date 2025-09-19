@@ -2,15 +2,18 @@ import { fetchBooksAPI } from "@/services/api";
 import { dataRangeValidate } from "@/services/helper";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { ProTable, type ActionType, type ProColumns } from "@ant-design/pro-components"
-import { Popconfirm, Space } from "antd";
-import { useRef } from "react";
+import { Button, Popconfirm, Space } from "antd";
+import { useRef, useState } from "react";
+import BookDetail from "./book.detail";
 interface IBookTablePage {
     id: number;
     title: string;
-    categories: string;
     author: string;
+    categories: string;
     price: number;
     updatedAt: string;
+    coverImage: string;
+    createdAt: string;
 }
 type TSearch = {
     title: string;
@@ -23,12 +26,23 @@ type TSearch = {
 }
 const BookPage = () => {
     const actionRef = useRef<ActionType>();
-
+    const [dataDetail, setDataDetail] = useState<IBooksTable>()
+    const [isOpenModalDetail, setIsOpenModalDetail] = useState<boolean>(false);
     const columns: ProColumns<IBookTablePage>[] = [
         {
             title: "ID",
             dataIndex: "id",
-            search: false
+            search: false,
+            render(dom, entity, index, action, schema) {
+                return (
+                    <a href="#" onClick={() => {
+                        setDataDetail(entity)
+                        setIsOpenModalDetail(true)
+                    }}>
+                        {entity.id}
+                    </a>
+                )
+            }
         },
         {
             title: "Tên sách",
@@ -116,85 +130,109 @@ const BookPage = () => {
 
     ]
     return (
-        <ProTable<IBookTablePage, TSearch>
-            actionRef={actionRef}
-            columns={columns}
-            bordered
-            size="large"
-            headerTitle="Bảng quản lý sách"
-            tooltip="Thêm sửa xóa sách"
-            showHeader={true}
-            search={{
-                labelWidth: 'auto'
-            }}
-            // ô đứng trước id
-            rowSelection={{
-                type: 'checkbox',
-            }}
-            rowKey="id"
-            pagination={{
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => {
-                    return (
-                        <div>
-                            Hiển thị {range[0]}-{range[1]} trong tổng số {total} trang
-                        </div>
-                    );
-                },
-                pageSizeOptions: ['5', '10', '20', '50'],
-                defaultPageSize: 5,
-                hideOnSinglePage: false,
-                simple: false,
-            }}
-            request={async (params, sort) => {
-                try {
-                    let query = `page=${params.current}&size=${params.pageSize}`
-                    const { maxPrice, minPrice } = params;
-                    const filters: string[] = [];
-                    if (params.title) {
-                        filters.push(`title~'${params.title}'`)
-                    }
-                    if (params.author) {
-                        filters.push(`author~'${params.author}'`)
-                    }
-                    if (maxPrice !== undefined && minPrice !== undefined) {
-                        filters.push(`price>='${minPrice}' and price<='${maxPrice}'`)
-                    }
-                    const ddate = dataRangeValidate(params.updatedAtRange);
-                    if (params.updatedAtRange && ddate) {
-                        filters.push(`updatedAt>='${ddate[0]}' and updatedAt<='${ddate[1]}'`)
-                    }
-                    if (filters.length > 0) {
-                        query += `&filter=${filters.join(' and ')}`
-                    }
-                    if (sort && sort.price) {
-                        query += `&sort=price,${sort.price === "ascend" ? "asc" : "desc"}`;
-                    }
-                    else {
-                        query += `&sort=updatedAt,desc`;
-                    }
+        <>
+            <ProTable<IBookTablePage, TSearch>
+                actionRef={actionRef}
+                columns={columns}
+                bordered
+                size="large"
+                headerTitle="Bảng quản lý sách"
+                tooltip="Thêm sửa xóa sách"
+                showHeader={true}
+                search={{
+                    labelWidth: 'auto'
+                }}
+                // ô đứng trước id
+                rowSelection={{
+                    type: 'checkbox',
+                }}
+                rowKey="id"
+                pagination={{
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) => {
+                        return (
+                            <div>
+                                Hiển thị {range[0]}-{range[1]} trong tổng số {total} trang
+                            </div>
+                        );
+                    },
+                    pageSizeOptions: ['5', '10', '20', '50'],
+                    defaultPageSize: 5,
+                    hideOnSinglePage: false,
+                    simple: false,
+                }}
+                toolBarRender={() => [
+                    <Button
+                        key="add"
+                        type="primary"
+                        onClick={() => {
+                            setIsOpenModalDetail(true);
+                        }}
+                        style={{
+                            backgroundColor: "#52C41A",
+                            borderColor: "#52C41A"
+                        }}
+                    >
+                        Tạo mới
 
-                    const res = await fetchBooksAPI(query);
-                    const responseData = {
-                        data: res.data?.result || [],
-                        success: true,
-                        total: res.data?.meta.total || 0,
+                    </Button>
+                ]}
+                request={async (params, sort) => {
+                    try {
+                        let query = `page=${params.current}&size=${params.pageSize}`
+                        const { maxPrice, minPrice } = params;
+                        const filters: string[] = [];
+                        if (params.title) {
+                            filters.push(`title~'${params.title}'`)
+                        }
+                        if (params.author) {
+                            filters.push(`author~'${params.author}'`)
+                        }
+                        if (maxPrice !== undefined && minPrice !== undefined) {
+                            filters.push(`price>='${minPrice}' and price<='${maxPrice}'`)
+                        }
+                        const ddate = dataRangeValidate(params.updatedAtRange);
+                        if (params.updatedAtRange && ddate) {
+                            filters.push(`updatedAt>='${ddate[0]}' and updatedAt<='${ddate[1]}'`)
+                        }
+                        if (filters.length > 0) {
+                            query += `&filter=${filters.join(' and ')}`
+                        }
+                        if (sort && sort.price) {
+                            query += `&sort=price,${sort.price === "ascend" ? "asc" : "desc"}`;
+                        }
+                        else {
+                            query += `&sort=updatedAt,desc`;
+                        }
+
+                        const res = await fetchBooksAPI(query);
+                        const responseData = {
+                            data: res.data?.result || [],
+                            success: true,
+                            total: res.data?.meta.total || 0,
+                        }
+                        return responseData;
                     }
-                    return responseData;
-                }
-                catch (error) {
-                    return {
-                        data: [],
-                        success: false,
-                        total: 0,
-                    };
-                }
-            }}
-        >
+                    catch (error) {
+                        return {
+                            data: [],
+                            success: false,
+                            total: 0,
+                        };
+                    }
+                }}
+            />
+            <BookDetail
+                dataDetail={dataDetail}
+                setDataDetail={setDataDetail}
+                isOpenModalDetail={isOpenModalDetail}
+                setIsOpenModalDetail={setIsOpenModalDetail}
+            />
+        </>
 
 
-        </ProTable>
+
     )
 }
 
