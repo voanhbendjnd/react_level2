@@ -75,3 +75,21 @@ export const updateUserAPI = (id: string, email: string, name: string, phone: st
     const url_backend = `/api/v1/users`
     return axios.put<IBackendRes<IFetchAccount>>(url_backend, {id, email, name, phone})
 }
+
+export const getAllCategoriesAPI = () => {
+    const url_backend = `/api/v1/categories`
+    return axios.get<IBackendRes<string[]>>(url_backend);
+}
+
+export const createBookAPI = (title: string, author: string, price: string, coverImage: string, imgs: string[]) => {
+    const url_backend = `/api/v1/books`
+    const form = new FormData();
+    form.append("title", title);
+    form.append("author", author);
+    form.append("price", price);
+    form.append("coverImage", coverImage);
+    imgs.forEach((img, index) => {
+        form.append(`imgs[${index}]`, img);
+    });
+    return axios.post<IBackendRes<string[]>>(url_backend, form)
+}

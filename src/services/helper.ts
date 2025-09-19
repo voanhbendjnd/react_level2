@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { FORMATE_DATE_VN } from '@/services/helper';
 
 export const FORMATE_DATE_VN= "DD/MM/YYYY"
 export const dataRangeValidate = (dateRange: any) => {
@@ -16,3 +17,5 @@ export const dataRangeValidate = (dateRange: any) => {
 
     return [startTimestamp, endTimestamp];
 };
+
+export const MAX_UPLOAD_IMAGE_SIZE = 2;

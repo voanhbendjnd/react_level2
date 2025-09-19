@@ -5,6 +5,7 @@ import { ProTable, type ActionType, type ProColumns } from "@ant-design/pro-comp
 import { Button, Popconfirm, Space } from "antd";
 import { useRef, useState } from "react";
 import BookDetail from "./book.detail";
+import BookForm from "./book.form";
 interface IBookTablePage {
     id: number;
     title: string;
@@ -27,8 +28,12 @@ type TSearch = {
 }
 const BookPage = () => {
     const actionRef = useRef<ActionType>();
+    const [isOpenModalForm, setIsOpenModalForm] = useState<boolean>(false);
     const [dataDetail, setDataDetail] = useState<IBooksTable>()
     const [isOpenModalDetail, setIsOpenModalDetail] = useState<boolean>(false);
+    const handleRefresh = () => {
+        actionRef.current?.reload();
+    };
     const columns: ProColumns<IBookTablePage>[] = [
         {
             title: "ID",
@@ -168,7 +173,7 @@ const BookPage = () => {
                         key="add"
                         type="primary"
                         onClick={() => {
-                            setIsOpenModalDetail(true);
+                            setIsOpenModalForm(true);
                         }}
                         style={{
                             backgroundColor: "#52C41A",
@@ -229,6 +234,11 @@ const BookPage = () => {
                 setDataDetail={setDataDetail}
                 isOpenModalDetail={isOpenModalDetail}
                 setIsOpenModalDetail={setIsOpenModalDetail}
+            />
+            <BookForm
+                handleRefresh={handleRefresh}
+                setIsOpenModalForm={setIsOpenModalForm}
+                isOpenModalForm={isOpenModalForm}
             />
         </>
 
