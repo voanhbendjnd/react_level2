@@ -1,7 +1,7 @@
 import { createBookAPI, getAllCategoriesAPI } from "@/services/api";
 import { MAX_UPLOAD_IMAGE_SIZE } from "@/services/helper";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { App, Col, Form, Input, InputNumber, Modal, Row, Select, Upload, type GetProp, type UploadFile, type UploadProps } from "antd";
+import { App, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select, Upload, type GetProp, type UploadFile, type UploadProps } from "antd";
 import type { UploadChangeParam } from "antd/es/upload";
 import { Image, type FormProps } from "antd/lib";
 import { useEffect, useState } from "react";
@@ -24,8 +24,10 @@ type FieldType = {
     language: string;
     stockQuantity: number;
     numberOfPages: number;
-    coverImage: any;
-    imgs: any;
+    coverImage: UploadFile[]; // Chỉnh lại thành mảng UploadFile
+    imgs: UploadFile[];        // Chỉnh lại thành mảng UploadFile
+    publicationDate: string; // Thêm trường này
+
 }
 
 const BookForm = (props: IProps) => {
@@ -42,8 +44,50 @@ const BookForm = (props: IProps) => {
     const [fileListCoverImage, setFileListCoverImage] = useState<UploadFile[]>([]);
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setIsSubmit(true);
-        // Logic gọi API của bạn ở đây
-        // const res = await createBookAPI(values);
+
+        // Lấy file gốc từ mảng UploadFile của Ant Design
+        const coverImageFile = values.coverImage?.[0]?.originFileObj;
+
+        // Duyệt qua mảng và lấy file gốc cho từng ảnh
+        const imgsFiles = values.imgs?.map(file => file.originFileObj);
+
+        // Kiểm tra xem người dùng đã tải đủ ảnh lên chưa
+        if (!coverImageFile || !imgsFiles || imgsFiles.some(file => !file)) {
+            message.error("Vui lòng tải lên đủ ảnh cần thiết.");
+            setIsSubmit(false);
+            return;
+        }
+
+        // Gọi API với các đối tượng File đã được trích xuất
+        const res = await createBookAPI(
+            values.title,
+            values.author,
+            values.price,
+            values.categories,
+            values.publisher,
+            values.isbn,
+            values.description,
+            values.language,
+            values.stockQuantity,
+            values.numberOfPages,
+            coverImageFile as File, // Ép kiểu để khớp với hàm API
+            imgsFiles as File[],
+            values.publicationDate
+            // Ép kiểu
+        );
+
+        if (res && res.data) {
+            message.success("Tạo mới sách thành công");
+            handleRefresh();
+            setIsOpenModalForm(false);
+            form.resetFields();
+        }
+        notification.open({
+            message: "Thêm mới sách thất bại",
+            description: JSON.stringify(res.message)
+        });
+
+
         setIsSubmit(false);
     };
 
@@ -107,12 +151,6 @@ const BookForm = (props: IProps) => {
 
     const handleUploadFile: UploadProps['customRequest'] = ({ file, onSuccess, onError }) => {
         console.log("Đang giả lập quá trình tải lên...");
-        // if (type === "coverImage") {
-        //     setFileListCoverImage([{ ...uploadedFile }])
-        // }
-        // else {
-        //     setFileListImgs((prevState) => [...prevState, { ...uploadedFile }])
-        // }
         setTimeout(() => {
             if (onSuccess) {
                 console.log("Tải lên thành công!");
@@ -227,6 +265,15 @@ const BookForm = (props: IProps) => {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
+                        <Form.Item
+                            label="Ngày xuất bản"
+                            name="publicationDate"
+                            rules={[{ required: true, message: 'Vui lòng chọn ngày xuất bản' }]}
+                        >
+                            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
                         <Form.Item<FieldType>
                             label="Số lượng"
                             name="stockQuantity"
@@ -273,9 +320,13 @@ const BookForm = (props: IProps) => {
                                 listType="picture-card"
                                 maxCount={1}
                                 multiple={false}
+                                // thực hiện quá trình xử lý file trước khi đi
                                 customRequest={handleUploadFile}
+                                // trả về true or false, true thì tiếp tục quá trình, còn false thì hủy
                                 beforeUpload={beforeUpload}
+                                // nhận các trạng thái như uploading, done, error, removed, hiển thị icon loading nếu status là loading
                                 onChange={(info) => handleChange(info, 'coverImage')}
+                                // cho phép xem trước các hình ảnh đã tải lên
                                 onPreview={handlePreview}
                             >
                                 {uploadButtonCoverImage}

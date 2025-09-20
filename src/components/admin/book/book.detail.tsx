@@ -115,7 +115,7 @@ const BookDetail = (props: IProps) => {
                 width={"100vh"}
             >
                 <Descriptions title="Thông tin của sách" bordered items={items}
-                />;
+                />
                 <Divider orientation="left">Image </Divider>
                 <Upload
                     action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"

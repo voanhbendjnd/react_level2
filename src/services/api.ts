@@ -81,15 +81,55 @@ export const getAllCategoriesAPI = () => {
     return axios.get<IBackendRes<string[]>>(url_backend);
 }
 
-export const createBookAPI = (title: string, author: string, price: string, coverImage: string, imgs: string[]) => {
-    const url_backend = `/api/v1/books`
+
+export const createBookAPI = (
+    title: string,
+    author: string,
+    price: number,
+    categories: string[],
+    publisher: string,
+    isbn: string,
+    description: string,
+    language: string,
+    stockQuantity: number,
+    numberOfPages: number,
+    coverImage: File,
+    imgs: File[],
+    publicationDate: string,
+) => {
+    const url_backend = `/api/v1/books`;
     const form = new FormData();
+
+    // Thêm các trường dữ liệu
     form.append("title", title);
     form.append("author", author);
-    form.append("price", price);
-    form.append("coverImage", coverImage);
-    imgs.forEach((img, index) => {
-        form.append(`imgs[${index}]`, img);
+    form.append("publisher", publisher);
+    form.append("isbn", isbn);
+    form.append("language", language);
+    form.append("description", description);
+
+    // Chuyển đổi số thành chuỗi
+    form.append("price", String(price));
+    form.append("stockQuantity", String(stockQuantity));
+    form.append("numberOfPages", String(numberOfPages));
+    form.append("publicationDate", publicationDate)
+
+    // Duyệt qua mảng categories và thêm từng phần tử một
+    categories.forEach(category => {
+        form.append("categories", category);
     });
-    return axios.post<IBackendRes<string[]>>(url_backend, form)
-}
+
+    // Thêm file ảnh bìa
+    form.append("coverImage", coverImage);
+
+    // Duyệt qua mảng imgs và thêm từng file một
+    imgs.forEach(file => {
+        form.append("imgs", file);
+    });
+
+    return axios.post<IBackendRes<IBooksTable>>(url_backend, form, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
