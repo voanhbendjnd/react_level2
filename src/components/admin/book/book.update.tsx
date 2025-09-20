@@ -1,7 +1,7 @@
-import { getAllCategoriesAPI } from "@/services/api";
+import { getAllCategoriesAPI, updateBookAPI } from "@/services/api";
 import { MAX_UPLOAD_IMAGE_SIZE } from "@/services/helper";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { App, Col, DatePicker, Form, Image, Input, InputNumber, Modal, Row, Select, Upload, type FormProps, type GetProp, type UploadFile, type UploadProps } from "antd"
+import { App, Col, DatePicker, Form, Image, Input, InputNumber, Modal, Row, Select, Upload, type FormProps, type GetProp, type UploadFile, type UploadProps, Button } from "antd"
 import type { UploadChangeParam } from "antd/es/upload";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from 'uuid';
@@ -12,7 +12,7 @@ interface IProps {
     setIsOpenModalUpdate: (v: boolean) => void;
     handleRefresh: () => void;
     dataDetail: IBooksTable | undefined;
-    setDataDetail: (v: IBooksTable) => void;
+    setDataDetail: (v: IBooksTable | undefined) => void;
 }
 type FieldType = {
     id: number;
@@ -26,9 +26,9 @@ type FieldType = {
     language: string;
     stockQuantity: number;
     numberOfPages: number;
-    coverImage: UploadFile[]; // Chỉnh lại thành mảng UploadFile
-    imgs: UploadFile[];        // Chỉnh lại thành mảng UploadFile
-    publicationDate: string; // Thêm trường này
+    coverImage: UploadFile[];
+    imgs: UploadFile[];
+    publicationDate: string;
 
 }
 type UserUploadType = "coverImage" | "imgs"
@@ -41,6 +41,7 @@ export const BookUpdate = (props: IProps) => {
     const [previewImage, setPreviewImage] = useState<string>('');
     const [loadingCoverImage, setLoadingCoverImage] = useState<boolean>(false);
     const [loadingImgs, setLoadingImgs] = useState<boolean>(false);
+    const [isSubmiting, setIsSubmiting] = useState<boolean>(false); // Thêm trạng thái loading khi submit
     const [listCategories, setListCategories] = useState<{ label: string; value: string; }[]>([]);
     const { isOpenModalUpdate, setIsOpenModalUpdate, dataDetail, setDataDetail, handleRefresh } = props;
     const uploadButtonCoverImage = (
@@ -49,7 +50,17 @@ export const BookUpdate = (props: IProps) => {
             <div style={{ marginTop: 8 }}>Upload</div>
         </div>
     );
-
+    const handleUploadFile: UploadProps['customRequest'] = ({ file, onSuccess, onError }) => {
+        console.log("Đang giả lập quá trình tải lên...");
+        setTimeout(() => {
+            if (onSuccess) {
+                console.log("Tải lên thành công!");
+                onSuccess("ok");
+            } else {
+                console.log("Tải lên thất bại!");
+            }
+        }, 1000);
+    };
     const uploadButtonImgs = (
         <div>
             {loadingImgs ? <LoadingOutlined /> : <PlusOutlined />}
@@ -68,7 +79,7 @@ export const BookUpdate = (props: IProps) => {
         fetchCategories();
     }, [])
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-
+        setIsSubmiting(true); // Bắt đầu loading
         // Lấy file gốc từ mảng UploadFile của Ant Design
         const coverImageFile = values.coverImage?.[0]?.originFileObj;
 
@@ -77,8 +88,38 @@ export const BookUpdate = (props: IProps) => {
 
         // Kiểm tra xem người dùng đã tải đủ ảnh lên chưa
         if (!coverImageFile || !imgsFiles || imgsFiles.some(file => !file)) {
+            setIsSubmiting(false); // Dừng loading nếu thiếu file
             return;
         }
+
+        const res = await updateBookAPI(
+            values.id,
+            values.title,
+            values.author,
+            values.price,
+            values.categories,
+            values.publisher,
+            values.isbn,
+            values.description,
+            values.language,
+            values.stockQuantity,
+            values.numberOfPages,
+            coverImageFile as File,
+            imgsFiles as File[],
+            values.publicationDate)
+        if (res && res.data) {
+            message.success("Cập nhật sách thành công")
+            handleRefresh()
+            setIsOpenModalUpdate(false);
+            form.resetFields();
+        }
+        else {
+            notification.error({
+                message: "Cập nhật sách thất bại",
+                description: JSON.stringify(res.message)
+            })
+        }
+        setIsSubmiting(false); // Dừng loading khi quá trình hoàn tất
     }
     const normFile = (e: any) => {
         if (Array.isArray(e)) {
@@ -121,7 +162,7 @@ export const BookUpdate = (props: IProps) => {
         if (!isLt2M) {
             message.error(`Ảnh phải có dung lượng bé hơn ${MAX_UPLOAD_IMAGE_SIZE}MB!`);
         }
-        return isJpgOrPng && isLt2M || Upload.LIST_IGNORE; // nếu file lớn hơn 2MB thì quăng lỗi
+        return isJpgOrPng && isLt2M || Upload.LIST_IGNORE;
     };
     const [fileList, setFileList] = useState<UploadFile[]>([]);
 
@@ -136,13 +177,12 @@ export const BookUpdate = (props: IProps) => {
                 }]
                 : [];
 
-            // Sửa URL cho ảnh slider, sử dụng 'it' thay vì 'dataDetail.coverImage'
             const imgsFiles: UploadFile[] = dataDetail.imgs
                 ? dataDetail.imgs.map(it => ({
                     uid: uuidv4(),
                     name: it,
                     status: 'done',
-                    url: `http://localhost:8080/api/v1/images/book/${it}` // Sửa lỗi URL tại đây
+                    url: `http://localhost:8080/api/v1/images/book/${it}`
                 }))
                 : [];
             form.setFieldsValue({
@@ -155,7 +195,7 @@ export const BookUpdate = (props: IProps) => {
                 language: dataDetail.language,
                 stockQuantity: dataDetail.stockQuantity,
                 numberOfPages: dataDetail.numberOfPages,
-                publicationDate: dayjs(dataDetail.publicationDate), // Chuyển chuỗi thành đối tượng Day.js
+                publicationDate: dayjs(dataDetail.publicationDate),
                 description: dataDetail.description,
                 categories: dataDetail.categories,
                 coverImage: coverImageFile,
@@ -163,12 +203,34 @@ export const BookUpdate = (props: IProps) => {
             })
         }
     }, [dataDetail, form])
+
     return (
         <Modal
             title="Cập nhật sản phẩm"
             open={isOpenModalUpdate}
-            onCancel={() => { setIsOpenModalUpdate(false) }}
+            // Loại bỏ onOk để form tự xử lý
+            onCancel={() => {
+                form.resetFields();
+                setIsOpenModalUpdate(false);
+                setDataDetail(undefined);
+            }}
             width={"100vh"}
+            maskClosable={false}
+            forceRender
+            // Thêm footer tùy chỉnh với nút submit
+            footer={[
+                <Button key="back" onClick={() => { setIsOpenModalUpdate(false); form.resetFields(); }}>
+                    Hủy
+                </Button>,
+                <Button
+                    key="submit"
+                    type="primary"
+                    loading={isSubmiting} // Hiển thị loading
+                    onClick={() => form.submit()} // Kích hoạt sự kiện submit của form
+                >
+                    Cập nhật
+                </Button>,
+            ]}
         >
             <Form
                 layout="vertical"
@@ -262,7 +324,7 @@ export const BookUpdate = (props: IProps) => {
                             <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col span={5}>
                         <Form.Item<FieldType>
                             label="Số lượng"
                             name="stockQuantity"
@@ -306,16 +368,14 @@ export const BookUpdate = (props: IProps) => {
                             getValueFromEvent={normFile}
                         >
                             <Upload
-                                fileList={fileList}
                                 listType="picture-card"
                                 maxCount={1}
                                 multiple={false}
-                                // trả về true or false, true thì tiếp tục quá trình, còn false thì hủy
+                                customRequest={handleUploadFile}
                                 beforeUpload={beforeUpload}
-                                // nhận các trạng thái như uploading, done, error, removed, hiển thị icon loading nếu status là loading
                                 onChange={(info) => handleChange(info, 'coverImage')}
-                                // cho phép xem trước các hình ảnh đã tải lên
                                 onPreview={handlePreview}
+                                showUploadList={{ showRemoveIcon: true }}
                             >
                                 {uploadButtonCoverImage}
                             </Upload>
@@ -332,9 +392,11 @@ export const BookUpdate = (props: IProps) => {
                             <Upload
                                 listType="picture-card"
                                 multiple
+                                customRequest={handleUploadFile}
                                 beforeUpload={beforeUpload}
                                 onChange={(info) => handleChange(info, 'imgs')}
                                 onPreview={handlePreview}
+                                showUploadList={{ showRemoveIcon: true }}
                             >
                                 {uploadButtonImgs}
                             </Upload>

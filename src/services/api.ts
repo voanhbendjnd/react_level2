@@ -80,6 +80,59 @@ export const getAllCategoriesAPI = () => {
     const url_backend = `/api/v1/categories`
     return axios.get<IBackendRes<string[]>>(url_backend);
 }
+export const updateBookAPI = (
+    id: number,
+    title: string,
+    author: string,
+    price: number,
+    categories: string[],
+    publisher: string,
+    isbn: string,
+    description: string,
+    language: string,
+    stockQuantity: number,
+    numberOfPages: number,
+    coverImage: File,
+    imgs: File[],
+    publicationDate: string,
+) => {
+    const url_backend = `/api/v1/books`
+    const form = new FormData();
+    // Thêm các trường dữ liệu
+    form.append("id", (String)(id))
+    form.append("title", title);
+    form.append("author", author);
+    form.append("publisher", publisher);
+    form.append("isbn", isbn);
+    form.append("language", language);
+    form.append("description", description);
+
+    // Chuyển đổi số thành chuỗi
+    form.append("price", String(price));
+    form.append("stockQuantity", String(stockQuantity));
+    form.append("numberOfPages", String(numberOfPages));
+    form.append("publicationDate", publicationDate)
+
+    // Duyệt qua mảng categories và thêm từng phần tử một
+    categories.forEach(category => {
+        form.append("categories", category);
+    });
+
+    // Thêm file ảnh bìa
+    form.append("coverImage", coverImage);
+
+    // Duyệt qua mảng imgs và thêm từng file một
+    imgs.forEach(file => {
+        form.append("imgs", file);
+    });
+
+    return axios.put<IBackendRes<IBooksTable>>(url_backend, form, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    
+}
 
 
 export const createBookAPI = (
