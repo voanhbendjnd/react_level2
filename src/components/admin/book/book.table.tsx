@@ -6,16 +6,27 @@ import { Button, Popconfirm, Space } from "antd";
 import { useRef, useState } from "react";
 import BookDetail from "./book.detail";
 import BookForm from "./book.form";
+import { BookUpdate } from "./book.update";
 interface IBookTablePage {
     id: number;
     title: string;
     author: string;
-    categories: string;
     price: number;
     updatedAt: string;
-    coverImage: string;
     createdAt: string;
+    coverImage: string;
+
     imgs: string[];
+    categories: string[],
+    publisher: string,
+    isbn: string,
+    description: string,
+    language: string,
+    stockQuantity: number,
+    numberOfPages: number,
+    // coverImage: File,
+    // imgs: File[],
+    publicationDate: string,
 }
 type TSearch = {
     title: string;
@@ -31,6 +42,7 @@ const BookPage = () => {
     const [isOpenModalForm, setIsOpenModalForm] = useState<boolean>(false);
     const [dataDetail, setDataDetail] = useState<IBooksTable>()
     const [isOpenModalDetail, setIsOpenModalDetail] = useState<boolean>(false);
+    const [isOpenModalUpdate, setIsOpenModalUpdate] = useState<boolean>(false);
     const handleRefresh = () => {
         actionRef.current?.reload();
     };
@@ -121,6 +133,10 @@ const BookPage = () => {
                     <EditOutlined
 
                         style={{ cursor: "pointer", color: "blue" }}
+                        onClick={() => {
+                            setDataDetail(record)
+                            setIsOpenModalUpdate(true)
+                        }}
 
                     />
                     <Popconfirm
@@ -239,6 +255,13 @@ const BookPage = () => {
                 handleRefresh={handleRefresh}
                 setIsOpenModalForm={setIsOpenModalForm}
                 isOpenModalForm={isOpenModalForm}
+            />
+            <BookUpdate
+                dataDetail={dataDetail}
+                setDataDetail={setDataDetail}
+                isOpenModalUpdate={isOpenModalUpdate}
+                setIsOpenModalUpdate={setIsOpenModalUpdate}
+                handleRefresh={handleRefresh}
             />
         </>
 

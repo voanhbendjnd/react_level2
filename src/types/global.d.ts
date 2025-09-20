@@ -67,12 +67,22 @@ declare global {
         id: number;
         title: string;
         author: string;
-        categories: string;
         price: number;
         updatedAt: string;
         createdAt: string;
         coverImage: string;
+        
         imgs: string[];
+    categories: string[],
+    publisher: string,
+    isbn: string,
+    description: string,
+    language: string,
+    stockQuantity: number,
+    numberOfPages: number,
+    // coverImage: File,
+    // imgs: File[],
+    publicationDate: string,
     }
 
     
