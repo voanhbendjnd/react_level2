@@ -1,4 +1,4 @@
-import { getAllCategoriesAPI, updateBookAPI } from "@/services/api";
+import { getAllCategoriesAPI, updateBookAPI, uploadBookCoverImage, uploadBookSliderImages } from "@/services/api";
 import { MAX_UPLOAD_IMAGE_SIZE } from "@/services/helper";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { App, Col, DatePicker, Form, Image, Input, InputNumber, Modal, Row, Select, Upload, type FormProps, type GetProp, type UploadFile, type UploadProps, Button } from "antd"
@@ -12,7 +12,7 @@ interface IProps {
     setIsOpenModalUpdate: (v: boolean) => void;
     handleRefresh: () => void;
     dataDetail: IBooksTable | undefined;
-    setDataDetail: (v: IBooksTable | undefined) => void;
+    setDataDetail: (v: IBooksTable) => void;
 }
 type FieldType = {
     id: number;
@@ -79,48 +79,68 @@ export const BookUpdate = (props: IProps) => {
         fetchCategories();
     }, [])
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-        setIsSubmiting(true); // Bắt đầu loading
-        // Lấy file gốc từ mảng UploadFile của Ant Design
-        const coverImageFile = values.coverImage?.[0]?.originFileObj;
+        setIsSubmiting(true);
 
-        // Duyệt qua mảng và lấy file gốc cho từng ảnh
-        const imgsFiles = values.imgs?.map(file => file.originFileObj);
+        try {
+            // 1. Cập nhật thông tin sách (không bao gồm ảnh)
+            console.log("Đang cập nhật thông tin sách...");
+            const updateInfoRes = await updateBookAPI(
+                values.id,
+                values.title,
+                values.author,
+                values.price,
+                values.categories,
+                values.publisher,
+                values.isbn,
+                values.description,
+                values.language,
+                values.stockQuantity,
+                values.numberOfPages,
+                values.publicationDate
+            );
 
-        // Kiểm tra xem người dùng đã tải đủ ảnh lên chưa
-        if (!coverImageFile || !imgsFiles || imgsFiles.some(file => !file)) {
-            setIsSubmiting(false); // Dừng loading nếu thiếu file
-            return;
-        }
+            if (!updateInfoRes || !updateInfoRes.data) {
+                throw new Error("Cập nhật thông tin sách thất bại");
+            }
 
-        const res = await updateBookAPI(
-            values.id,
-            values.title,
-            values.author,
-            values.price,
-            values.categories,
-            values.publisher,
-            values.isbn,
-            values.description,
-            values.language,
-            values.stockQuantity,
-            values.numberOfPages,
-            coverImageFile as File,
-            imgsFiles as File[],
-            values.publicationDate)
-        if (res && res.data) {
-            message.success("Cập nhật sách thành công")
-            handleRefresh()
+            // 2. Xử lý upload cover image nếu có file mới
+            const coverImageFile = values.coverImage?.[0]?.originFileObj;
+            if (coverImageFile) {
+                console.log("Đang upload cover image...");
+                const coverRes = await uploadBookCoverImage(values.id, coverImageFile);
+                if (!coverRes || !coverRes.data) {
+                    throw new Error("Upload cover image thất bại");
+                }
+                console.log("Upload cover image thành công");
+            }
+
+            // 3. Xử lý upload slider images nếu có files mới
+            const newImgsFiles = values.imgs?.map(file => file.originFileObj).filter(Boolean) as File[];
+            if (newImgsFiles && newImgsFiles.length > 0) {
+                console.log(`Đang upload ${newImgsFiles.length} slider images...`);
+                const imgsRes = await uploadBookSliderImages(values.id, newImgsFiles);
+                if (!imgsRes || !imgsRes.data) {
+                    throw new Error("Upload slider images thất bại");
+                }
+                console.log("Upload slider images thành công");
+            }
+
+            // Thành công
+            message.success("Cập nhật sách thành công");
+            handleRefresh();
             setIsOpenModalUpdate(false);
             form.resetFields();
-        }
-        else {
+
+        } catch (error: any) {
+            console.error("Lỗi khi cập nhật:", error);
             notification.error({
                 message: "Cập nhật sách thất bại",
-                description: JSON.stringify(res.message)
-            })
+                description: error?.response?.data?.message || error?.message || "Có lỗi xảy ra"
+            });
+        } finally {
+            setIsSubmiting(false);
         }
-        setIsSubmiting(false); // Dừng loading khi quá trình hoàn tất
-    }
+    };
     const normFile = (e: any) => {
         if (Array.isArray(e)) {
             return e;
@@ -210,9 +230,8 @@ export const BookUpdate = (props: IProps) => {
             open={isOpenModalUpdate}
             // Loại bỏ onOk để form tự xử lý
             onCancel={() => {
-                form.resetFields();
                 setIsOpenModalUpdate(false);
-                setDataDetail(undefined);
+                form.resetFields();
             }}
             width={"100vh"}
             maskClosable={false}

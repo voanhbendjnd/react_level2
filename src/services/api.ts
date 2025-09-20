@@ -1,3 +1,4 @@
+import { RxFontRoman } from "react-icons/rx"
 import axios from "services/axios.customize"
 
 export const loginAPI = (username: string, password: string) => {
@@ -92,33 +93,26 @@ export const updateBookAPI = (
     language: string,
     stockQuantity: number,
     numberOfPages: number,
-    coverImage: File,
-    imgs: File[],
     publicationDate: string,
 ) => {
     const url_backend = `/api/v1/books`
+   
+    return axios.put<IBackendRes<IBooksTable>>(url_backend, {
+        id, title, author, categories, price, publisher, isbn, description, language, stockQuantity, numberOfPages, publicationDate
+    })
+    
+}
+
+export const uploadFileBook = (
+    id : number,
+    coverImage: File,
+    imgs : File[]
+) => {
+    const url_backend = `/api/v1/files/upload/image/book`;
+
     const form = new FormData();
-    // Thêm các trường dữ liệu
-    form.append("id", (String)(id))
-    form.append("title", title);
-    form.append("author", author);
-    form.append("publisher", publisher);
-    form.append("isbn", isbn);
-    form.append("language", language);
-    form.append("description", description);
-
-    // Chuyển đổi số thành chuỗi
-    form.append("price", String(price));
-    form.append("stockQuantity", String(stockQuantity));
-    form.append("numberOfPages", String(numberOfPages));
-    form.append("publicationDate", publicationDate)
-
-    // Duyệt qua mảng categories và thêm từng phần tử một
-    categories.forEach(category => {
-        form.append("categories", category);
-    });
-
-    // Thêm file ảnh bìa
+    form.append("id", (String)(id));
+       // Thêm file ảnh bìa
     form.append("coverImage", coverImage);
 
     // Duyệt qua mảng imgs và thêm từng file một
@@ -126,13 +120,52 @@ export const updateBookAPI = (
         form.append("imgs", file);
     });
 
-    return axios.put<IBackendRes<IBooksTable>>(url_backend, form, {
+    return axios.post<IBackendRes<IBooksTable>>(url_backend, form, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
     });
     
 }
+// API upload cover image
+export const uploadBookCoverImage = (
+    id: number,
+    coverImage: File
+) => {
+    const url_backend = `/api/v1/files/upload/cover-image/book`;
+    
+    const form = new FormData();
+    form.append("id", String(id));
+    form.append("coverImage", coverImage);
+    
+    return axios.post<IBackendRes<IBooksTable>>(url_backend, form, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
+// API upload slider images
+export const uploadBookSliderImages = (
+    id: number,
+    imgs: File[]
+) => {
+    const url_backend = `/api/v1/files/upload/slider-images/book`;
+    
+    const form = new FormData();
+    form.append("id", String(id));
+    
+    imgs.forEach(file => {
+        form.append("imgs", file);
+    });
+    
+    return axios.post<IBackendRes<IBooksTable>>(url_backend, form, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
 
 
 export const createBookAPI = (
