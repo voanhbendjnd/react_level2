@@ -1,12 +1,13 @@
 import { deleteBookAPI, fetchBooksAPI, getAllCategoriesAPI } from "@/services/api";
 import { dataRangeValidate } from "@/services/helper";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import { ProTable, type ActionType, type ProColumns } from "@ant-design/pro-components"
 import { Button, message, notification, Popconfirm, Space } from "antd";
 import { useEffect, useRef, useState } from "react";
 import BookDetail from "./book.detail";
 import BookForm from "./book.form";
 import { BookUpdate } from "./book.update";
+import { CSVLink } from "react-csv";
 interface IBookTablePage {
     id: number;
     title: string;
@@ -45,7 +46,7 @@ const BookPage = () => {
     const [isOpenModalDetail, setIsOpenModalDetail] = useState<boolean>(false);
     const [isOpenModalUpdate, setIsOpenModalUpdate] = useState<boolean>(false);
     const [listCategories, setListCategories] = useState<{ label: string; value: string; }[]>([]);
-
+    const [currentDataTable, setCurrentDataTable] = useState<IBookTablePage[]>([]);
     const handleRefresh = () => {
         actionRef.current?.reload();
     };
@@ -223,6 +224,17 @@ const BookPage = () => {
                     simple: false,
                 }}
                 toolBarRender={() => [
+                    <CSVLink
+                        data={currentDataTable}
+                        filename='export-book.csv'>
+                        <Button
+                            icon={<ExportOutlined />}
+                            type="primary"
+                        >
+                            Export
+                        </Button>
+                    </CSVLink>
+                    ,
                     <Button
                         key="add"
                         type="primary"
@@ -268,6 +280,9 @@ const BookPage = () => {
                         }
 
                         const res = await fetchBooksAPI(query);
+                        if (res.data) {
+                            setCurrentDataTable(res.data?.result ?? []);
+                        }
                         const responseData = {
                             data: res.data?.result || [],
                             success: true,
