@@ -1,9 +1,9 @@
-import { fetchBooksAPI } from "@/services/api";
+import { deleteBookAPI, fetchBooksAPI, getAllCategoriesAPI } from "@/services/api";
 import { dataRangeValidate } from "@/services/helper";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { ProTable, type ActionType, type ProColumns } from "@ant-design/pro-components"
-import { Button, Popconfirm, Space } from "antd";
-import { useRef, useState } from "react";
+import { Button, message, notification, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
 import BookDetail from "./book.detail";
 import BookForm from "./book.form";
 import { BookUpdate } from "./book.update";
@@ -41,11 +41,40 @@ const BookPage = () => {
     const actionRef = useRef<ActionType>();
     const [isOpenModalForm, setIsOpenModalForm] = useState<boolean>(false);
     const [dataDetail, setDataDetail] = useState<IBooksTable>()
+    const [isLoadingDeleteBook, setIsLoadingDeleteBook] = useState<boolean>(false);
     const [isOpenModalDetail, setIsOpenModalDetail] = useState<boolean>(false);
     const [isOpenModalUpdate, setIsOpenModalUpdate] = useState<boolean>(false);
+    const [listCategories, setListCategories] = useState<{ label: string; value: string; }[]>([]);
+
     const handleRefresh = () => {
         actionRef.current?.reload();
     };
+
+    const deleteBook = async (id: number) => {
+        const res = await deleteBookAPI(id);
+        setIsLoadingDeleteBook(true);
+        if (res && res.data) {
+            message.success("Xóa sách thành cồng")
+            handleRefresh();
+        }
+        else {
+            notification.error({
+                message: "Xóa sách thất bại",
+                description: JSON.stringify(res.message)
+            })
+        }
+        setIsLoadingDeleteBook(false);
+    }
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const res = await getAllCategoriesAPI();
+            if (res && res.data) {
+                const d = res.data.map(x => ({ label: x, value: x }))
+                setListCategories(d);
+            }
+        }
+        fetchCategories();
+    }, [])
     const columns: ProColumns<IBookTablePage>[] = [
         {
             title: "ID",
@@ -69,6 +98,11 @@ const BookPage = () => {
         {
             title: "Thể loại",
             dataIndex: "categories",
+            valueType: "select",
+            valueEnum: Object.fromEntries(
+                listCategories.map(item => [item.value, item.label])
+            ),
+
         },
         {
             title: "Tác giả",
@@ -141,6 +175,10 @@ const BookPage = () => {
                     />
                     <Popconfirm
                         title="Xác nhận xóa sách này?"
+                        onConfirm={() => {
+                            deleteBook(record.id)
+                        }}
+                        okButtonProps={{ loading: isLoadingDeleteBook }}
                     >
                         <DeleteOutlined
                             style={{ cursor: "pointer", color: "red" }} />
@@ -205,7 +243,7 @@ const BookPage = () => {
                         let query = `page=${params.current}&size=${params.pageSize}`
                         const { maxPrice, minPrice } = params;
                         const filters: string[] = [];
-                        // filters.push(`active:true`)
+                        filters.push(`active:true`)
                         if (params.title) {
                             filters.push(`title~'${params.title}'`)
                         }
