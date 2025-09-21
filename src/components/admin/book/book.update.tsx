@@ -1,5 +1,5 @@
 import { getAllCategoriesAPI, updateBookAPI, uploadBookCoverImage, uploadBookSliderImages } from "@/services/api";
-import { MAX_UPLOAD_IMAGE_SIZE } from "@/services/helper";
+import { convertUrlToFile, MAX_UPLOAD_IMAGE_SIZE } from "@/services/helper";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { App, Col, DatePicker, Form, Image, Input, InputNumber, Modal, Row, Select, Upload, type FormProps, type GetProp, type UploadFile, type UploadProps, Button } from "antd"
 import type { UploadChangeParam } from "antd/es/upload";
@@ -78,6 +78,7 @@ export const BookUpdate = (props: IProps) => {
         }
         fetchCategories();
     }, [])
+
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setIsSubmiting(true);
 
@@ -114,15 +115,46 @@ export const BookUpdate = (props: IProps) => {
                 console.log("Upload cover image thành công");
             }
 
-            // 3. Xử lý upload slider images nếu có files mới
-            const newImgsFiles = values.imgs?.map(file => file.originFileObj).filter(Boolean) as File[];
-            if (newImgsFiles && newImgsFiles.length > 0) {
-                console.log(`Đang upload ${newImgsFiles.length} slider images...`);
-                const imgsRes = await uploadBookSliderImages(values.id, newImgsFiles);
-                if (!imgsRes || !imgsRes.data) {
-                    throw new Error("Upload slider images thất bại");
+            // 3. Xử lý slider images - gửi tất cả ảnh (cũ + mới)
+            if (values.imgs && values.imgs.length > 0) {
+                console.log("Đang xử lý slider images...");
+
+                // Tách ảnh cũ và ảnh mới
+                const oldImages = values.imgs.filter(file => !file.originFileObj && file.url);
+                const newImages = values.imgs.filter(file => file.originFileObj);
+
+                console.log(`Found ${oldImages.length} old images, ${newImages.length} new images`);
+
+                // Convert ảnh cũ thành File objects
+                const oldImageFiles: File[] = [];
+                for (const oldImg of oldImages) {
+                    if (oldImg.url && oldImg.name) {
+                        try {
+                            const file = await convertUrlToFile(oldImg.url, oldImg.name);
+                            oldImageFiles.push(file);
+                        } catch (error) {
+                            console.warn(`Bỏ qua ảnh cũ không convert được: ${oldImg.name}`);
+                        }
+                    }
                 }
-                console.log("Upload slider images thành công");
+
+                // Lấy file objects của ảnh mới
+                const newImageFiles = newImages
+                    .map(img => img.originFileObj)
+                    .filter(Boolean) as File[];
+
+                // Kết hợp tất cả ảnh
+                const allImages = [...oldImageFiles, ...newImageFiles];
+
+                if (allImages.length > 0) {
+                    console.log(`Đang upload ${allImages.length} slider images (${oldImageFiles.length} cũ + ${newImageFiles.length} mới)...`);
+
+                    const imgsRes = await uploadBookSliderImages(values.id, allImages);
+                    if (!imgsRes || !imgsRes.data) {
+                        throw new Error("Upload slider images thất bại");
+                    }
+                    console.log("Upload slider images thành công");
+                }
             }
 
             // Thành công
@@ -135,7 +167,7 @@ export const BookUpdate = (props: IProps) => {
             console.error("Lỗi khi cập nhật:", error);
             notification.error({
                 message: "Cập nhật sách thất bại",
-                description: error?.response?.data?.message || error?.message || "Có lỗi xảy ra"
+                description: error?.response?.data || error?.message || "Có lỗi xảy ra"
             });
         } finally {
             setIsSubmiting(false);
@@ -184,7 +216,6 @@ export const BookUpdate = (props: IProps) => {
         }
         return isJpgOrPng && isLt2M || Upload.LIST_IGNORE;
     };
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
 
     useEffect(() => {
         if (dataDetail) {

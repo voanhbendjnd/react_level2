@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import { FORMATE_DATE_VN } from '@/services/helper';
 
 export const FORMATE_DATE_VN= "DD/MM/YYYY"
 export const dataRangeValidate = (dateRange: any) => {
@@ -19,3 +18,14 @@ export const dataRangeValidate = (dateRange: any) => {
 };
 
 export const MAX_UPLOAD_IMAGE_SIZE = 2;
+
+export const convertUrlToFile = async (url: string, filename: string): Promise<File> => {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new File([blob], filename, { type: blob.type });
+    } catch (error) {
+        console.error(`Failed to convert URL to File: ${url}`, error);
+        throw new Error(`Cannot convert image: ${filename}`);
+    }
+};

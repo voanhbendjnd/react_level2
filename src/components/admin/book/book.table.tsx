@@ -205,6 +205,7 @@ const BookPage = () => {
                         let query = `page=${params.current}&size=${params.pageSize}`
                         const { maxPrice, minPrice } = params;
                         const filters: string[] = [];
+                        // filters.push(`active:true`)
                         if (params.title) {
                             filters.push(`title~'${params.title}'`)
                         }

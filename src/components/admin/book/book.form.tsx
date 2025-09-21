@@ -40,8 +40,6 @@ const BookForm = (props: IProps) => {
     const [loadingImgs, setLoadingImgs] = useState<boolean>(false);
     const [previewOpen, setPreviewOpen] = useState<boolean>(false);
     const [previewImage, setPreviewImage] = useState<string>('');
-    const [fileListImgs, setFileListImgs] = useState<UploadFile[]>([]);
-    const [fileListCoverImage, setFileListCoverImage] = useState<UploadFile[]>([]);
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setIsSubmit(true);
 
