@@ -40,6 +40,7 @@ const HomePage = () => {
     const [pageSize, setPageSize] = useState<number>(8);
     const [total, setTotal] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [rating, setRating] = useState<number | null>(null);
     const [filter, setFilter] = useState<string>("");
     const [sortQuery, setSortQuery] = useState<string>("sort=stockQuantity,desc")
     useEffect(() => {
@@ -84,42 +85,39 @@ const HomePage = () => {
             setCurrent(1);
         }
     }
-    const handleChangeFilter = (changeValues: any, values: any) => {
-        if (changeValues.category) {
-            const cate: string[] = values.category;
-            if (cate && cate.length > 0) {
-                const categoryOrs = cate.map(c => `categories.name~'${c}'`).join(' or ');
-                setFilter(`filter=(${categoryOrs})`);
-                setCurrent(1);
-            }
-            else {
-                setFilter('');
-                setCurrent(1);
-            }
-        }
-
-    }
-    const onFinish: FormProps<TypeField>['onFinish'] = async (values) => {
+    const buildAndSetFilter = (values: any, selectedRating: number | null) => {
         const filters: string[] = [];
         const from = values?.range?.from;
         const to = values?.range?.to;
+        const cate: string[] = values?.category ?? [];
+        if (Array.isArray(cate) && cate.length > 0) {
+            const categoryOrs = cate.map(c => `categories.name~'${c}'`).join(' or ');
+            filters.push(`(${categoryOrs})`);
+        }
         if (typeof from === 'number' && from >= 0) {
             filters.push(`price>=${from}`);
         }
         if (typeof to === 'number' && to >= 0) {
             filters.push(`price<=${to}`);
         }
-        if (values?.category?.length) {
-            const categoryOrs = values.category.map((c: string) => `categories.name~'${c}'`).join(' or ');
-            filters.push(`(${categoryOrs})`);
+        if (typeof selectedRating === 'number' && selectedRating > 0) {
+            filters.push(`totalReviews>=${selectedRating}`);
         }
         if (filters.length > 0) {
             setFilter(`filter=${filters.join(' and ')}`);
-            setCurrent(1);
         } else {
             setFilter('');
-            setCurrent(1);
         }
+        setCurrent(1);
+    }
+
+    const handleChangeFilter = (changeValues: any, values: any) => {
+        if (changeValues.category || changeValues.range) {
+            buildAndSetFilter(values, rating);
+        }
+    }
+    const onFinish: FormProps<TypeField>['onFinish'] = async (values) => {
+        buildAndSetFilter(values, rating);
     }
 
 
@@ -137,6 +135,7 @@ const HomePage = () => {
                             onClick={() => {
                                 form.resetFields();
                                 setFilter('');
+                                setRating(null);
                             }} />
                     </div>
                     <Form form={form} layout="vertical"
@@ -199,7 +198,17 @@ const HomePage = () => {
                         {/* Đánh giá */}
                         <Form.Item label="Đánh giá">
                             {[5, 4, 3, 2, 1].map((star) => (
-                                <div key={star} className="rating-filter">
+                                <div
+                                    key={star}
+                                    className="rating-filter"
+                                    onClick={() => {
+                                        const newRating = rating === star ? null : star;
+                                        setRating(newRating);
+                                        const currentValues = form.getFieldsValue(true);
+                                        buildAndSetFilter(currentValues, newRating);
+                                    }}
+                                    style={{ cursor: 'pointer', fontWeight: rating === star ? 600 : 400 }}
+                                >
                                     <Rate value={star} disabled />
                                     <span>{star < 5 ? "Trở lên" : ""}</span>
                                 </div>

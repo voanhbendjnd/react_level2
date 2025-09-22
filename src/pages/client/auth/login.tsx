@@ -42,6 +42,7 @@ const LoginPage = () => {
   };
   return (
     <div
+      className="login-page"
       style={{
         margin: "0",
         height: "100vh", /* full chiều cao màn hình */
@@ -53,6 +54,7 @@ const LoginPage = () => {
       }}
     >
       <fieldset
+        className="login-card card fade-in"
         style={{
           maxWidth: 600,
           position: "absolute",
@@ -65,6 +67,7 @@ const LoginPage = () => {
         }}>
         <legend>Đăng nhập</legend>
         <Form
+          className="login-form"
           layout="vertical"
           initialValues={{ remember: true }}
           onFinish={onFinish}
@@ -104,7 +107,7 @@ const LoginPage = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
+            <Button type="primary" htmlType="submit" loading={loading} className="btn-primary-modern login-submit-btn">
               Đăng nhập
             </Button>
           </Form.Item>

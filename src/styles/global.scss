@@ -1,3 +1,266 @@
-*{
-    margin: 0;
+/* Global reset and modern theme variables */
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #0a84ff;
+  --primary-600: #0a6fe0;
+  --text: #111213;
+  --muted: #6b7280;
+  --surface: #ffffff;
+  --bg-start: #f6f8fb;
+  --bg-end: #ffffff;
+  --radius-xl: 16px;
+  --radius-lg: 14px;
+  --radius: 12px;
+  --radius-sm: 10px;
+  --shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html,
+body {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  color: var(--text);
+  background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+}
+
+/* Typography scale */
+h1,
+.h1 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+h2,
+.h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
+h3,
+.h3 {
+  font-size: 20px;
+  font-weight: 700;
+}
+small,
+.text-sm {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Containers & layout helpers */
+.container-xl {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.section {
+  padding: 24px 0;
+}
+.grid {
+  display: grid;
+  gap: 16px;
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 992px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .grid,
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card & surface */
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(17, 18, 19, 0.06);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Buttons */
+.btn-primary-modern {
+  background: linear-gradient(180deg, var(--primary), var(--primary-600));
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  box-shadow: 0 6px 16px rgba(10, 132, 255, 0.25);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+.btn-primary-modern:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(10, 132, 255, 0.32);
+}
+
+/* App header/footer polish (optional classes) */
+.app-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid rgba(17, 18, 19, 0.06);
+}
+.app-header .brand {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+.app-footer {
+  margin-top: 32px;
+  padding: 24px 0;
+  color: var(--muted);
+  border-top: 1px solid rgba(17, 18, 19, 0.06);
+}
+
+/* Ant Design refinements (non-invasive) */
+.ant-btn-primary {
+  background: var(--primary);
+}
+.ant-btn-primary:hover {
+  background: var(--primary-600);
+}
+.ant-tabs-nav::before {
+  display: none;
+}
+.ant-tabs-tab {
+  padding: 10px 14px;
+  border-radius: 999px;
+}
+.ant-tabs-tab:hover {
+  background: rgba(17, 18, 19, 0.04);
+}
+.ant-tabs-ink-bar {
+  background: var(--primary);
+  height: 3px;
+  border-radius: 3px;
+}
+
+/* Page transitions */
+.fade-in {
+  animation: fadeIn 300ms ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Login page responsive + feedback animations */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.login-card {
+  width: 100%;
+  max-width: 520px !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(8px);
+}
+.login-form h1 {
+  margin-bottom: 12px;
+}
+.login-submit-btn {
+  min-width: 140px;
+}
+
+/* Success/Fail feedback animations */
+.anim-success {
+  animation: successPulse 600ms ease-in-out;
+}
+.anim-fail {
+  animation: failShake 420ms ease-in-out;
+}
+@keyframes successPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+@keyframes failShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Mobile/tablet adjustments */
+@media (max-width: 992px) {
+  .login-card {
+    max-width: 560px !important;
+  }
+}
+@media (max-width: 768px) {
+  .login-card {
+    max-width: 92% !important;
+  }
+}
+@media (max-width: 480px) {
+  .login-card {
+    max-width: 100% !important;
+    border-radius: 12px;
+  }
 }
