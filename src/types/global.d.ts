@@ -82,7 +82,9 @@ declare global {
     numberOfPages: number,
     // coverImage: File,
     // imgs: File[],
-    publicationDate: string,
+        publicationDate: string,
+        sold: number;
+        totalPreview: number;
     }
 
     
