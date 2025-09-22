@@ -123,6 +123,18 @@ const HomePage = () => {
 
     return (
         <div className="homepage-container">
+            {isLoading && (
+                <div className="page-loader">
+                    <div className="leafs">
+                        <span className="leaf l1">🍃</span>
+                        <span className="leaf l2">🍃</span>
+                        <span className="leaf l3">🍃</span>
+                    </div>
+                    <div className="loader">
+                        <div className="loader-text">Đang tải...</div>
+                    </div>
+                </div>
+            )}
             <Row gutter={[20, 20]}>
 
                 {/* Sidebar */}
@@ -217,9 +229,6 @@ const HomePage = () => {
                     </Form>
                 </Col>
 
-                <Spin spinning={isLoading} tip="Loading...">
-
-                </Spin>
                 {/* Content */}
                 <Col md={20} xs={24}>
                     <Tabs defaultActiveKey="1"
