@@ -1,6 +1,5 @@
 import { FilterTwoTone, ReloadOutlined } from "@ant-design/icons";
 import {
-    App,
     Button,
     Checkbox,
     Col,
@@ -10,20 +9,19 @@ import {
     Pagination,
     Rate,
     Row,
+    Spin,
     Tabs,
     type FormProps,
 } from "antd";
-import ni from "/src/assets/cac-trieu-dai-viet-nam-1066463.jpg";
 import "@/styles/homePage.scss";
 import { fetchBooksAPI, getAllCategoriesAPI } from "@/services/api";
 import { useEffect, useState } from "react";
-import type { UploadFile } from "antd/lib";
 type TypeField = {
-    title: string;
-    price: number;
-    sold: number;
-    coverImage: UploadFile[];
-    totalReviews: number;
+    range: {
+        from: number;
+        to: number;
+    }
+    category: string[]
 }
 
 const HomePage = () => {
@@ -31,17 +29,19 @@ const HomePage = () => {
     const [categories, setCategories] = useState<{ label: string; value: string }[]>([]);
     // const { message, notification } = App.useApp();
     const items = [
-        { key: "1", label: "Phổ biến", children: <></> },
-        { key: "2", label: "Mới nhất", children: <></> },
-        { key: "3", label: "Bán chạy", children: <></> },
+        { key: "sort=sold,desc", label: "Phổ biến", children: <></> },
+        { key: "sort=updatedAt,desc", label: "Mới nhất", children: <></> },
+        { key: "sort=price,asc", label: "Giá thấp tới cao", children: <></> },
+        { key: "sort=price,desc", label: "Giá cao tới thấp", children: <></> },
+
     ];
     const [listBook, setListBook] = useState<IBooksTable[]>([]);
     const [current, setCurrent] = useState<number>(1);
-    const [pageSize, setPageSize] = useState<number>(5);
+    const [pageSize, setPageSize] = useState<number>(8);
     const [total, setTotal] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [filter, setFilter] = useState<string>("");
-    const [sortQuery, setSortQuery] = useState<string>("")
+    const [sortQuery, setSortQuery] = useState<string>("sort=stockQuantity,desc")
     useEffect(() => {
         const getCategories = async () => {
             const res = await getAllCategoriesAPI();
@@ -85,29 +85,69 @@ const HomePage = () => {
         }
     }
     const handleChangeFilter = (changeValues: any, values: any) => {
+        if (changeValues.category) {
+            const cate: string[] = values.category;
+            if (cate && cate.length > 0) {
+                const categoryOrs = cate.map(c => `categories.name~'${c}'`).join(' or ');
+                setFilter(`filter=(${categoryOrs})`);
+                setCurrent(1);
+            }
+            else {
+                setFilter('');
+                setCurrent(1);
+            }
+        }
 
     }
     const onFinish: FormProps<TypeField>['onFinish'] = async (values) => {
-
+        const filters: string[] = [];
+        const from = values?.range?.from;
+        const to = values?.range?.to;
+        if (typeof from === 'number' && from >= 0) {
+            filters.push(`price>=${from}`);
+        }
+        if (typeof to === 'number' && to >= 0) {
+            filters.push(`price<=${to}`);
+        }
+        if (values?.category?.length) {
+            const categoryOrs = values.category.map((c: string) => `categories.name~'${c}'`).join(' or ');
+            filters.push(`(${categoryOrs})`);
+        }
+        if (filters.length > 0) {
+            setFilter(`filter=${filters.join(' and ')}`);
+            setCurrent(1);
+        } else {
+            setFilter('');
+            setCurrent(1);
+        }
     }
 
-    const onChange = (key: string) => {
 
-    }
     return (
         <div className="homepage-container">
             <Row gutter={[20, 20]}>
+
                 {/* Sidebar */}
                 <Col md={4} sm={24} xs={24} className="homepage-sidebar">
                     <div className="filter-header">
                         <span>
                             <FilterTwoTone /> Bộ lọc tìm kiếm
                         </span>
-                        <ReloadOutlined title="Reset" className="reset-btn" />
+                        <ReloadOutlined title="Reset" className="reset-btn"
+                            onClick={() => {
+                                form.resetFields();
+                                setFilter('');
+                            }} />
                     </div>
-                    <Form form={form} layout="vertical">
+                    <Form form={form} layout="vertical"
+                        onFinish={onFinish}
+                        // cho biết thay đổi thông tin nào trên form
+                        onValuesChange={(changedValues, values) => {
+                            handleChangeFilter(changedValues, values)
+                        }}
+                    >
                         {/* Danh mục */}
-                        <Form.Item name="categories" label="Danh mục sản phẩm">
+                        <Form.Item name="category" label="Danh mục sản phẩm">
                             <Checkbox.Group
                                 options={categories}
                             >
@@ -150,7 +190,7 @@ const HomePage = () => {
                                     />
                                 </Form.Item>
                             </div>
-                            <Button type="primary" block className="apply-btn">
+                            <Button type="primary" block className="apply-btn" htmlType="submit">
                                 Áp dụng
                             </Button>
                         </Form.Item>
@@ -168,16 +208,25 @@ const HomePage = () => {
                     </Form>
                 </Col>
 
+                <Spin spinning={isLoading} tip="Loading...">
+
+                </Spin>
                 {/* Content */}
                 <Col md={20} xs={24}>
-                    <Tabs defaultActiveKey="1" items={items} />
+                    <Tabs defaultActiveKey="1"
+
+                        items={items}
+                        onChange={(value) => {
+                            setSortQuery(value)
+                        }}
+                    />
                     <Row gutter={[20, 20]}>
                         {listBook?.map((item, index) => {
                             return (
                                 <Col key={index} xs={12} sm={8} md={6}>
                                     <div className="product-card">
                                         <img src={`http://localhost:8080/api/v1/images/book/${item.coverImage}`} alt="product" className="product-image" />
-                                        <div className="product-title">Tư duy hay</div>
+                                        <div className="product-title">{item.title}</div>
                                         <div className="product-price">
                                             {new Intl.NumberFormat("vi-VN", {
                                                 style: "currency",
