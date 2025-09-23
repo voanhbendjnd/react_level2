@@ -18,3 +18,5 @@ npm i --save-exact --save-dev @types/react-image-gallery@1.2.4
 
 storage là lưu data kể cả khi đóng trình duyệt
 cookie là đóng trình duyệt là hết
+
+useParam cho phep truyen id len param ex : book/1

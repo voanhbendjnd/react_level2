@@ -17,8 +17,8 @@ import { App, ConfigProvider } from 'antd'
 import AdminPage from './pages/admin/admin'
 import ManageUserPage from './pages/admin/manage.user'
 import enVN from 'antd/locale/vi_VN'
+import BookPageHome from './pages/client/book'
 import BookPage from './components/admin/book/book.table'
-import BookDetailHome from './components/client/book/book.detail'
 
 
 const router = createBrowserRouter([
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "book/:id", element: <BookDetailHome /> },
+      { path: "books/:id", element: <BookPageHome /> },
 
       {
         path: "about",
@@ -67,7 +67,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: "book/:id",
+        path: "books",
         element:
           <ProtectedRoute>
             <BookPage />

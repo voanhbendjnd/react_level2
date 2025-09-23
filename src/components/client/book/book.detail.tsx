@@ -1,36 +1,73 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Col, Divider, Rate, Row } from "antd";
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { BsCartPlus } from "react-icons/bs";
 import ReactImageGallery from "react-image-gallery";
 import ModalGallery from "./modal.gallery";
 import "@/styles/productDetail.scss";
 import "react-image-gallery/styles/css/image-gallery.css";
+interface IProps {
+    currentBook: IBooksTable | null;
 
+}
 
-const BookDetailHome = () => {
+const BookDetailHome = (props: IProps) => {
+    const { currentBook } = props;
     const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const refGallery = useRef<ReactImageGallery>(null);
-
-    const images = [
-        {
-            original: "https://picsum.photos/id/1018/1000/600/",
-            thumbnail: "https://picsum.photos/id/1018/250/150/",
-        },
-        {
-            original: "https://picsum.photos/id/1015/1000/600/",
-            thumbnail: "https://picsum.photos/id/1015/250/150/",
-        },
-        {
-            original: "https://picsum.photos/id/1019/1000/600/",
-            thumbnail: "https://picsum.photos/id/1019/250/150/",
-        },
-    ];
+    const [imageGallery, setImageGallery] = useState<{
+        original: string;
+        thumbnail: string;
+        originalClass: string;
+        thumbnailClass: string;
+    }[]>([])
+    // const images = [
+    //     {
+    //         original: "https://picsum.photos/id/1018/1000/600/",
+    //         thumbnail: "https://picsum.photos/id/1018/250/150/",
+    //     },
+    //     {
+    //         original: "https://picsum.photos/id/1015/1000/600/",
+    //         thumbnail: "https://picsum.photos/id/1015/250/150/",
+    //     },
+    //     {
+    //         original: "https://picsum.photos/id/1019/1000/600/",
+    //         thumbnail: "https://picsum.photos/id/1019/250/150/",
+    //     },
+    // ];
     const handleOnClickImage = () => {
         setIsOpenModalGallery(true);
         setCurrentIndex(refGallery?.current?.getCurrentIndex() ?? 0);
     }
+    useEffect(() => {
+        if (currentBook) {
+            const images = [];
+            if (currentBook.coverImage) {
+                images.push(
+                    {
+                        original: `http://localhost:8080/api/v1/images/book/${currentBook.coverImage}`,
+                        thumbnail: `http://localhost:8080/api/v1/images/book/${currentBook.coverImage}`,
+                        originalClass: "original-image",
+                        thumbnailClass: "thumbnail-image",
+                    }
+                )
+            }
+            if (currentBook.imgs) {
+                currentBook.imgs?.map(it => {
+                    images.push(
+                        {
+                            original: `http://localhost:8080/api/v1/images/book/${it}`,
+                            thumbnail: `http://localhost:8080/api/v1/images/book/${it}`,
+                            originalClass: "original-image",
+                            thumbnailClass: "thumbnail-image",
+                        }
+                    )
+                })
+            }
+            setImageGallery(images)
+        }
+    }, [currentBook])
     return (
         <div className="product-detail">
             <div className="pd-container">
@@ -40,7 +77,7 @@ const BookDetailHome = () => {
                         <Col md={10} sm={10} xs={24} className="pd-gallery">
                             <ReactImageGallery
                                 ref={refGallery}
-                                items={images}
+                                items={imageGallery}
                                 showPlayButton={false}
                                 showFullscreenButton={false}
                                 renderLeftNav={() => <></>} // thanh chuyển ảnh
@@ -54,7 +91,7 @@ const BookDetailHome = () => {
                             <Col md={0} sm={24} xs={24} className="pd-gallery--mobile">
                                 <ReactImageGallery
                                     ref={refGallery}
-                                    items={images}
+                                    items={imageGallery}
                                     showPlayButton={false}
                                     showFullscreenButton={false}
                                     renderLeftNav={() => <></>} // thanh chuyển ảnh
@@ -64,20 +101,20 @@ const BookDetailHome = () => {
                                 />
                             </Col>
                             <Col span={24}>
-                                <div className="pd-brand">Tác giả: <a href="#">Sukuna</a></div>
-                                <div className="pd-title">Luna and sunny summer</div>
+                                <div className="pd-brand">Tác giả: <a href="#">{currentBook?.author}</a></div>
+                                <div className="pd-title">{currentBook?.title}</div>
                                 <div className="pd-meta">
                                     <Rate value={5} disabled />
                                     <span className="pd-sold">
                                         <Divider type="vertical" />
-                                        Đã bán 1107 cuốn
+                                        Đã bán {currentBook?.sold ?? 0} cuốn
                                     </span>
                                 </div>
                                 <div className="pd-price">
                                     {new Intl.NumberFormat("vi-VN", {
                                         style: "currency",
                                         currency: "VND",
-                                    }).format(11072005)}
+                                    }).format(currentBook?.price ?? 0)}
                                 </div>
                                 <div className="pd-ship">
                                     <span className="label">Vận chuyển</span>
@@ -108,8 +145,8 @@ const BookDetailHome = () => {
                 isOpen={isOpenModalGallery}
                 setIsOpen={setIsOpenModalGallery}
                 currentIndex={currentIndex}
-                items={images}
-                title={"hardcode"}
+                items={imageGallery}
+                title={currentBook?.title ?? ""}
             />
         </div>
     )

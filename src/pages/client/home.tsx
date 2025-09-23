@@ -245,7 +245,7 @@ const HomePage = () => {
                             return (
                                 <Col key={index} xs={12} sm={8} md={6}>
                                     <div className="product-card"
-                                        onClick={() => navigate(`/book/${item.id}`)}
+                                        onClick={() => navigate(`/books/${item.id}`)}
                                     >
                                         <img src={`http://localhost:8080/api/v1/images/book/${item.coverImage}`} alt="product" className="product-image" />
                                         <div className="product-title">{item.title}</div>

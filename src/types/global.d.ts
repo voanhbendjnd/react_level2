@@ -71,17 +71,14 @@ declare global {
         updatedAt: string;
         createdAt: string;
         coverImage: string;
-        
         imgs: string[];
-    categories: string[],
-    publisher: string,
-    isbn: string,
-    description: string,
-    language: string,
-    stockQuantity: number,
-    numberOfPages: number,
-    // coverImage: File,
-    // imgs: File[],
+        categories: string[],
+        publisher: string,
+        isbn: string,
+        description: string,
+        language: string,
+        stockQuantity: number,
+        numberOfPages: number,
         publicationDate: string,
         sold: number;
         totalPreview: number;

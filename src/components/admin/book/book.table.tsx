@@ -16,7 +16,6 @@ interface IBookTablePage {
     updatedAt: string;
     createdAt: string;
     coverImage: string;
-
     imgs: string[];
     categories: string[],
     publisher: string,
@@ -25,9 +24,10 @@ interface IBookTablePage {
     language: string,
     stockQuantity: number,
     numberOfPages: number,
-    // coverImage: File,
-    // imgs: File[],
     publicationDate: string,
+    sold: number,
+    totalPreview: number;
+
 }
 type TSearch = {
     title: string;
