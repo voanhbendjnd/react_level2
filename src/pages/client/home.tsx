@@ -9,7 +9,6 @@ import {
     Pagination,
     Rate,
     Row,
-    Spin,
     Tabs,
     type FormProps,
 } from "antd";
@@ -17,6 +16,7 @@ import "@/styles/homePage.scss";
 import { fetchBooksAPI, getAllCategoriesAPI } from "@/services/api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ModalFilter } from "@/components/client/book/book.filter";
 type TypeField = {
     range: {
         from: number;
@@ -29,6 +29,7 @@ const HomePage = () => {
     const [form] = Form.useForm();
     const [categories, setCategories] = useState<{ label: string; value: string }[]>([]);
     // const { message, notification } = App.useApp();
+    const [isOpenFilterModal, setIsOpenFilterModal] = useState<boolean>(false);
     const items = [
         { key: "sort=sold,desc", label: "Phổ biến", children: <></> },
         { key: "sort=updatedAt,desc", label: "Mới nhất", children: <></> },
@@ -124,7 +125,7 @@ const HomePage = () => {
 
 
     return (
-        <div className="homepage-container">
+        <>    <div className="homepage-container">
             {isLoading && (
                 <div className="page-loader">
                     <div className="leafs">
@@ -140,7 +141,7 @@ const HomePage = () => {
             <Row gutter={[20, 20]}>
 
                 {/* Sidebar */}
-                <Col md={4} sm={24} xs={24} className="homepage-sidebar">
+                <Col md={4} sm={24} xs={0} className="homepage-sidebar">
                     <div className="filter-header">
                         <span>
                             <FilterTwoTone /> Bộ lọc tìm kiếm
@@ -247,6 +248,16 @@ const HomePage = () => {
                             setSortQuery(value)
                         }}
                     />
+                    <Col xs={24} md={0}>
+                        <div>
+                            <span onClick={() => setIsOpenFilterModal(true)}>
+                                <FilterTwoTone />
+                                <span>
+                                    Lọc
+                                </span>
+                            </span>
+                        </div>
+                    </Col>
                     <Row gutter={[20, 20]}>
                         {listBook?.map((item, index) => {
                             return (
@@ -285,6 +296,19 @@ const HomePage = () => {
                 </Col>
             </Row>
         </div>
+            <ModalFilter
+                isOpen={isOpenFilterModal}
+                setIsOpen={setIsOpenFilterModal}
+                handleChangeFilter={handleChangeFilter}
+                categories={categories}
+                onFinish={onFinish}
+                rating={rating}
+                setRating={setRating}
+                buildAndSetFilter={buildAndSetFilter}
+            />
+        </>
+
+
     );
 };
 
