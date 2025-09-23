@@ -16,6 +16,7 @@ import {
 import "@/styles/homePage.scss";
 import { fetchBooksAPI, getAllCategoriesAPI } from "@/services/api";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 type TypeField = {
     range: {
         from: number;
@@ -42,6 +43,7 @@ const HomePage = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [rating, setRating] = useState<number | null>(null);
     const [filter, setFilter] = useState<string>("");
+    const navigate = useNavigate();
     const [sortQuery, setSortQuery] = useState<string>("sort=stockQuantity,desc")
     useEffect(() => {
         const getCategories = async () => {
@@ -242,7 +244,9 @@ const HomePage = () => {
                         {listBook?.map((item, index) => {
                             return (
                                 <Col key={index} xs={12} sm={8} md={6}>
-                                    <div className="product-card">
+                                    <div className="product-card"
+                                        onClick={() => navigate(`/book/${item.id}`)}
+                                    >
                                         <img src={`http://localhost:8080/api/v1/images/book/${item.coverImage}`} alt="product" className="product-image" />
                                         <div className="product-title">{item.title}</div>
                                         <div className="product-price">
