@@ -74,7 +74,7 @@ const BookDetailHome = (props: IProps) => {
                 <div className="pd-card">
                     <Row gutter={[20, 20]} align="top">
                         {/* laptop pc */}
-                        <Col md={10} sm={10} xs={24} className="pd-gallery">
+                        <Col md={10} sm={0} xs={0} className="pd-gallery">
                             <ReactImageGallery
                                 ref={refGallery}
                                 items={imageGallery}

@@ -40,25 +40,12 @@ const RegisterPage = () => {
         setLoading(false)
     };
     return (
-        <div
-            style={{
-                position: "relative",
-                height: "10vw"
-            }}>
+        <div className="login-page">
             <fieldset
+                className="login-card card fade-in"
                 style={{
-                    // padding: "15px",
-                    // margin: "5px",
                     border: "1px solid #ccc",
-                    borderRadius: "5px",
-                    // width: "40vw",
-                    position: "absolute",
-                    top: "50%",
-                    left: "35%",
-                    transform: "tranlate(-50%,-50%)",
-                    width: "30%"
-
-
+                    borderRadius: "10px"
                 }}>
                 <legend>Đăng ký</legend>
 
@@ -66,12 +53,8 @@ const RegisterPage = () => {
                     layout="vertical"
                     form={form}
                     onFinish={onFinish}
-                    style={{
-                        padding: "30px",
-                        borderRadius: "10px"
-                    }}
+                    style={{ padding: "30px", borderRadius: "10px" }}
                 >
-                    <h1>Đăng ký thông tin người dùng</h1>
                     <Form.Item<FieldType>
                         label="Họ và tên"
                         name="name"
@@ -130,11 +113,7 @@ const RegisterPage = () => {
                     </Form.Item>
                 </Form>
                 <Divider />
-                <p
-                    style={{
-                        textAlign: "center"
-                    }}
-                >Bạn đã có tài khoản? <Link to={"/login"}>Đăng nhập</Link></p>
+                <p style={{ textAlign: "center" }}>Bạn đã có tài khoản? <Link to={"/login"}>Đăng nhập</Link></p>
             </fieldset>
 
         </div>

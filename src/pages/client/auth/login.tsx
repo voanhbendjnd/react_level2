@@ -45,10 +45,9 @@ const LoginPage = () => {
       className="login-page"
       style={{
         margin: "0",
-        height: "100vh", /* full chiều cao màn hình */
-        position: "relative",
+        minHeight: "100vh",
         backgroundImage: `url(${bgImageMain})`,
-        backgroundSize: "100%",
+        backgroundSize: "cover",
         backgroundPosition: "center",
         color: "white"
       }}
@@ -56,14 +55,8 @@ const LoginPage = () => {
       <fieldset
         className="login-card card fade-in"
         style={{
-          maxWidth: 600,
-          position: "absolute",
-          top: "30%",
-          left: "35%",
-          transform: "tranlate(-50%, -50%)",
-          width: "30%",
           border: "1px solid #ccc",
-          borderRadius: "10px",
+          borderRadius: "10px"
         }}>
         <legend>Đăng nhập</legend>
         <Form
@@ -77,7 +70,7 @@ const LoginPage = () => {
             color: "white"
           }}
         >
-          <h1>Đăng nhập thông tin người dùng</h1>
+          {/* <h1>Đăng nhập thông tin người dùng</h1> */}
           <Form.Item<FieldType>
             label={<span style={{ color: "white" }}>Email</span>}
             name="username"

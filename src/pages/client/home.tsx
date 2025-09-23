@@ -192,7 +192,11 @@ const HomePage = () => {
                                         }
                                     />
                                 </Form.Item>
-                                <span>-</span>
+                                <span
+                                    style={{
+                                        marginBottom: "25px"
+                                    }}
+                                >-</span>
                                 <Form.Item name={["range", "to"]}>
                                     <InputNumber
                                         min={0}
@@ -203,7 +207,10 @@ const HomePage = () => {
                                     />
                                 </Form.Item>
                             </div>
-                            <Button type="primary" block className="apply-btn" htmlType="submit">
+                            <Button type="primary" block className="apply-btn" htmlType="submit"
+                                style={{
+                                    width: "30%"
+                                }}>
                                 Áp dụng
                             </Button>
                         </Form.Item>

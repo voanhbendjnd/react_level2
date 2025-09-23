@@ -49,7 +49,9 @@ const AppHeader = () => {
         },
         {
             label: <Space.Compact
+                className="hide-on-mobile"
                 style={{
+                    marginTop: "12px",
                     width: "100vh"
                 }}>
                 <Search placeholder="Bạn muốn tìm kiếm gì?" allowClear />
@@ -92,11 +94,17 @@ const AppHeader = () => {
             }]),
     ];
     return (
-        <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}
-            style={{
-                display: "flex", justifyContent: "center"
-            }}
-        />
+        <>
+            <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}
+                style={{
+                    display: "flex", justifyContent: "center"
+                }}
+            />
+            {/* Mobile search below header */}
+            <div className="header-search-mobile">
+                <Search placeholder="Bạn muốn tìm kiếm gì?" allowClear enterButton />
+            </div>
+        </>
 
     )
 }
