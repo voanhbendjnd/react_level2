@@ -15,6 +15,7 @@ const BookDetailHome = (props: IProps) => {
     const { currentBook } = props;
     const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [quantity, setQuantity] = useState(1);
     const refGallery = useRef<ReactImageGallery>(null);
     const [imageGallery, setImageGallery] = useState<{
         original: string;
@@ -39,6 +40,28 @@ const BookDetailHome = (props: IProps) => {
     const handleOnClickImage = () => {
         setIsOpenModalGallery(true);
         setCurrentIndex(refGallery?.current?.getCurrentIndex() ?? 0);
+    }
+
+    // Hàm tăng số lượng
+    const handleIncreaseQuantity = () => {
+        if (currentBook && quantity < currentBook.stockQuantity) {
+            setQuantity(prev => prev + 1);
+        }
+    }
+
+    // Hàm giảm số lượng
+    const handleDecreaseQuantity = () => {
+        if (quantity > 1) {
+            setQuantity(prev => prev - 1);
+        }
+    }
+
+    // Hàm xử lý thay đổi input số lượng
+    const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseInt(e.target.value);
+        if (!isNaN(value) && value >= 1 && currentBook && value <= currentBook.stockQuantity) {
+            setQuantity(value);
+        }
     }
     useEffect(() => {
         if (currentBook) {
@@ -128,9 +151,28 @@ const BookDetailHome = (props: IProps) => {
                                 <div className="pd-qty">
                                     <span className="label">Số lượng</span>
                                     <span className="qty-controls">
-                                        <button className="btn-qty"><MinusOutlined /></button>
-                                        <input className="qty-input" defaultValue={1} />
-                                        <button className="btn-qty"><PlusOutlined /></button>
+                                        <button
+                                            className="btn-qty"
+                                            onClick={handleDecreaseQuantity}
+                                            disabled={quantity <= 1}
+                                        >
+                                            <MinusOutlined />
+                                        </button>
+                                        <input
+                                            className="qty-input"
+                                            value={quantity}
+                                            onChange={handleQuantityChange}
+                                            type="number"
+                                            min={1}
+                                            max={currentBook?.stockQuantity || 1}
+                                        />
+                                        <button
+                                            className="btn-qty"
+                                            onClick={handleIncreaseQuantity}
+                                            disabled={currentBook ? quantity >= currentBook.stockQuantity : true}
+                                        >
+                                            <PlusOutlined />
+                                        </button>
                                     </span>
                                 </div>
                                 <div className="pd-actions">
