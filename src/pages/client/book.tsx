@@ -14,6 +14,7 @@ const BookPageHome = () => {
         if (id) {
             const fetchBookById = async () => {
                 setIsLoadingBook(true);
+
                 const res = await getBookByIdAPI(id);
                 if (res && res.data) {
                     setCurrentBook(res.data);
@@ -25,7 +26,6 @@ const BookPageHome = () => {
                     })
                 }
                 setIsLoadingBook(false);
-
             }
             fetchBookById();
         }

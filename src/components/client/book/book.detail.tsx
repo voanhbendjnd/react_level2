@@ -1,11 +1,12 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { Col, Divider, Rate, Row } from "antd";
+import { App, Col, Divider, Rate, Row } from "antd";
 import { useEffect, useRef, useState } from "react"
 import { BsCartPlus } from "react-icons/bs";
 import ReactImageGallery from "react-image-gallery";
 import ModalGallery from "./modal.gallery";
 import "@/styles/productDetail.scss";
 import "react-image-gallery/styles/css/image-gallery.css";
+import { useCurrentApp } from "@/components/context/app.context";
 interface IProps {
     currentBook: IBooksTable | null;
 
@@ -13,30 +14,18 @@ interface IProps {
 
 const BookDetailHome = (props: IProps) => {
     const { currentBook } = props;
+    const { message } = App.useApp()
     const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const refGallery = useRef<ReactImageGallery>(null);
+    const { carts, setCarts } = useCurrentApp();
     const [imageGallery, setImageGallery] = useState<{
         original: string;
         thumbnail: string;
         originalClass: string;
         thumbnailClass: string;
     }[]>([])
-    // const images = [
-    //     {
-    //         original: "https://picsum.photos/id/1018/1000/600/",
-    //         thumbnail: "https://picsum.photos/id/1018/250/150/",
-    //     },
-    //     {
-    //         original: "https://picsum.photos/id/1015/1000/600/",
-    //         thumbnail: "https://picsum.photos/id/1015/250/150/",
-    //     },
-    //     {
-    //         original: "https://picsum.photos/id/1019/1000/600/",
-    //         thumbnail: "https://picsum.photos/id/1019/250/150/",
-    //     },
-    // ];
     const handleOnClickImage = () => {
         setIsOpenModalGallery(true);
         setCurrentIndex(refGallery?.current?.getCurrentIndex() ?? 0);
@@ -62,6 +51,40 @@ const BookDetailHome = (props: IProps) => {
         if (!isNaN(value) && value >= 1 && currentBook && value <= currentBook.stockQuantity) {
             setQuantity(value);
         }
+    }
+
+    //  add to  cart
+    const handleAddToCart = () => {
+        const cartStorage = localStorage.getItem("carts");
+        if (cartStorage && currentBook) {
+            // update
+            // convert from string to array
+            const carts = JSON.parse(cartStorage) as ICart[];
+            let exists = carts.findIndex(c => c.id === currentBook.id);
+            if (exists > -1) {
+                carts[exists].quantity = carts[exists].quantity + quantity;
+            }
+            else {
+                carts.push({
+                    quantity: quantity,
+                    id: currentBook.id,
+                    detail: currentBook
+                })
+            }
+            localStorage.setItem("carts", JSON.stringify(carts));
+
+        }
+        else {
+            const data = [{
+                id: currentBook?.id,
+                quantity: quantity,
+                detail: currentBook,
+            }]
+            localStorage.setItem("carts", JSON.stringify(data))
+            setCarts(data);
+        }
+        message.success("Thêm vào giỏ hàng thành công")
+
     }
     useEffect(() => {
         if (currentBook) {
@@ -176,7 +199,7 @@ const BookDetailHome = (props: IProps) => {
                                     </span>
                                 </div>
                                 <div className="pd-actions">
-                                    <button className="btn add-cart">
+                                    <button className="btn add-cart" onClick={() => handleAddToCart()}>
                                         <BsCartPlus />
                                         <span>Thêm vào giỏ hàng</span>
                                     </button>
