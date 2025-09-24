@@ -41,6 +41,27 @@ const AppHeader = () => {
         }
 
     }, [location]);
+    const children = [
+        {
+            type: 'group',
+            children: [
+                {
+                    label: <span>Quản lý tài khoản</span>
+                },
+                {
+                    label: <span>Lịch sử mua hàng</span>
+                },
+                // Admin link only for SUPER_ADMIN
+                ...(user?.role === "SUPER_ADMIN" ? [{
+                    label: <Link to={"/admin"}>Quản trị viên</Link>
+                }] : []),
+                {
+                    label: <span onClick={() => handleLogout()}>Đăng xuất</span>
+
+                }
+            ]
+        }
+    ]
     const items = [
         {
             label: <Link to={"/"}>Home</Link>,
@@ -74,25 +95,10 @@ const AppHeader = () => {
                 label: `Wellcome, ${user.name}`,
                 key: 'SubMenu',
                 icon: <AliwangwangOutlined />,
-                children: [
-                    {
-                        type: 'group',
-                        children: [
-                            {
-                                label: <span>Quản lý tài khoản</span>
-                            },
-                            {
-                                label: <span>Lịch sử mua hàng</span>
-                            },
-                            {
-                                label: <span onClick={() => handleLogout()}>Đăng xuất</span>
-
-                            }
-                        ],
-                    }
-                ],
+                children: children,
             }]),
     ];
+
     return (
         <>
             <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}

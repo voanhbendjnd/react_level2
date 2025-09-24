@@ -7,7 +7,7 @@ import type {
 import {
     ProTable,
 } from '@ant-design/pro-components';
-import { Button, ConfigProvider, message, notification, Popconfirm, Space } from 'antd';
+import { Button, ConfigProvider, message, notification, Popconfirm, Space, Row, Col } from 'antd';
 import vi_VN from 'antd/locale/vi_VN';
 import { useRef, useState } from 'react';
 import UserDetail from './user.detail';
@@ -175,169 +175,175 @@ const UserTable = () => {
 
     return (
         <ConfigProvider locale={vi_VN}>
-            <ProTable<IUserTable, TSearch>
-                columns={columns}
-                actionRef={actionRef} // cho phép tải lại bảng, reset = loadUser()
-                bordered // thêm viền cho các ô
-                size="large"
-                headerTitle="Bảng thông tin người dùng"
-                tooltip="Thêm sửa xóa người dùng"
-                showHeader={true}
-                rowSelection={{
-                    type: 'checkbox',
-                }}
-                rowKey="id"
-                pagination={{
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) => {
-                        return (
-                            <div>
-                                Hiển thị {range[0]}-{range[1]} trong tổng số {total} bản ghi
-                            </div>
-                        );
-                    },
-                    pageSizeOptions: ['5', '10', '20', '50'],
-                    defaultPageSize: 5,
-                    hideOnSinglePage: false,
-                    simple: false,
-                }}
-                search={{
-                    labelWidth: 'auto',
-                    resetText: 'Làm lại',
-                    searchText: 'Tìm kiếm',
-                }}
-                toolBarRender={() => [
-                    <CSVLink
-                        data={currentDataTable}
-                        filename='export-user.csv'>
-                        <Button
-                            icon={<ExportOutlined />}
-                            type="primary"
-                        >
-                            Export
-                        </Button>
-                    </CSVLink>,
-                    <Button
-                        key="refresh"
-                        type="primary"
-                        icon={<ExportOutlined />}
-                        onClick={() => setIsOpenModalImport(true)}
-                    >
-                        Import
-                    </Button>,
-                    <Button
-                        key="refresh"
-                        type="primary"
-                        onClick={handleRefresh}
-                    >
-                        Làm mới
-                    </Button>,
-                    <Button
-                        key="add"
-                        type="primary"
-                        onClick={() => {
-                            setIsOpenFormModal(true);
+            <Row gutter={[16, 16]}>
+                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                    <ProTable<IUserTable, TSearch>
+                        columns={columns}
+                        actionRef={actionRef} // cho phép tải lại bảng, reset = loadUser()
+                        bordered // thêm viền cho các ô
+                        size="large"
+                        headerTitle="Bảng thông tin người dùng"
+                        tooltip="Thêm sửa xóa người dùng"
+                        showHeader={true}
+                        rowSelection={{
+                            type: 'checkbox',
                         }}
-                        style={{
-                            backgroundColor: "#52C41A",
-                            borderColor: "#52C41A"
+                        rowKey="id"
+                        scroll={{ x: 'max-content' }}
+                        pagination={{
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total, range) => {
+                                return (
+                                    <div>
+                                        Hiển thị {range[0]}-{range[1]} trong tổng số {total} bản ghi
+                                    </div>
+                                );
+                            },
+                            pageSizeOptions: ['5', '10', '20', '50'],
+                            defaultPageSize: 5,
+                            hideOnSinglePage: false,
+                            simple: false,
                         }}
-                    >
-                        Thêm mới
-                    </Button>,
+                        search={{
+                            labelWidth: 'auto',
+                            resetText: 'Làm lại',
+                            searchText: 'Tìm kiếm',
+                            span: { xs: 24, sm: 12, md: 8, lg: 8, xl: 6, xxl: 6 }
+                        }}
+                        toolBarRender={() => [
+                            <CSVLink
+                                data={currentDataTable}
+                                filename='export-user.csv'>
+                                <Button
+                                    icon={<ExportOutlined />}
+                                    type="primary"
+                                >
+                                    Export
+                                </Button>
+                            </CSVLink>,
+                            <Button
+                                key="refresh"
+                                type="primary"
+                                icon={<ExportOutlined />}
+                                onClick={() => setIsOpenModalImport(true)}
+                            >
+                                Import
+                            </Button>,
+                            <Button
+                                key="refresh"
+                                type="primary"
+                                onClick={handleRefresh}
+                            >
+                                Làm mới
+                            </Button>,
+                            <Button
+                                key="add"
+                                type="primary"
+                                onClick={() => {
+                                    setIsOpenFormModal(true);
+                                }}
+                                style={{
+                                    backgroundColor: "#52C41A",
+                                    borderColor: "#52C41A"
+                                }}
+                            >
+                                Thêm mới
+                            </Button>,
 
-                ]}
-                request={async (params, sort, filter) => {
-                    console.log('=== REQUEST PARAMS ===');
-                    console.log('Params:', params);
-                    console.log('Current page:', params.current);
-                    console.log('Page size:', params.pageSize);
-                    console.log('Sort:', sort);
-                    console.log('Filter:', filter);
+                        ]}
+                        request={async (params, sort, filter) => {
+                            console.log('=== REQUEST PARAMS ===');
+                            console.log('Params:', params);
+                            console.log('Current page:', params.current);
+                            console.log('Page size:', params.pageSize);
+                            console.log('Sort:', sort);
+                            console.log('Filter:', filter);
 
-                    try {
-                        // Khởi tạo query với page và size
-                        let query = `page=${params.current}&size=${params.pageSize}`;
+                            try {
+                                // Khởi tạo query với page và size
+                                let query = `page=${params.current}&size=${params.pageSize}`;
 
-                        // Tạo mảng để chứa các điều kiện filter
-                        const filterConditions: string[] = [];
-                        filterConditions.push(`active:true`)
-                        // Thêm điều kiện filter cho email
-                        if (params.email) {
-                            filterConditions.push(`email~'${params.email}'`);
-                        }
+                                // Tạo mảng để chứa các điều kiện filter
+                                const filterConditions: string[] = [];
+                                filterConditions.push(`active:true`)
+                                // Thêm điều kiện filter cho email
+                                if (params.email) {
+                                    filterConditions.push(`email~'${params.email}'`);
+                                }
 
-                        // Thêm điều kiện filter cho name
-                        if (params.name) {
-                            filterConditions.push(`name~'${params.name}'`);
-                        }
+                                // Thêm điều kiện filter cho name
+                                if (params.name) {
+                                    filterConditions.push(`name~'${params.name}'`);
+                                }
 
-                        // Xử lý date range
-                        const createDateRange = dataRangeValidate(params.createdAtRange);
-                        if (createDateRange && createDateRange.length === 2) {
-                            console.log("Start date:", createDateRange[0]);
-                            console.log("End date:", createDateRange[1]);
+                                // Xử lý date range
+                                const createDateRange = dataRangeValidate(params.createdAtRange);
+                                if (createDateRange && createDateRange.length === 2) {
+                                    console.log("Start date:", createDateRange[0]);
+                                    console.log("End date:", createDateRange[1]);
 
-                            filterConditions.push(`createdAt>='${createDateRange[0]}' and createdAt<='${createDateRange[1]}'`);
-                        }
+                                    filterConditions.push(`createdAt>='${createDateRange[0]}' and createdAt<='${createDateRange[1]}'`);
+                                }
 
-                        // Nếu có điều kiện filter, thêm vào query
-                        if (filterConditions.length > 0) {
-                            query += `&filter=${filterConditions.join(' and ')}`;
-                        }
+                                // Nếu có điều kiện filter, thêm vào query
+                                if (filterConditions.length > 0) {
+                                    query += `&filter=${filterConditions.join(' and ')}`;
+                                }
 
-                        // Xử lý sorting
-                        if (sort && sort.createdAt) {
-                            query += `&sort=createdAt,${sort.createdAt === "ascend" ? "asc" : "desc"}`;
-                        }
-                        else {
-                            query += `&sort=createdAt,desc`;
+                                // Xử lý sorting
+                                if (sort && sort.createdAt) {
+                                    query += `&sort=createdAt,${sort.createdAt === "ascend" ? "asc" : "desc"}`;
+                                }
+                                else {
+                                    query += `&sort=createdAt,desc`;
 
-                        }
-                        // Gọi API với đúng tham số
-                        const res = await fetchUsersAPI(
-                            query
-                        );
+                                }
+                                // Gọi API với đúng tham số
+                                const res = await fetchUsersAPI(
+                                    query
+                                );
 
-                        console.log('=== API RESPONSE ===');
-                        console.log('Full response:', res);
+                                console.log('=== API RESPONSE ===');
+                                console.log('Full response:', res);
 
-                        // Cập nhật meta state
-                        if (res.data) {
-                            setMeta(res.data.meta);
-                            setCurrentDataTable(res.data?.result ?? []);
-                            console.log('Meta updated:', res.data.meta);
-                        }
+                                // Cập nhật meta state
+                                if (res.data) {
+                                    setMeta(res.data.meta);
+                                    setCurrentDataTable(res.data?.result ?? []);
+                                    console.log('Meta updated:', res.data.meta);
+                                }
 
-                        const responseData = {
-                            data: res.data?.result || [],
-                            success: true,
-                            total: res.data?.meta?.total || 0,
-                        };
+                                const responseData = {
+                                    data: res.data?.result || [],
+                                    success: true,
+                                    total: res.data?.meta?.total || 0,
+                                };
 
-                        console.log('=== RETURN DATA ===');
-                        console.log('Data length:', responseData.data.length);
-                        console.log('Total:', responseData.total);
-                        console.log('Success:', responseData.success);
+                                console.log('=== RETURN DATA ===');
+                                console.log('Data length:', responseData.data.length);
+                                console.log('Total:', responseData.total);
+                                console.log('Success:', responseData.success);
 
-                        return responseData;
+                                return responseData;
 
-                    } catch (error) {
-                        console.error('=== API ERROR ===');
-                        console.error('Error details:', error);
+                            } catch (error) {
+                                console.error('=== API ERROR ===');
+                                console.error('Error details:', error);
 
-                        return {
-                            data: [],
-                            success: false,
-                            total: 0,
-                        };
-                    }
-                }}
-                locale={{
-                    emptyText: 'Không có dữ liệu',
-                }}
-            />
+                                return {
+                                    data: [],
+                                    success: false,
+                                    total: 0,
+                                };
+                            }
+                        }}
+                        locale={{
+                            emptyText: 'Không có dữ liệu',
+                        }}
+                    />
+                </Col>
+            </Row>
             <UserDetail
                 dataDetail={dataDetail}
                 setDataDetail={setDataDetail}

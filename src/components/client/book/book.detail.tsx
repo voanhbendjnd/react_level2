@@ -87,8 +87,12 @@ const BookDetailHome = (props: IProps) => {
                             />
                         </Col>
                         {/* phone */}
-                        <Col md={14} sm={24} className="pd-info">
-                            <Col md={0} sm={24} xs={24} className="pd-gallery--mobile">
+                        <Col md={14} sm={24} className="pd-info"
+                        >
+                            <Col md={0} sm={24} xs={24} className="pd-gallery--mobile"
+                                style={{
+                                    height: "500%"
+                                }}>
                                 <ReactImageGallery
                                     ref={refGallery}
                                     items={imageGallery}
@@ -98,6 +102,7 @@ const BookDetailHome = (props: IProps) => {
                                     renderRightNav={() => <></>}
                                     slideOnThumbnailOver={true}
                                     showThumbnails={false}
+
                                 />
                             </Col>
                             <Col span={24}>

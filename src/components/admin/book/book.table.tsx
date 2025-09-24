@@ -2,7 +2,7 @@ import { deleteBookAPI, fetchBooksAPI, getAllCategoriesAPI } from "@/services/ap
 import { dataRangeValidate } from "@/services/helper";
 import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import { ProTable, type ActionType, type ProColumns } from "@ant-design/pro-components"
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, message, notification, Popconfirm, Space, Row, Col } from "antd";
 import { useEffect, useRef, useState } from "react";
 import BookDetail from "./book.detail";
 import BookForm from "./book.form";
@@ -192,113 +192,119 @@ const BookPage = () => {
     ]
     return (
         <>
-            <ProTable<IBookTablePage, TSearch>
-                actionRef={actionRef}
-                columns={columns}
-                bordered
-                size="large"
-                headerTitle="Bảng quản lý sách"
-                tooltip="Thêm sửa xóa sách"
-                showHeader={true}
-                search={{
-                    labelWidth: 'auto'
-                }}
-                // ô đứng trước id
-                rowSelection={{
-                    type: 'checkbox',
-                }}
-                rowKey="id"
-                pagination={{
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) => {
-                        return (
-                            <div>
-                                Hiển thị {range[0]}-{range[1]} trong tổng số {total} trang
-                            </div>
-                        );
-                    },
-                    pageSizeOptions: ['5', '10', '20', '50'],
-                    defaultPageSize: 5,
-                    hideOnSinglePage: false,
-                    simple: false,
-                }}
-                toolBarRender={() => [
-                    <CSVLink
-                        data={currentDataTable}
-                        filename='export-book.csv'>
-                        <Button
-                            icon={<ExportOutlined />}
-                            type="primary"
-                        >
-                            Export
-                        </Button>
-                    </CSVLink>
-                    ,
-                    <Button
-                        key="add"
-                        type="primary"
-                        onClick={() => {
-                            setIsOpenModalForm(true);
+            <Row gutter={[16, 16]}>
+                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                    <ProTable<IBookTablePage, TSearch>
+                        actionRef={actionRef}
+                        columns={columns}
+                        bordered
+                        size="large"
+                        headerTitle="Bảng quản lý sách"
+                        tooltip="Thêm sửa xóa sách"
+                        showHeader={true}
+                        scroll={{ x: 'max-content' }}
+                        search={{
+                            labelWidth: 'auto',
+                            span: { xs: 24, sm: 12, md: 8, lg: 8, xl: 6, xxl: 6 }
                         }}
-                        style={{
-                            backgroundColor: "#52C41A",
-                            borderColor: "#52C41A"
+                        // ô đứng trước id
+                        rowSelection={{
+                            type: 'checkbox',
                         }}
-                    >
-                        Tạo mới
+                        rowKey="id"
+                        pagination={{
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total, range) => {
+                                return (
+                                    <div>
+                                        Hiển thị {range[0]}-{range[1]} trong tổng số {total} trang
+                                    </div>
+                                );
+                            },
+                            pageSizeOptions: ['5', '10', '20', '50'],
+                            defaultPageSize: 5,
+                            hideOnSinglePage: false,
+                            simple: false,
+                        }}
+                        toolBarRender={() => [
+                            <CSVLink
+                                data={currentDataTable}
+                                filename='export-book.csv'>
+                                <Button
+                                    icon={<ExportOutlined />}
+                                    type="primary"
+                                >
+                                    Export
+                                </Button>
+                            </CSVLink>
+                            ,
+                            <Button
+                                key="add"
+                                type="primary"
+                                onClick={() => {
+                                    setIsOpenModalForm(true);
+                                }}
+                                style={{
+                                    backgroundColor: "#52C41A",
+                                    borderColor: "#52C41A"
+                                }}
+                            >
+                                Tạo mới
 
-                    </Button>
-                ]}
-                request={async (params, sort) => {
-                    try {
-                        let query = `page=${params.current}&size=${params.pageSize}`
-                        const { maxPrice, minPrice } = params;
-                        const filters: string[] = [];
-                        filters.push(`active:true`)
-                        if (params.title) {
-                            filters.push(`title~'${params.title}'`)
-                        }
-                        if (params.author) {
-                            filters.push(`author~'${params.author}'`)
-                        }
-                        if (maxPrice !== undefined && minPrice !== undefined) {
-                            filters.push(`price>='${minPrice}' and price<='${maxPrice}'`)
-                        }
-                        const ddate = dataRangeValidate(params.updatedAtRange);
-                        if (params.updatedAtRange && ddate) {
-                            filters.push(`updatedAt>='${ddate[0]}' and updatedAt<='${ddate[1]}'`)
-                        }
-                        if (filters.length > 0) {
-                            query += `&filter=${filters.join(' and ')}`
-                        }
-                        if (sort && sort.price) {
-                            query += `&sort=price,${sort.price === "ascend" ? "asc" : "desc"}`;
-                        }
-                        else {
-                            query += `&sort=updatedAt,desc`;
-                        }
+                            </Button>
+                        ]}
+                        request={async (params, sort) => {
+                            try {
+                                let query = `page=${params.current}&size=${params.pageSize}`
+                                const { maxPrice, minPrice } = params;
+                                const filters: string[] = [];
+                                filters.push(`active:true`)
+                                if (params.title) {
+                                    filters.push(`title~'${params.title}'`)
+                                }
+                                if (params.author) {
+                                    filters.push(`author~'${params.author}'`)
+                                }
+                                if (maxPrice !== undefined && minPrice !== undefined) {
+                                    filters.push(`price>='${minPrice}' and price<='${maxPrice}'`)
+                                }
+                                const ddate = dataRangeValidate(params.updatedAtRange);
+                                if (params.updatedAtRange && ddate) {
+                                    filters.push(`updatedAt>='${ddate[0]}' and updatedAt<='${ddate[1]}'`)
+                                }
+                                if (filters.length > 0) {
+                                    query += `&filter=${filters.join(' and ')}`
+                                }
+                                if (sort && sort.price) {
+                                    query += `&sort=price,${sort.price === "ascend" ? "asc" : "desc"}`;
+                                }
+                                else {
+                                    query += `&sort=updatedAt,desc`;
+                                }
 
-                        const res = await fetchBooksAPI(query);
-                        if (res.data) {
-                            setCurrentDataTable(res.data?.result ?? []);
-                        }
-                        const responseData = {
-                            data: res.data?.result || [],
-                            success: true,
-                            total: res.data?.meta.total || 0,
-                        }
-                        return responseData;
-                    }
-                    catch (error) {
-                        return {
-                            data: [],
-                            success: false,
-                            total: 0,
-                        };
-                    }
-                }}
-            />
+                                const res = await fetchBooksAPI(query);
+                                if (res.data) {
+                                    setCurrentDataTable(res.data?.result ?? []);
+                                }
+                                const responseData = {
+                                    data: res.data?.result || [],
+                                    success: true,
+                                    total: res.data?.meta.total || 0,
+                                }
+                                return responseData;
+                            }
+                            catch (error) {
+                                return {
+                                    data: [],
+                                    success: false,
+                                    total: 0,
+                                };
+                            }
+                        }}
+                    />
+                </Col>
+            </Row>
             <BookDetail
                 dataDetail={dataDetail}
                 setDataDetail={setDataDetail}
