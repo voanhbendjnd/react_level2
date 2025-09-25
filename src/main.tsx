@@ -20,6 +20,7 @@ import enVN from 'antd/locale/vi_VN'
 import BookPageHome from './pages/client/book'
 import BookPage from './components/admin/book/book.table'
 import { OrderPage } from './pages/client/order'
+import CheckoutPage from './pages/client/checkout'
 
 
 const router = createBrowserRouter([
@@ -40,13 +41,7 @@ const router = createBrowserRouter([
       },
       {
         path: "checkout",
-        element: (
-          <ProtectedRoute>
-            <div>
-              checkout
-            </div>
-          </ProtectedRoute>
-        )
+        element: <CheckoutPage />
       },
     ]
   },

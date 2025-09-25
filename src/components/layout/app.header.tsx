@@ -4,7 +4,7 @@ import { AliwangwangOutlined, HomeOutlined, LoginOutlined, ShoppingCartOutlined 
 import { useCurrentApp } from "components/context/app.context";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Input, Menu, Space, type MenuProps, Badge, Popover, Image, Grid } from "antd";
+import { Input, Menu, Space, type MenuProps, Badge, Popover, Image, Grid, Row, Col } from "antd";
 
 
 const AppHeader = () => {
@@ -188,48 +188,53 @@ const AppHeader = () => {
 
     return (
         <>
-            {/* Header cho mobile: search + icon */}
-            {isMobile && (
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '10px 12px',
-                    backgroundColor: headerBg
-                }}>
-                    <div style={{ flex: 1 }}>
-                        <Search
-                            placeholder="Bạn muốn tìm kiếm gì?"
-                            allowClear
-                            style={{
-                                background: '#ffffff',
-                                borderRadius: 20
-                            }}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <Link to={"/order"} style={{ display: 'inline-block' }}>
-                            <Badge count={carts?.length ?? 0} size={"small"} showZero>
-                                <ShoppingCartOutlined style={{ fontSize: 20, color: '#fff' }} />
-                            </Badge>
-                        </Link>
-                        {/* <Link to={user?.id ? (user.role === 'SUPER_ADMIN' ? '/admin' : '/') : '/login'}>
+            <Row>
+                <Col xs={24}>
+                    {/* Header cho mobile: search + icon */}
+                    {isMobile && (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            padding: '10px 12px',
+                            backgroundColor: headerBg
+                        }}>
+                            <div style={{ flex: 1 }}>
+                                <Search
+                                    placeholder="Bạn muốn tìm kiếm gì?"
+                                    allowClear
+                                    style={{
+                                        background: '#ffffff',
+                                        borderRadius: 20
+                                    }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <Link to={"/order"} style={{ display: 'inline-block' }}>
+                                    <Badge count={carts?.length ?? 0} size={"small"} showZero>
+                                        <ShoppingCartOutlined style={{ fontSize: 20, color: '#fff' }} />
+                                    </Badge>
+                                </Link>
+                                {/* <Link to={user?.id ? (user.role === 'SUPER_ADMIN' ? '/admin' : '/') : '/login'}>
                             <AliwangwangOutlined style={{ fontSize: 20, color: '#fff' }} />
                         </Link> */}
-                    </div>
-                </div>
-            )}
+                            </div>
+                        </div>
+                    )}
 
-            <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    backgroundColor: headerBg,
-                    borderBottom: 'none'
-                }}
-                theme="dark"
-                className="app-menu"
-            />
+                    <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            backgroundColor: headerBg,
+                            borderBottom: 'none'
+                        }}
+                        theme="dark"
+                        className="app-menu"
+                    />
+                </Col>
+            </Row>
+
         </>
 
     )

@@ -7,7 +7,6 @@ import ModalGallery from "./modal.gallery";
 import "@/styles/productDetail.scss";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { useCurrentApp } from "@/components/context/app.context";
-import type { ActionType } from "@ant-design/pro-components";
 interface IProps {
     currentBook: IBooksTable | null;
 
