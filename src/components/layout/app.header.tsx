@@ -24,9 +24,6 @@ const AppHeader = () => {
         }
     }
     const { Search } = Input;
-    const text = <span>Sản phẩm trong giỏ hàng <Link to={"/order"}><ShoppingCartOutlined onClick={() => {
-        setOpen(true);
-    }} /></Link></span>;
     const textOrder = <div style={{
         display: 'flex',
         justifyContent: "space-between",
@@ -133,19 +130,28 @@ const AppHeader = () => {
                 </Badge>
             </Link>
         ) : (
-            <Popover placement="bottomRight" title={textOrder} content={content} trigger="click"
-                open={open}
-                onOpenChange={() => {
-                    setOpen(!open);
+            <div
+                style={{
+                    marginTop: "25px"
                 }}
             >
-                <Badge
-                    count={carts?.length ?? 0}
-                    size={"small"}
-                    showZero>
-                    <ShoppingCartOutlined />
-                </Badge>
-            </Popover>
+                <Popover placement="bottomRight" title={textOrder} content={content} trigger="click"
+                    open={open}
+                    onOpenChange={() => {
+                        setOpen(!open);
+                    }}
+                >
+
+                    <Badge
+
+                        count={carts?.length ?? 0}
+                        size={"small"}
+                        showZero>
+                        <ShoppingCartOutlined style={{ color: "white" }} />
+                    </Badge>
+                </Popover>
+            </div>
+
         )
     );
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
     BookOutlined,
+    HomeOutlined,
     IdcardOutlined,
     LogoutOutlined,
     MenuFoldOutlined,
@@ -146,24 +147,32 @@ const AdminPage = () => {
                                 />
                             </div>
                             <Dropdown menu={{
-                                items: [{
-                                    icon: <SettingOutlined />,
+                                items: [
+                                    {
+                                        icon: <SettingOutlined />,
 
-                                    key: '',
-                                    label: 'Cài đặt',
-                                }, {
-                                    key: 'logout',
-                                    label: (
-                                        <div
-                                            onClick={logout}
-                                        >
-                                            <LogoutOutlined
+                                        key: 'setting',
+                                        label: 'Cài đặt',
+                                    },
 
-                                            />,
-                                            Đăng xuất
-                                        </div>
-                                    )
-                                }
+                                    {
+                                        key: 'home',
+                                        icon: <HomeOutlined />,
+                                        label: <Link to={'/'}>Trang chủ</Link>
+                                    },
+                                    {
+                                        key: 'logout',
+                                        label: (
+                                            <div
+                                                onClick={logout}
+                                            >
+                                                <LogoutOutlined
+
+                                                />,
+                                                Đăng xuất
+                                            </div>
+                                        )
+                                    },
                                 ]
                             }} trigger={['click']}>
                                 <div
