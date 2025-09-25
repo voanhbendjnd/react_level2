@@ -37,11 +37,19 @@ const router = createBrowserRouter([
       },
       {
         path: "order",
-        element: <OrderPage />
+        element:
+          <ProtectedRoute>
+            <OrderPage />
+
+          </ProtectedRoute>
       },
       {
         path: "checkout",
-        element: <CheckoutPage />
+        element:
+          <ProtectedRoute>
+            <CheckoutPage />
+
+          </ProtectedRoute>
       },
     ]
   },

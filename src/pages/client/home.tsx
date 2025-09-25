@@ -67,9 +67,11 @@ const HomePage = () => {
     const fetchBook = async () => {
         setIsLoading(true);
         let query = `page=${current}&size=${pageSize}`
-        if (filter) {
-            query += `&${filter}`;
-        }
+        // if (filter) {
+        query += `&filter=${filter}`;
+        query += `&filter=active:true`;
+
+        // }
         if (sortQuery) {
             query += `&${sortQuery}`
         }
@@ -93,6 +95,7 @@ const HomePage = () => {
         const filters: string[] = [];
         const from = values?.range?.from;
         const to = values?.range?.to;
+        filters.push(`active:true`)
         const cate: string[] = values?.category ?? [];
         if (Array.isArray(cate) && cate.length > 0) {
             const categoryOrs = cate.map(c => `categories.name~'${c}'`).join(' or ');
@@ -108,7 +111,7 @@ const HomePage = () => {
             filters.push(`totalReviews>=${selectedRating}`);
         }
         if (filters.length > 0) {
-            setFilter(`filter=${filters.join(' and ')}`);
+            setFilter(`${filters.join(' and ')}`);
         } else {
             setFilter('');
         }

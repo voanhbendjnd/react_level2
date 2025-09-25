@@ -1,5 +1,5 @@
 import { useCurrentApp } from "@/components/context/app.context";
-import { Button, Col, Divider, Radio, Row } from "antd";
+import { Button, Col, Divider, Radio, Row, Form, Input, App } from "antd";
 import { LeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
@@ -7,8 +7,12 @@ import { useMemo, useState } from "react";
 const currency = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
 
 export const CheckoutPage = () => {
-    const { carts } = useCurrentApp();
-    const [method, setMethod] = useState<string>("cod");
+    const { carts, user } = useCurrentApp() as any;
+    const [method, setMethod] = useState<"vnpay" | "napas" | "gpay" | "cod">("cod");
+    const [addrMode, setAddrMode] = useState<"manual" | "account">("manual");
+    const [form] = Form.useForm<ICheckoutPayload>();
+    const accountAddress: string | undefined = user?.address || undefined;
+    const { message } = App.useApp();
     const navigate = useNavigate();
 
     const selectedIds = useMemo<number[]>(() => {
@@ -20,9 +24,9 @@ export const CheckoutPage = () => {
         }
     }, []);
 
-    const selectedItems = useMemo(() => carts.filter(c => selectedIds.includes(c.id!)), [carts, selectedIds]);
+    const selectedItems = useMemo<ICart[]>(() => carts.filter((c: ICart) => selectedIds.includes(c.id!)), [carts, selectedIds]);
 
-    const subtotal = useMemo(() => selectedItems.reduce((s, c) => s + (c.detail?.price ?? 0) * c.quantity, 0), [selectedItems]);
+    const subtotal = useMemo<number>(() => selectedItems.reduce((s: number, c: ICart) => s + (c.detail?.price ?? 0) * c.quantity, 0), [selectedItems]);
     const shippingFee = subtotal > 0 ? 10000 : 0;
     const total = subtotal + shippingFee;
 
@@ -35,11 +39,77 @@ export const CheckoutPage = () => {
                 <div style={{ fontWeight: 700 }}>Thanh Toán</div>
             </div>
 
-            <div style={{ padding: 16 }}>
+            <Form
+                style={{
+                    padding: "16px"
+                }}
+                form={form}
+                layout="vertical"
+                onFinish={() => {
+                    // Build payload from form and selected items
+                    const formValues = form.getFieldsValue(true) as any;
+                    const payload: ICheckoutPayload = {
+                        addressMode: addrMode,
+                        receiverName: formValues.receiverName,
+                        receiverPhone: formValues.receiverPhone,
+                        receiverAddress: addrMode === "manual" ? formValues.receiverAddress : accountAddress,
+                        paymentMethod: method,
+                        items: selectedItems.map((c) => ({
+                            productId: c.detail?.id as number,
+                            quantity: c.quantity,
+                            price: c.detail?.price ?? 0,
+                        })),
+                        subtotal,
+                        shippingFee,
+                        total,
+                    };
+                    // Demo: show success and log payload; integrate API call here
+                    console.log("checkout payload", payload);
+                    message.success("Đã sẵn sàng gửi API đặt hàng");
+                }}
+            >
                 {/* Address */}
                 <div style={{ marginBottom: 16 }}>
                     <div style={{ fontWeight: 600, marginBottom: 8 }}>Địa chỉ Nhận Hàng</div>
-                    <div style={{ color: "#555" }}>Vui lòng cập nhật địa chỉ giao hàng trong hồ sơ tài khoản.</div>
+                    <Radio.Group
+                        value={addrMode}
+                        onChange={(e) => setAddrMode(e.target.value)}
+                        style={{ display: "flex", gap: 12, marginBottom: 12, flexWrap: "wrap" }}
+                    >
+                        <Radio.Button value="manual">Nhập địa chỉ trực tiếp</Radio.Button>
+                        <Radio.Button value="account" disabled={!accountAddress}>Chọn địa chỉ từ tài khoản</Radio.Button>
+                    </Radio.Group>
+
+                    {addrMode === "manual" ? (
+                        <Row gutter={[12, 12]}>
+                            <Col xs={24} md={12}>
+                                <Form.Item name="receiverName" label="Họ và tên" rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}>
+                                    <Input placeholder="Nguyễn Văn A" />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} md={12}>
+                                <Form.Item name="receiverPhone" label="Số điện thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
+                                    <Input placeholder="09xxxxxxxx" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={24}>
+                                <Form.Item name="receiverAddress" label="Địa chỉ nhận hàng" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
+                                    <Input.TextArea rows={3} placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    ) : (
+                        <div style={{ padding: 12, border: "1px dashed #e5e7eb", borderRadius: 6, background: "#fafafa" }}>
+                            {accountAddress ? (
+                                <>
+                                    <div style={{ fontWeight: 500, marginBottom: 4 }}>Địa chỉ tài khoản</div>
+                                    <div style={{ whiteSpace: "pre-wrap" }}>{accountAddress}</div>
+                                </>
+                            ) : (
+                                <div style={{ color: "#999" }}>Chưa có địa chỉ trong tài khoản. Vui lòng chọn "Nhập địa chỉ trực tiếp".</div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <Row gutter={[20, 20]}>
@@ -48,7 +118,7 @@ export const CheckoutPage = () => {
                         <div style={{ border: "1px solid #f0f0f0", borderRadius: 6 }}>
                             <div style={{ padding: 12, borderBottom: "1px solid #f5f5f5", fontWeight: 600 }}>Sản phẩm</div>
                             <div>
-                                {selectedItems.map((item) => {
+                                {selectedItems.map((item: ICart) => {
                                     const price = item.detail?.price ?? 0;
                                     const line = price * item.quantity;
                                     return (
@@ -58,7 +128,7 @@ export const CheckoutPage = () => {
                                                     <img
                                                         src={`http://localhost:8080/api/v1/images/book/${item.detail?.coverImage}`}
                                                         alt={item.detail?.title}
-                                                        style={{ width: "100%", height: 72, objectFit: "cover", borderRadius: 6 }}
+                                                        style={{ width: "100%", height: 72, objectFit: "contain", borderRadius: 6 }}
                                                     />
                                                 </Col>
                                                 <Col xs={18} md={12}>
@@ -117,7 +187,7 @@ export const CheckoutPage = () => {
                             </div>
 
                             <div style={{ padding: 12 }}>
-                                <Button type="primary" block size="large" disabled={selectedItems.length === 0}>Đặt hàng</Button>
+                                <Button htmlType="submit" type="primary" block size="large" disabled={selectedItems.length === 0}>Đặt hàng</Button>
                             </div>
                         </div>
                     </Col>
@@ -125,7 +195,7 @@ export const CheckoutPage = () => {
                 {selectedItems.length === 0 && (
                     <div style={{ textAlign: "center", color: "#999", marginTop: 16 }}>Không có sản phẩm nào được chọn.</div>
                 )}
-            </div>
+            </Form>
         </div>
     );
 }

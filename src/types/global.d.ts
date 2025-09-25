@@ -86,4 +86,23 @@ declare global {
     quantity: number;
     detail: IBooksTable | null;
   }
+
+  // Payload gửi API khi đặt hàng
+  interface ICheckoutItemPayload {
+    productId: number;
+    quantity: number;
+    price: number; // unit price at checkout time
+  }
+
+  interface ICheckoutPayload {
+    addressMode: "manual" | "account";
+    receiverName?: string;
+    receiverPhone?: string;
+    receiverAddress?: string;
+    paymentMethod: "vnpay" | "napas" | "gpay" | "cod";
+    items: ICheckoutItemPayload[];
+    subtotal: number;
+    shippingFee: number;
+    total: number;
+  }
 }
