@@ -4,12 +4,12 @@ import { AliwangwangOutlined, HomeOutlined, LoginOutlined, ShoppingCartOutlined 
 import { useCurrentApp } from "components/context/app.context";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Input, Menu, Space, type MenuProps } from "antd";
+import { Input, Menu, Space, type MenuProps, Badge } from "antd";
 
 
 const AppHeader = () => {
     const navigate = useNavigate();
-    const { user, setUser, setIsAuthenticated } = useCurrentApp();
+    const { user, setUser, setIsAuthenticated, carts, setCarts } = useCurrentApp();
 
     const handleLogout = async () => {
         const res = await logoutAPI();
@@ -83,7 +83,12 @@ const AppHeader = () => {
             [{
                 label: <Link to={"/books"}>Cart</Link>,
                 key: 'cart',
-                icon: <ShoppingCartOutlined />
+                icon: <Badge
+                    count={carts?.length ?? 0}
+                    size={"small"}
+                    showZero>
+                    <ShoppingCartOutlined />
+                </Badge>
             }]
             : []),
         ...(!user?.id ? [

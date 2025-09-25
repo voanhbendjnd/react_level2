@@ -129,9 +129,9 @@ const HomePage = () => {
             {isLoading && (
                 <div className="page-loader">
                     <div className="leafs">
-                        <span className="leaf l1">🍃</span>
-                        <span className="leaf l2">🍃</span>
-                        <span className="leaf l3">🍃</span>
+                        <span className="leaf l1">🚀</span>
+                        <span className="leaf l2">🚀</span>
+                        <span className="leaf l3">🚀</span>
                     </div>
                     <div className="loader">
                         <div className="loader-text">Đang tải...</div>

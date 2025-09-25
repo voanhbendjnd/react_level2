@@ -246,7 +246,7 @@ export const deleteBookAPI = (id: number) => {
   return axios.delete<IBackendRes<IBooksTable>>(url_backend);
 };
 
-export const getBookByIdAPI = (id: string) => {
+export const getBookByIdAPI = (id: any) => {
   const url_backend = `/api/v1/books/${id}`;
   return axios.get<IBackendRes<IBooksTable>>(url_backend, {
     headers: {
