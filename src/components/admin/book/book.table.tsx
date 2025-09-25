@@ -39,7 +39,6 @@ type TSearch = {
     maxPrice?: number;
 }
 const BookPage = () => {
-    const actionRef = useRef<ActionType>();
     const [isOpenModalForm, setIsOpenModalForm] = useState<boolean>(false);
     const [dataDetail, setDataDetail] = useState<IBooksTable>()
     const [isLoadingDeleteBook, setIsLoadingDeleteBook] = useState<boolean>(false);
@@ -47,6 +46,8 @@ const BookPage = () => {
     const [isOpenModalUpdate, setIsOpenModalUpdate] = useState<boolean>(false);
     const [listCategories, setListCategories] = useState<{ label: string; value: string; }[]>([]);
     const [currentDataTable, setCurrentDataTable] = useState<IBookTablePage[]>([]);
+    const actionRef = useRef<ActionType>();
+
     const handleRefresh = () => {
         actionRef.current?.reload();
     };

@@ -285,6 +285,29 @@ small,
   border-radius: 3px;
 }
 
+/* App menu professional active style */
+.app-menu.ant-menu-dark {
+  background: #0d3b66;
+}
+.app-menu.ant-menu-dark .ant-menu-item {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+// màu nút trang chủ
+.app-menu.ant-menu-dark .ant-menu-item-selected {
+  background: #0d3b66;
+  color: #fff;
+  border-radius: 10px;
+}
+.app-menu.ant-menu-dark .ant-menu-item-selected::after {
+  display: none; /* remove default blue underline */
+}
+// sau khi đưa chuột vào thì đổi màuàu
+.app-menu.ant-menu-dark .ant-menu-item:hover {
+  background: #3b80c0;
+  color: #fff;
+}
+
 /* Page transitions */
 .fade-in {
   animation: fadeIn 300ms ease-out;

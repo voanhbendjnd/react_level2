@@ -7,6 +7,7 @@ import ModalGallery from "./modal.gallery";
 import "@/styles/productDetail.scss";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { useCurrentApp } from "@/components/context/app.context";
+import type { ActionType } from "@ant-design/pro-components";
 interface IProps {
     currentBook: IBooksTable | null;
 
@@ -45,6 +46,7 @@ const BookDetailHome = (props: IProps) => {
         }
     }
 
+
     // Hàm xử lý thay đổi input số lượng
     const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseInt(e.target.value);
@@ -53,38 +55,41 @@ const BookDetailHome = (props: IProps) => {
         }
     }
 
-    //  add to  cart
+    // add to cart
     const handleAddToCart = () => {
         const cartStorage = localStorage.getItem("carts");
-        if (cartStorage && currentBook) {
+        let updatedCarts = [];
+        if (cartStorage) {
             // update
             // convert from string to array
-            const carts = JSON.parse(cartStorage) as ICart[];
-            let exists = carts.findIndex(c => c.id === currentBook.id);
+            updatedCarts = JSON.parse(cartStorage) as ICart[];
+            let exists = updatedCarts.findIndex(c => c.id === currentBook?.id);
             if (exists > -1) {
-                carts[exists].quantity = carts[exists].quantity + quantity;
+                updatedCarts[exists].quantity = updatedCarts[exists].quantity + quantity;
             }
             else {
-                carts.push({
+                updatedCarts.push({
                     quantity: quantity,
-                    id: currentBook.id,
+                    id: currentBook?.id,
                     detail: currentBook
                 })
             }
-            localStorage.setItem("carts", JSON.stringify(carts));
-
         }
         else {
-            const data = [{
+            updatedCarts.push({
                 id: currentBook?.id,
                 quantity: quantity,
                 detail: currentBook,
-            }]
-            localStorage.setItem("carts", JSON.stringify(data))
-            setCarts(data);
+            })
         }
-        message.success("Thêm vào giỏ hàng thành công")
 
+        // Luôn cập nhật localStorage
+        localStorage.setItem("carts", JSON.stringify(updatedCarts));
+
+        // Luôn cập nhật state toàn cục để các component khác có thể theo dõi
+        setCarts(updatedCarts);
+
+        message.success("Thêm vào giỏ hàng thành công");
     }
     useEffect(() => {
         if (currentBook) {
@@ -114,6 +119,7 @@ const BookDetailHome = (props: IProps) => {
             setImageGallery(images)
         }
     }, [currentBook])
+
     return (
         <div className="product-detail">
             <div className="pd-container">

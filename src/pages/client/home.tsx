@@ -13,6 +13,7 @@ import {
     type FormProps,
 } from "antd";
 import "@/styles/homePage.scss";
+import HomeLoader from "./home.loader";
 import { fetchBooksAPI, getAllCategoriesAPI } from "@/services/api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -126,18 +127,7 @@ const HomePage = () => {
 
     return (
         <>    <div className="homepage-container">
-            {isLoading && (
-                <div className="page-loader">
-                    <div className="leafs">
-                        <span className="leaf l1">🚀</span>
-                        <span className="leaf l2">🚀</span>
-                        <span className="leaf l3">🚀</span>
-                    </div>
-                    <div className="loader">
-                        <div className="loader-text">Đang tải...</div>
-                    </div>
-                </div>
-            )}
+            {isLoading && <HomeLoader />}
             <Row gutter={[20, 20]}>
 
                 {/* Sidebar */}
