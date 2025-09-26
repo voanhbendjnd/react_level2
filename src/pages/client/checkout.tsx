@@ -1,20 +1,38 @@
 import { useCurrentApp } from "@/components/context/app.context";
-import { Button, Col, Divider, Radio, Row, Form, Input, App } from "antd";
+import { Button, Col, Divider, Radio, Row, Form, Input, App, type FormProps } from "antd";
 import { LeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { orderAPI } from "@/services/api";
 
 const currency = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
 
+type FieldType = {
+    addressMode: "manual" | "account";
+    receiverName?: string;
+    receiverPhone?: string;
+    receiverAddress?: string;
+    paymentMethod: "vnpay" | "napas" | "gpay" | "cod";
+    items: ICheckoutItemPayload[];
+    subtotal: number;
+    shippingFee: number;
+    total: number;
+}
+type ICheckoutItemPayload = {
+    productId: number;
+    quantity: number;
+    price: number; // unit price at checkout time
+}
+
 export const CheckoutPage = () => {
-    const { carts, user } = useCurrentApp() as any;
-    const [method, setMethod] = useState<"vnpay" | "napas" | "gpay" | "cod">("cod");
+    const { carts, user, setCarts } = useCurrentApp() as any;
+    const [method, setMethod] = useState<"VNPay" | "NAPAS" | "Google_Play" | "CASH_ON_DELIVERY">("CASH_ON_DELIVERY");
     const [addrMode, setAddrMode] = useState<"manual" | "account">("manual");
     const [form] = Form.useForm<ICheckoutPayload>();
     const accountAddress: string | undefined = user?.address || undefined;
     const { message } = App.useApp();
     const navigate = useNavigate();
-
+    const [loading, setLoading] = useState<boolean>(false);
     const selectedIds = useMemo<number[]>(() => {
         try {
             const raw = localStorage.getItem('checkout_selected_ids');
@@ -29,6 +47,47 @@ export const CheckoutPage = () => {
     const subtotal = useMemo<number>(() => selectedItems.reduce((s: number, c: ICart) => s + (c.detail?.price ?? 0) * c.quantity, 0), [selectedItems]);
     const shippingFee = subtotal > 0 ? 10000 : 0;
     const total = subtotal + shippingFee;
+    const onFinish: FormProps<FieldType>['onFinish'] = async () => {
+        setLoading(true);
+        const formValues = form.getFieldsValue(true) as any;
+        const payload: IRequestOrder = {
+            name: formValues.receiverName,
+            address: addrMode === "manual" ? formValues.receiverAddress : (user?.address || ""),
+            phone: formValues.receiverPhone,
+            totalAmount: total,
+            type: method.toUpperCase?.() || method,
+            details: selectedItems.map((c) => ({
+                bookId: c.detail?.id as number,
+                quantity: c.quantity,
+                bookName: c.detail?.title || "",
+            })),
+        };
+        try {
+            const res = await orderAPI(payload);
+            if (res?.data) {
+                message.success("Đặt hàng thành công");
+                // clear only selected items from carts
+                const remaining = carts.filter((c: ICart) => !selectedIds.includes(c.id!));
+                setCarts(remaining);
+                localStorage.setItem('carts', JSON.stringify(remaining));
+                localStorage.removeItem('checkout_selected_ids');
+                navigate('/thanks');
+            }
+        } catch (e) {
+            message.error("Đặt hàng thất bại. Vui lòng thử lại");
+        }
+        setLoading(false);
+    }
+
+    // Prefill and keep form values in sync with user and selection
+    useEffect(() => {
+        form.setFieldsValue({
+            receiverName: user?.name,
+            receiverPhone: (user as any)?.phone,
+            receiverAddress: addrMode === 'account' ? accountAddress : form.getFieldValue('receiverAddress'),
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.name, (user as any)?.phone, accountAddress, addrMode]);
 
     return (
         <div className="checkout-page" style={{ background: "#fff" }}>
@@ -45,29 +104,15 @@ export const CheckoutPage = () => {
                 }}
                 form={form}
                 layout="vertical"
-                onFinish={() => {
-                    // Build payload from form and selected items
-                    const formValues = form.getFieldsValue(true) as any;
-                    const payload: ICheckoutPayload = {
-                        addressMode: addrMode,
-                        receiverName: formValues.receiverName,
-                        receiverPhone: formValues.receiverPhone,
-                        receiverAddress: addrMode === "manual" ? formValues.receiverAddress : accountAddress,
-                        paymentMethod: method,
-                        items: selectedItems.map((c) => ({
-                            productId: c.detail?.id as number,
-                            quantity: c.quantity,
-                            price: c.detail?.price ?? 0,
-                        })),
-                        subtotal,
-                        shippingFee,
-                        total,
-                    };
-                    // Demo: show success and log payload; integrate API call here
-                    console.log("checkout payload", payload);
-                    message.success("Đã sẵn sàng gửi API đặt hàng");
+                initialValues={{
+                    addressMode: addrMode,
+                    receiverName: user?.name,
+                    receiverPhone: (user as any)?.phone,
+                    receiverAddress: addrMode === "account" ? accountAddress : undefined,
                 }}
+                onFinish={onFinish}
             >
+                {/* form fields prefilled via useEffect above */}
                 {/* Address */}
                 <div style={{ marginBottom: 16 }}>
                     <div style={{ fontWeight: 600, marginBottom: 8 }}>Địa chỉ Nhận Hàng</div>
@@ -162,10 +207,10 @@ export const CheckoutPage = () => {
                             <div style={{ padding: 12, borderBottom: "1px solid #f5f5f5", fontWeight: 600 }}>Phương thức thanh toán</div>
                             <div style={{ padding: 12 }}>
                                 <Radio.Group value={method} onChange={(e) => setMethod(e.target.value)} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                    <Radio.Button value="vnpay">VNPay</Radio.Button>
-                                    <Radio.Button value="napas">Thẻ nội địa NAPAS</Radio.Button>
-                                    <Radio.Button value="gpay">Google Pay</Radio.Button>
-                                    <Radio.Button value="cod">Thanh toán khi nhận hàng</Radio.Button>
+                                    <Radio.Button value="VNPay">VNPay</Radio.Button>
+                                    <Radio.Button value="NAPAS">Thẻ nội địa NAPAS</Radio.Button>
+                                    <Radio.Button value="Google_Pay">Google Pay</Radio.Button>
+                                    <Radio.Button value="CASH_ON_DELIVERY">Thanh toán khi nhận hàng</Radio.Button>
                                 </Radio.Group>
                             </div>
 
@@ -187,7 +232,7 @@ export const CheckoutPage = () => {
                             </div>
 
                             <div style={{ padding: 12 }}>
-                                <Button htmlType="submit" type="primary" block size="large" disabled={selectedItems.length === 0}>Đặt hàng</Button>
+                                <Button htmlType="submit" loading={loading} type="primary" block size="large" disabled={selectedItems.length === 0}>Đặt hàng</Button>
                             </div>
                         </div>
                     </Col>

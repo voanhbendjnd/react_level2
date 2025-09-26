@@ -254,3 +254,12 @@ export const getBookByIdAPI = (id: any) => {
     },
   });
 };
+
+export const orderAPI = (payload: IRequestOrder) => {
+  const url_backend = `/api/v1/orders`;
+  return axios.post<IBackendRes<any>>(url_backend, payload, {
+    headers: {
+      delay: "1000",
+    },
+  });
+};

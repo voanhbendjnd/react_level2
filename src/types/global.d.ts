@@ -105,4 +105,20 @@ declare global {
     shippingFee: number;
     total: number;
   }
+
+  // Payload khớp với backend Java RequestOrder
+  interface IRequestOrderDetail {
+    bookId: number;
+    quantity: number;
+    bookName: string;
+  }
+
+  interface IRequestOrder {
+    name: string;
+    address: string;
+    phone: string;
+    totalAmount: number;
+    type: string; // PaymentMethodEnum on backend
+    details: IRequestOrderDetail[];
+  }
 }

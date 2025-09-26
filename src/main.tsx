@@ -21,6 +21,7 @@ import BookPageHome from './pages/client/book'
 import BookPage from './components/admin/book/book.table'
 import { OrderPage } from './pages/client/order'
 import CheckoutPage from './pages/client/checkout'
+import ThanksPage from './pages/client/thanks'
 
 
 const router = createBrowserRouter([
@@ -49,6 +50,13 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <CheckoutPage />
 
+          </ProtectedRoute>
+      },
+      {
+        path: "thanks",
+        element:
+          <ProtectedRoute>
+            <ThanksPage />
           </ProtectedRoute>
       },
     ]

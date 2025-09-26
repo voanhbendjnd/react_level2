@@ -79,7 +79,7 @@ export const OrderPage = () => {
                         <div key={item.id} style={{ padding: 16, borderBottom: "1px solid #f5f5f5" }}>
                             <Row gutter={[12, 12]} align="middle">
                                 <Col xs={24} md={12}>
-                                    <div style={{ display: "flex", alignItems: "start", gap: 12 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                                         <Checkbox
                                             checked={selectedIds.includes(item.id!)}
                                             onChange={(e) => handleToggleOne(e.target.checked, item.id)}
