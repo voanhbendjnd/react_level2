@@ -263,3 +263,12 @@ export const orderAPI = (payload: IRequestOrder) => {
     },
   });
 };
+
+export const watchingHistoryAPI = () => {
+  const url_backend = `/api/v1/orders/history`;
+  return axios.get<IBackendRes<IOrderHistory[]>>(url_backend, {
+    headers: {
+      delay: "1000",
+    },
+  });
+};

@@ -1,10 +1,10 @@
 import { logoutAPI } from "@/services/api";
-import { AliwangwangOutlined, HomeOutlined, LoginOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { AliwangwangOutlined, HistoryOutlined, HomeOutlined, LoginOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 
 import { useCurrentApp } from "components/context/app.context";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Input, Menu, Space, type MenuProps, Badge, Popover, Image, Grid, Row, Col } from "antd";
+import { Input, Menu, Space, type MenuProps, Badge, Popover, Image, Grid, Row, Col, Dropdown } from "antd";
 
 
 const AppHeader = () => {
@@ -24,6 +24,7 @@ const AppHeader = () => {
         }
     }
     const { Search } = Input;
+    const backendUrl = "http://localhost:8080";
     const textOrder = <div style={{
         display: 'flex',
         justifyContent: "space-between",
@@ -40,7 +41,7 @@ const AppHeader = () => {
         </div>
     </div>;
     const content = (
-        <div style={{ maxWidth: '300px' }}>
+        <div style={{ maxWidth: '320px' }}>
             {carts && carts.length > 0 ? (
                 <div>
                     {carts.map((item, index) => (
@@ -55,7 +56,7 @@ const AppHeader = () => {
                                 width={50}
                                 height={60}
 
-                                src={`http://localhost:8080/api/v1/images/book/${item.detail?.coverImage}`}
+                                src={`${backendUrl}/api/v1/images/book/${item.detail?.coverImage}`}
                                 alt={item.detail?.title}
                                 style={{ objectFit: 'cover', borderRadius: '4px' }}
                                 fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN"
@@ -73,6 +74,10 @@ const AppHeader = () => {
                             </div>
                         </div>
                     ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
+                        <span style={{ color: '#999', fontSize: 12 }}>{carts.length} Thêm Hàng Vào Giỏ</span>
+                        <Link to={'/order'} onClick={() => setOpen(false)} style={{ background: '#ff4d4f', color: '#fff', padding: '6px 12px', borderRadius: 4 }}>Xem Giỏ Hàng</Link>
+                    </div>
                 </div>
             ) : (
                 <p style={{ margin: 0, textAlign: 'center', color: '#999' }}>Giỏ hàng trống</p>
@@ -130,28 +135,22 @@ const AppHeader = () => {
                 </Badge>
             </Link>
         ) : (
-            <div
-                style={{
-                    marginTop: "25px"
+
+            <Popover placement="bottomRight" title={textOrder} content={content} trigger="click"
+                open={open}
+                onOpenChange={() => {
+                    setOpen(!open);
                 }}
             >
-                <Popover placement="bottomRight" title={textOrder} content={content} trigger="click"
-                    open={open}
-                    onOpenChange={() => {
-                        setOpen(!open);
-                    }}
-                >
 
-                    <Badge
+                <Badge
 
-                        count={carts?.length ?? 0}
-                        size={"small"}
-                        showZero>
-                        <ShoppingCartOutlined style={{ color: "white" }} />
-                    </Badge>
-                </Popover>
-            </div>
-
+                    count={carts?.length ?? 0}
+                    size={"small"}
+                    showZero>
+                    <ShoppingCartOutlined style={{ color: "white" }} />
+                </Badge>
+            </Popover>
         )
     );
 
@@ -160,6 +159,41 @@ const AppHeader = () => {
             label: <Link to={"/"}>Trang chủ</Link>,
             key: 'home',
             icon: <HomeOutlined />,
+        },
+        {
+            label: (
+                <Dropdown
+                    trigger={["hover"]}
+                    dropdownRender={() => (
+                        <div style={{ background: '#fff', padding: 12, width: 680, boxShadow: '0 6px 16px rgba(0,0,0,0.12)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                                <div>
+                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Văn học</div>
+                                    <div>Tiểu Thuyết</div>
+                                    <div>Truyện Ngắn - Tản Văn</div>
+                                    <div>Light Novel</div>
+                                    <div>Ngôn Tình</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Kinh tế</div>
+                                    <div>Nhân Vật - Bài Học Kinh Doanh</div>
+                                    <div>Quản Trị - Lãnh Đạo</div>
+                                    <div>Marketing - Bán Hàng</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Thiếu nhi</div>
+                                    <div>Manga - Comic</div>
+                                    <div>Kiến Thức Bách Khoa</div>
+                                    <div>Tranh Kỹ Năng Sống</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                >
+                    <span>Danh mục sản phẩm</span>
+                </Dropdown>
+            ),
+            key: 'category',
         },
         {
             label: <Space.Compact
@@ -177,19 +211,27 @@ const AppHeader = () => {
             [{
                 key: 'cart',
                 icon: cartIcon
-            }]
+            },
+            {
+                label: <Link to={'/order-history'}>Lịch sử mua hàng</Link>,
+                key: 'history',
+                icon: <HistoryOutlined />
+            }
+            ]
             : []),
         ...(!user?.id ? [
             {
                 label: <Link to={"/login"}>Đăng nhập</Link>,
                 key: 'login',
                 icon: <LoginOutlined />,
-            }] : [{
-                label: `Wellcome, ${user.name}`,
-                key: 'SubMenu',
-                icon: <AliwangwangOutlined />,
-                children: children,
-            }]),
+            },
+
+        ] : [{
+            label: `Wellcome, ${user.name}`,
+            key: 'SubMenu',
+            icon: <AliwangwangOutlined />,
+            children: children,
+        }]),
     ];
 
     return (
@@ -224,6 +266,9 @@ const AppHeader = () => {
                                 {/* <Link to={user?.id ? (user.role === 'SUPER_ADMIN' ? '/admin' : '/') : '/login'}>
                             <AliwangwangOutlined style={{ fontSize: 20, color: '#fff' }} />
                         </Link> */}
+                                <Link to={"/order-history"}>
+                                    <HistoryOutlined />
+                                </Link>
                             </div>
                         </div>
                     )}

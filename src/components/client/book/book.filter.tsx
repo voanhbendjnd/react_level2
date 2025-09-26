@@ -29,7 +29,7 @@ export const ModalFilter = (props: IProps) => {
             closable={{ 'aria-label': 'Close Button' }}
             onClose={() => setIsOpen(false)}
             open={isOpen}
-            width={"60vw"}
+            width={"20vw"}
         >
             <Form>
                 <Form form={form} layout="vertical"

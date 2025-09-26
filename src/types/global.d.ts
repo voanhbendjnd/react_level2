@@ -121,4 +121,24 @@ declare global {
     type: string; // PaymentMethodEnum on backend
     details: IRequestOrderDetail[];
   }
+
+  // Order History types matching backend Java OrderHistory
+  interface IOrderHistoryDetail {
+    bookName: string;
+    quantity: number;
+    id: number;
+  }
+
+  interface IOrderHistory {
+    id: number;
+    name: string;
+    type: string; // PaymentMethodEnum
+    email: string;
+    phone: string;
+    userId: number;
+    totalAmount: number;
+    createdAt: string;
+    updatedAt: string;
+    details: IOrderHistoryDetail[];
+  }
 }

@@ -22,6 +22,7 @@ import BookPage from './components/admin/book/book.table'
 import { OrderPage } from './pages/client/order'
 import CheckoutPage from './pages/client/checkout'
 import ThanksPage from './pages/client/thanks'
+import { HistoryOrderPage } from './components/admin/order/order.history.page'
 
 
 const router = createBrowserRouter([
@@ -57,6 +58,13 @@ const router = createBrowserRouter([
         element:
           <ProtectedRoute>
             <ThanksPage />
+          </ProtectedRoute>
+      },
+      {
+        path: "order-history",
+        element:
+          <ProtectedRoute>
+            <HistoryOrderPage />
           </ProtectedRoute>
       },
     ]
