@@ -4,9 +4,15 @@ import AppFooter from "components/layout/app.footer"
 
 const Layout = () => {
     return (
-        <div>
+        <div style={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column"
+        }}>
             <AppHeader />
-            <Outlet />
+            <div style={{ flex: 1 }}>
+                <Outlet />
+            </div>
             <AppFooter />
         </div>
     )

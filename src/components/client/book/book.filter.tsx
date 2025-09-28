@@ -18,7 +18,7 @@ interface IProps {
     handleChangeFilter: any;
     rating: any;
     setRating: (v: any) => void;
-    buildAndSetFilter: (v: any, r: number | null) => void;
+    buildAndSetFilter: (v: any, r: number | null, isPending?: boolean) => void;
 }
 export const ModalFilter = (props: IProps) => {
     const [form] = Form.useForm();
@@ -89,9 +89,9 @@ export const ModalFilter = (props: IProps) => {
                         </div>
                         <Button type="primary" block className="apply-btn" htmlType="submit"
                             style={{
-                                width: "40%"
+                                width: "100%"
                             }}>
-                            Áp dụng
+                            Áp dụng bộ lọc
                         </Button>
                     </Form.Item>
                     <Divider />
@@ -106,7 +106,7 @@ export const ModalFilter = (props: IProps) => {
                                     const newRating = rating === star ? null : star;
                                     setRating(newRating);
                                     const currentValues = form.getFieldsValue(true);
-                                    buildAndSetFilter(currentValues, newRating);
+                                    buildAndSetFilter(currentValues, newRating, true);
                                 }}
                                 style={{ cursor: 'pointer', fontWeight: rating === star ? 600 : 400 }}
                             >

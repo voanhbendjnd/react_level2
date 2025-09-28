@@ -12,7 +12,7 @@ const AppHeader = () => {
     const { user, setUser, setIsAuthenticated, carts } = useCurrentApp();
     const screens = Grid.useBreakpoint();
     const isMobile = !screens?.md;
-    const headerBg = "#0D3B66"; // navy-like background similar to screenshot
+    const headerBg = "#d32f2f"; // navy-like background similar to screenshot
     const [open, setOpen] = useState<boolean>(false);
     const handleLogout = async () => {
         const res = await logoutAPI();
@@ -23,6 +23,10 @@ const AppHeader = () => {
             navigate("/");
         }
     }
+    // Style cho các item trong SubMenu (Dropdown)
+    // const dropdownTextStyle = {
+    //     color: '#ffff', // Màu xám đậm cho chữ dễ đọc trên nền trắng
+    // };
     const { Search } = Input;
     const backendUrl = "http://localhost:8080";
     const textOrder = <div style={{
@@ -108,10 +112,10 @@ const AppHeader = () => {
             type: 'group',
             children: [
                 {
-                    label: <span>Quản lý tài khoản</span>
+                    label: <Link to={"/my-account"}>Tài khoản của tôi</Link>
                 },
                 {
-                    label: <span>Lịch sử mua hàng</span>
+                    label: <Link to={"/order-history"}>Lịch sử mua hàng</Link>
                 },
                 // Admin link only for SUPER_ADMIN
                 ...(user?.role === "SUPER_ADMIN" ? [{

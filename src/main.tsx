@@ -23,6 +23,7 @@ import { OrderPage } from './pages/client/order'
 import CheckoutPage from './pages/client/checkout'
 import ThanksPage from './pages/client/thanks'
 import { HistoryOrderPage } from './components/admin/order/order.history.page'
+import { SettingAccountPage } from './pages/client/setting.account'
 
 
 const router = createBrowserRouter([
@@ -67,6 +68,13 @@ const router = createBrowserRouter([
             <HistoryOrderPage />
           </ProtectedRoute>
       },
+      {
+        path: "my-account",
+        element:
+          <ProtectedRoute>
+            <SettingAccountPage />
+          </ProtectedRoute>
+      }
     ]
   },
   {

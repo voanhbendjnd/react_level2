@@ -170,7 +170,17 @@ export const uploadBookCoverImage = (id: number, coverImage: File) => {
     },
   });
 };
-
+export const uploadAvatar = (id: string, avatar: File) => {
+  const url_backend = `/api/v1/files/upload/avatar/user`;
+  const form = new FormData();
+  form.append("id", id);
+  form.append("avatar", avatar);
+  return axios.post<IBackendRes<IUser>>(url_backend, form, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 // API upload slider images
 export const uploadBookSliderImages = (id: number, imgs: File[]) => {
   const url_backend = `/api/v1/files/upload/slider-images/book`;
@@ -270,5 +280,63 @@ export const watchingHistoryAPI = () => {
     headers: {
       delay: "1000",
     },
+  });
+};
+
+export const updateCurrentUser = (
+  id: string,
+  email: string,
+  name: string,
+  phone: string,
+  gender: string,
+  address?: string
+) => {
+  const url_backend = `/api/v1/auth/user/update`;
+  return axios.put<IBackendRes<IFetchAccount>>(url_backend, {
+    id,
+    email,
+    name,
+    phone,
+    gender,
+    address,
+  });
+};
+export const changePasswordAPI = (
+  oldPassword: string,
+  newPassword: string,
+  confirmPassword: string
+) => {
+  const url_backend = `/api/v1/auth/change-password`;
+  return axios.put<IBackendRes<IFetchAccount>>(url_backend, {
+    oldPassword,
+    newPassword,
+    confirmPassword,
+  });
+};
+
+export const forgotPasswordAPI = (email: string) => {
+  const url_backend = `/api/v1/auth/forgot-password`;
+  return axios.post<IBackendRes<IFetchAccount>>(url_backend, {
+    email,
+  });
+};
+export const verifyOtpAPI = (email: string, oneTimePassword: string) => {
+  const url_backend = `/api/v1/auth/verify-otp`;
+  return axios.post<IBackendRes<IFetchAccount>>(url_backend, {
+    email,
+    oneTimePassword,
+  });
+};
+
+export const changePasswordByOtpAPI = (
+  email: string,
+  newPassword: string,
+  confirmPassword: string
+) => {
+  const url_backend = `/api/v1/auth/change-password-by-otp`;
+  return axios.post<IBackendRes<IFetchAccount>>(url_backend, {
+    email,
+    newPassword,
+    confirmPassword,
   });
 };

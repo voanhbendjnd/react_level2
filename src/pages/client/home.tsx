@@ -45,11 +45,13 @@ const HomePage = () => {
     ];
     const [listBook, setListBook] = useState<IBooksTable[]>([]);
     const [current, setCurrent] = useState<number>(1);
-    const [pageSize, setPageSize] = useState<number>(8);
+    const [pageSize, setPageSize] = useState<number>(20);
     const [total, setTotal] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [rating, setRating] = useState<number | null>(null);
     const [filter, setFilter] = useState<string>("");
+    const [pendingFilter, setPendingFilter] = useState<string>("");
+    const [pendingRating, setPendingRating] = useState<number | null>(null);
     const navigate = useNavigate();
     const [sortQuery, setSortQuery] = useState<string>("sort=stockQuantity,desc")
     useEffect(() => {
@@ -96,7 +98,7 @@ const HomePage = () => {
             setCurrent(1);
         }
     }
-    const buildAndSetFilter = (values: any, selectedRating: number | null) => {
+    const buildAndSetFilter = (values: any, selectedRating: number | null, isPending: boolean = false) => {
         const filters: string[] = [];
         const from = values?.range?.from;
         const to = values?.range?.to;
@@ -115,21 +117,41 @@ const HomePage = () => {
         if (typeof selectedRating === 'number' && selectedRating > 0) {
             filters.push(`totalReviews>=${selectedRating}`);
         }
-        if (filters.length > 0) {
-            setFilter(`${filters.join(' and ')}`);
+        const filterString = filters.length > 0 ? `${filters.join(' and ')}` : '';
+
+        if (isPending) {
+            setPendingFilter(filterString);
+            setPendingRating(selectedRating);
         } else {
-            setFilter('');
+            setFilter(filterString);
+            setRating(selectedRating);
+            setCurrent(1);
         }
-        setCurrent(1);
     }
 
     const handleChangeFilter = (changeValues: any, values: any) => {
         if (changeValues.category || changeValues.range) {
-            buildAndSetFilter(values, rating);
+            buildAndSetFilter(values, rating, true);
         }
     }
+
+    const handleApplyFilter = () => {
+        setFilter(pendingFilter);
+        setRating(pendingRating);
+        setCurrent(1);
+    }
+
+    const handleResetFilter = () => {
+        form.resetFields();
+        setFilter('');
+        setRating(null);
+        setPendingFilter('');
+        setPendingRating(null);
+        setCurrent(1);
+    }
+
     const onFinish: FormProps<TypeField>['onFinish'] = async (values) => {
-        buildAndSetFilter(values, rating);
+        buildAndSetFilter(values, rating, true);
     }
 
 
@@ -159,7 +181,7 @@ const HomePage = () => {
                     <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
                         {[
                             { label: 'Deal Từ 1.000đ' },
-                            { label: 'Shopee Xử Lý' },
+                            { label: 'DJ Xử Lý' },
                             { label: 'Deal Hot Giờ Vàng' },
                             { label: 'Voucher 30%' },
                             { label: 'Mã Giảm Giá' },
@@ -230,7 +252,7 @@ const HomePage = () => {
                                 paddingBottom: '8px',
                                 scrollbarWidth: 'thin'
                             }}>
-                                {listBook?.slice(0, 5).map((item, idx) => {
+                                {listBook?.slice(0, 7).map((item, idx) => {
                                     // Generate a color based on the book's ID for consistent coloring
                                     const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
                                     const cardColor = colors[idx % colors.length];
@@ -266,7 +288,7 @@ const HomePage = () => {
                                                     fontWeight: 'bold',
                                                     zIndex: 1
                                                 }}>
-                                                    TẶNG 03 PIN CÚC
+                                                    TẶNG BÌA CỨNG
                                                 </div>
                                             )}
 
@@ -388,7 +410,7 @@ const HomePage = () => {
                                         onChange={(value) => {
                                             const currentValues = form.getFieldsValue(true);
                                             const newValues = { ...currentValues, category: value ? [value] : [] };
-                                            buildAndSetFilter(newValues, rating);
+                                            buildAndSetFilter(newValues, rating, true);
                                         }}
                                     >
                                         {categories.map(cat => (
@@ -412,7 +434,7 @@ const HomePage = () => {
                                                     ...currentValues,
                                                     range: { from: Number(val) || 0, to: currentValues?.range?.to || 0 }
                                                 };
-                                                buildAndSetFilter(newValues, rating);
+                                                buildAndSetFilter(newValues, rating, true);
                                             }}
                                         />
                                         <span>-</span>
@@ -427,7 +449,7 @@ const HomePage = () => {
                                                     ...currentValues,
                                                     range: { from: currentValues?.range?.from || 0, to: Number(val) || 0 }
                                                 };
-                                                buildAndSetFilter(newValues, rating);
+                                                buildAndSetFilter(newValues, rating, true);
                                             }}
                                         />
                                     </div>
@@ -439,9 +461,9 @@ const HomePage = () => {
                                         style={{ width: '100%' }}
                                         allowClear
                                         onChange={(value) => {
-                                            setRating(value);
+                                            setPendingRating(value);
                                             const currentValues = form.getFieldsValue(true);
-                                            buildAndSetFilter(currentValues, value);
+                                            buildAndSetFilter(currentValues, value, true);
                                         }}
                                     >
                                         <Select.Option value={5}>5 sao</Select.Option>
@@ -451,16 +473,27 @@ const HomePage = () => {
                                         <Select.Option value={1}>1 sao trở lên</Select.Option>
                                     </Select>
                                 </Col>
-                                <Col xs={24} sm={12} md={6}>
+                            </Row>
+                            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+                                <Col xs={24} sm={8} md={6}>
+                                    <Button
+                                        type="primary"
+                                        onClick={handleApplyFilter}
+                                        style={{
+                                            background: "#d32f2f",
+                                            borderColor: "#d32f2f",
+                                            width: "100%"
+                                        }}
+                                    >
+                                        Áp dụng bộ lọc
+                                    </Button>
+                                </Col>
+                                <Col xs={24} sm={8} md={6}>
                                     <Button
                                         type="default"
                                         icon={<ReloadOutlined />}
-                                        onClick={() => {
-                                            form.resetFields();
-                                            setFilter('');
-                                            setRating(null);
-                                        }}
-                                        style={{ marginTop: 20 }}
+                                        onClick={handleResetFilter}
+                                        style={{ width: "100%" }}
                                     >
                                         Reset
                                     </Button>
@@ -651,8 +684,8 @@ const HomePage = () => {
                 handleChangeFilter={handleChangeFilter}
                 categories={categories}
                 onFinish={onFinish}
-                rating={rating}
-                setRating={setRating}
+                rating={pendingRating}
+                setRating={setPendingRating}
                 buildAndSetFilter={buildAndSetFilter}
             />
         </>
@@ -662,3 +695,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

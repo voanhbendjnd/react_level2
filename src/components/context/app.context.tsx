@@ -1,7 +1,5 @@
 import { fetchAccountAPI } from "@/services/api";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import AppHeader from "../layout/app.header";
-import { Outlet } from "react-router-dom";
 import { ClimbingBoxLoader } from "react-spinners";
 
 // * Nơi lưu trữ thông tin người dùng từ ge Account

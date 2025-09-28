@@ -80,10 +80,13 @@ const BookForm = (props: IProps) => {
             setIsOpenModalForm(false);
             form.resetFields();
         }
-        notification.open({
-            message: "Thêm mới sách thất bại",
-            description: JSON.stringify(res.message)
-        });
+        else {
+            notification.open({
+                message: "Thêm mới sách thất bại",
+                description: JSON.stringify(res.message)
+            });
+        }
+
 
 
         setIsSubmit(false);

@@ -1,3 +1,5 @@
+import type { UploadFile } from "antd";
+
 export {};
 declare global {
   interface IBackendRes<T> {
@@ -41,7 +43,10 @@ declare global {
     email: string;
     name: string;
     role: string;
-    avatar: string;
+    avatar: String;
+    gender: string;
+    phone: string;
+    address: string;
   }
   interface IFetchAccount {
     user: IUser;
