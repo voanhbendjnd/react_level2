@@ -54,6 +54,8 @@ const HomePage = () => {
     const [pendingRating, setPendingRating] = useState<number | null>(null);
     const navigate = useNavigate();
     const [sortQuery, setSortQuery] = useState<string>("sort=stockQuantity,desc")
+    const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [showAllMobile, setShowAllMobile] = useState<boolean>(false);
     useEffect(() => {
         const getCategories = async () => {
             const res = await getAllCategoriesAPI();
@@ -66,6 +68,23 @@ const HomePage = () => {
             }
         }
         getCategories();
+    }, []);
+
+    // detect mobile viewport
+    useEffect(() => {
+        const mql = window.matchMedia('(max-width: 768px)');
+        const handle = (e: MediaQueryListEvent | MediaQueryList) => {
+            // @ts-ignore - both event and list have matches
+            setIsMobile(!!e.matches);
+        };
+        // initial
+        handle(mql);
+        // listener
+        const listener = (e: MediaQueryListEvent) => handle(e);
+        mql.addEventListener ? mql.addEventListener('change', listener) : mql.addListener(listener as any);
+        return () => {
+            mql.removeEventListener ? mql.removeEventListener('change', listener) : mql.removeListener(listener as any);
+        };
     }, []);
 
     useEffect(() => {
@@ -246,20 +265,20 @@ const HomePage = () => {
                             borderTop: 'none'
                         }}>
                             <div style={{
-                                display: 'flex',
+                                display: 'grid',
+                                gridTemplateColumns: isMobile ? 'repeat(2, minmax(0, 1fr))' : 'repeat(5, minmax(0, 1fr))',
                                 gap: '16px',
-                                overflowX: 'auto',
-                                paddingBottom: '8px',
-                                scrollbarWidth: 'thin'
+                                paddingBottom: '8px'
                             }}>
-                                {listBook?.slice(0, 5).map((item, idx) => {
+                                {(isMobile ? (showAllMobile ? listBook : listBook?.slice(0, 2)) : listBook?.slice(0, 5)).map((item, idx) => {
                                     // Generate a color based on the book's ID for consistent coloring
                                     const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
                                     const cardColor = colors[idx % colors.length];
 
                                     return (
                                         <div key={idx} style={{
-                                            width: '300px',
+                                            width: '100%',
+                                            height: "100%",
                                             background: 'white',
                                             borderRadius: '8px',
                                             padding: '12px',
@@ -360,29 +379,32 @@ const HomePage = () => {
                                 })}
                             </div>
 
-                            {/* View More Button */}
-                            <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                                <Button
-                                    style={{
-                                        border: '1px solid #dc2626',
-                                        color: '#dc2626',
-                                        background: 'white',
-                                        borderRadius: '6px',
-                                        padding: '8px 24px',
-                                        fontWeight: '500'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = '#dc2626';
-                                        e.currentTarget.style.color = 'white';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'white';
-                                        e.currentTarget.style.color = '#dc2626';
-                                    }}
-                                >
-                                    Xem Thêm
-                                </Button>
-                            </div>
+                            {/* View More Button (mobile only) */}
+                            {isMobile && (
+                                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                                    <Button
+                                        style={{
+                                            border: '1px solid #dc2626',
+                                            color: '#dc2626',
+                                            background: 'white',
+                                            borderRadius: '6px',
+                                            padding: '8px 24px',
+                                            fontWeight: '500'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = '#dc2626';
+                                            e.currentTarget.style.color = 'white';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'white';
+                                            e.currentTarget.style.color = '#dc2626';
+                                        }}
+                                        onClick={() => setShowAllMobile(v => !v)}
+                                    >
+                                        {showAllMobile ? 'Thu gọn' : 'Xem Thêm'}
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
 

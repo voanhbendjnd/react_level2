@@ -1,5 +1,6 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { App, Col, Divider, Rate, Row } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react"
 import { BsCartPlus } from "react-icons/bs";
 import ReactImageGallery from "react-image-gallery";
@@ -19,7 +20,19 @@ const BookDetailHome = (props: IProps) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const refGallery = useRef<ReactImageGallery>(null);
-    const { carts, setCarts } = useCurrentApp();
+    const { setCarts } = useCurrentApp();
+    const detailItems = [
+        { label: "Mã hàng", value: currentBook?.id ?? "-" },
+        { label: "Tên Nhà Cung Cấp", value: currentBook?.publisher || "-" },
+        { label: "Tác giả", value: currentBook?.author || "-" },
+        { label: "NXB", value: currentBook?.publisher || "-" },
+        { label: "Năm XB", value: currentBook?.publicationDate ? dayjs(currentBook.publicationDate).format("YYYY") : "-" },
+        { label: "ISBN", value: currentBook?.isbn || "-" },
+        { label: "Ngôn ngữ", value: currentBook?.language || "-" },
+        { label: "Thể loại", value: currentBook?.categories?.join(", ") || "-" },
+        { label: "Số trang", value: typeof currentBook?.numberOfPages === "number" ? currentBook?.numberOfPages : "-" },
+        { label: "Tồn kho", value: typeof currentBook?.stockQuantity === "number" ? currentBook?.stockQuantity : "-" },
+    ]
     const [imageGallery, setImageGallery] = useState<{
         original: string;
         thumbnail: string;
@@ -120,30 +133,13 @@ const BookDetailHome = (props: IProps) => {
     }, [currentBook])
 
     return (
-        <div className="product-detail">
-            <div className="pd-container">
-                <div className="pd-card">
-                    <Row gutter={[20, 20]} align="top">
-                        {/* laptop pc */}
-                        <Col md={10} sm={0} xs={0} className="pd-gallery">
-                            <ReactImageGallery
-                                ref={refGallery}
-                                items={imageGallery}
-                                showPlayButton={false}
-                                showFullscreenButton={false}
-                                renderLeftNav={() => <></>} // thanh chuyển ảnh
-                                renderRightNav={() => <></>}
-                                slideOnThumbnailOver={true}
-                                onClick={() => handleOnClickImage()}
-                            />
-                        </Col>
-                        {/* phone */}
-                        <Col md={14} sm={24} className="pd-info"
-                        >
-                            <Col md={0} sm={24} xs={24} className="pd-gallery--mobile"
-                                style={{
-                                    height: "500%"
-                                }}>
+        <>
+            <div className="product-detail">
+                <div className="pd-container">
+                    <div className="pd-card">
+                        <Row gutter={[20, 20]} align="top">
+                            {/* laptop pc */}
+                            <Col md={10} sm={0} xs={0} className="pd-gallery">
                                 <ReactImageGallery
                                     ref={refGallery}
                                     items={imageGallery}
@@ -152,78 +148,117 @@ const BookDetailHome = (props: IProps) => {
                                     renderLeftNav={() => <></>} // thanh chuyển ảnh
                                     renderRightNav={() => <></>}
                                     slideOnThumbnailOver={true}
-                                    showThumbnails={false}
-
+                                    onClick={() => handleOnClickImage()}
                                 />
                             </Col>
-                            <Col span={24}>
-                                <div className="pd-brand">Tác giả: <a href="#">{currentBook?.author}</a></div>
-                                <div className="pd-title">{currentBook?.title}</div>
-                                <div className="pd-meta">
-                                    <Rate value={5} disabled />
-                                    <span className="pd-sold">
-                                        <Divider type="vertical" />
-                                        Đã bán {currentBook?.sold ?? 0} cuốn
-                                    </span>
-                                </div>
-                                <div className="pd-price">
-                                    {new Intl.NumberFormat("vi-VN", {
-                                        style: "currency",
-                                        currency: "VND",
-                                    }).format(currentBook?.price ?? 0)}
-                                </div>
-                                <div className="pd-ship">
-                                    <span className="label">Vận chuyển</span>
-                                    <span className="value">Miễn phí vận chuyển cho đơn 100k</span>
-                                </div>
-                                <div className="pd-qty">
-                                    <span className="label">Số lượng</span>
-                                    <span className="qty-controls">
-                                        <button
-                                            className="btn-qty"
-                                            onClick={handleDecreaseQuantity}
-                                            disabled={quantity <= 1}
-                                        >
-                                            <MinusOutlined />
-                                        </button>
-                                        <input
-                                            className="qty-input"
-                                            value={quantity}
-                                            onChange={handleQuantityChange}
-                                            type="number"
-                                            min={1}
-                                            max={currentBook?.stockQuantity || 1}
-                                        />
-                                        <button
-                                            className="btn-qty"
-                                            onClick={handleIncreaseQuantity}
-                                            disabled={currentBook ? quantity >= currentBook.stockQuantity : true}
-                                        >
-                                            <PlusOutlined />
-                                        </button>
-                                    </span>
-                                </div>
-                                <div className="pd-actions">
-                                    <button className="btn add-cart" onClick={() => handleAddToCart()}>
-                                        <BsCartPlus />
-                                        <span>Thêm vào giỏ hàng</span>
-                                    </button>
-                                    <button className="btn buy-now">Mua ngay</button>
-                                </div>
-                            </Col>
-                        </Col>
+                            {/* phone */}
+                            <Col md={14} sm={24} className="pd-info"
+                            >
+                                <Col md={0} sm={24} xs={24} className="pd-gallery--mobile"
+                                    style={{
+                                        height: "500%"
+                                    }}>
+                                    <ReactImageGallery
+                                        ref={refGallery}
+                                        items={imageGallery}
+                                        showPlayButton={false}
+                                        showFullscreenButton={false}
+                                        renderLeftNav={() => <></>} // thanh chuyển ảnh
+                                        renderRightNav={() => <></>}
+                                        slideOnThumbnailOver={true}
+                                        showThumbnails={false}
 
-                    </Row>
+                                    />
+                                </Col>
+                                <Col span={24}>
+                                    <div className="pd-brand">Tác giả: <a href="#">{currentBook?.author}</a></div>
+                                    <div className="pd-title">{currentBook?.title}</div>
+                                    <div className="pd-meta">
+                                        <Rate value={5} disabled />
+                                        <span className="pd-sold">
+                                            <Divider type="vertical" />
+                                            Đã bán {currentBook?.sold ?? 0} cuốn
+                                        </span>
+                                    </div>
+                                    <div className="pd-price">
+                                        {new Intl.NumberFormat("vi-VN", {
+                                            style: "currency",
+                                            currency: "VND",
+                                        }).format(currentBook?.price ?? 0)}
+                                    </div>
+                                    <div className="pd-ship">
+                                        <span className="label">Vận chuyển</span>
+                                        <span className="value">Miễn phí vận chuyển cho đơn 100k</span>
+                                    </div>
+                                    <div className="pd-qty">
+                                        <span className="label">Số lượng</span>
+                                        <span className="qty-controls">
+                                            <button
+                                                className="btn-qty"
+                                                onClick={handleDecreaseQuantity}
+                                                disabled={quantity <= 1}
+                                            >
+                                                <MinusOutlined />
+                                            </button>
+                                            <input
+                                                className="qty-input"
+                                                value={quantity}
+                                                onChange={handleQuantityChange}
+                                                type="number"
+                                                min={1}
+                                                max={currentBook?.stockQuantity || 1}
+                                            />
+                                            <button
+                                                className="btn-qty"
+                                                onClick={handleIncreaseQuantity}
+                                                disabled={currentBook ? quantity >= currentBook.stockQuantity : true}
+                                            >
+                                                <PlusOutlined />
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <div className="pd-actions">
+                                        <button className="btn add-cart" onClick={() => handleAddToCart()}>
+                                            <BsCartPlus />
+                                            <span>Thêm vào giỏ hàng</span>
+                                        </button>
+                                        <button className="btn buy-now">Mua ngay</button>
+                                    </div>
+                                </Col>
+                            </Col>
+                        </Row>
+                        <Divider />
+                        <div className="pd-extra">
+                            <div className="pd-extra__title">Thông tin chi tiết</div>
+                            <Divider />
+
+                            <div className="pd-extra__table">
+                                {detailItems.map((item, index) => (
+                                    <div className="pd-extra__row" key={index}>
+                                        <span className="label">{item.label}</span>
+                                        <span className="value">{item.value as any}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="pd-desc">
+                            <div className="pd-desc__title">Mô tả sản phẩm</div>
+                            <Divider />
+                            <h4>{currentBook?.title}</h4>
+                            <div className="pd-desc__content">{currentBook?.description || "Chưa có mô tả"}</div>
+                        </div>
+                    </div>
                 </div>
+                <ModalGallery
+                    isOpen={isOpenModalGallery}
+                    setIsOpen={setIsOpenModalGallery}
+                    currentIndex={currentIndex}
+                    items={imageGallery}
+                    title={currentBook?.title ?? ""}
+                />
             </div>
-            <ModalGallery
-                isOpen={isOpenModalGallery}
-                setIsOpen={setIsOpenModalGallery}
-                currentIndex={currentIndex}
-                items={imageGallery}
-                title={currentBook?.title ?? ""}
-            />
-        </div>
+
+        </>
     )
 }
 export default BookDetailHome
