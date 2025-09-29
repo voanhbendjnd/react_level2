@@ -252,14 +252,14 @@ const HomePage = () => {
                                 paddingBottom: '8px',
                                 scrollbarWidth: 'thin'
                             }}>
-                                {listBook?.slice(0, 7).map((item, idx) => {
+                                {listBook?.slice(0, 5).map((item, idx) => {
                                     // Generate a color based on the book's ID for consistent coloring
                                     const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
                                     const cardColor = colors[idx % colors.length];
 
                                     return (
                                         <div key={idx} style={{
-                                            minWidth: '200px',
+                                            width: '300px',
                                             background: 'white',
                                             borderRadius: '8px',
                                             padding: '12px',
@@ -294,7 +294,8 @@ const HomePage = () => {
 
                                             {/* Product Image */}
                                             <div style={{
-                                                height: '120px',
+                                                height: '160px',
+                                                width: "100%",
                                                 background: '#f8fafc',
                                                 borderRadius: '6px',
                                                 display: 'flex',
