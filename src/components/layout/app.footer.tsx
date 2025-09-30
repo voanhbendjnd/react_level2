@@ -47,7 +47,7 @@ const AppFooter = () => {
 
                             Nhà phân sách số 1 Châu Á
                             <br />
-                            Djnd.com.hangni nhận đặt hàng trực tuyến và giao hàng tận nơi. KHÔNG hỗ trợ đặt mua và nhận hàng trực tiếp tại văn phòng cũng như tất cả Hệ Thống trên toàn quốc.
+                            Nhà sách nhận đặt hàng trực tuyến và giao hàng tận nơi. KHÔNG hỗ trợ đặt mua và nhận hàng trực tiếp tại văn phòng cũng như tất cả Hệ Thống trên toàn quốc.
                         </div>
                     </div>
                 </Col>

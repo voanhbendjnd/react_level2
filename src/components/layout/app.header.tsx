@@ -79,7 +79,7 @@ const AppHeader = () => {
                         </div>
                     ))}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
-                        <span style={{ color: '#999', fontSize: 12 }}>{carts.length} Thêm Hàng Vào Giỏ</span>
+                        <span style={{ color: '#999', fontSize: 12 }}>{carts.length} Sản phẩm trong giỏ hàng</span>
                         <Link to={'/order'} onClick={() => setOpen(false)} style={{ background: '#ff4d4f', color: '#fff', padding: '6px 12px', borderRadius: 4 }}>Xem Giỏ Hàng</Link>
                     </div>
                 </div>

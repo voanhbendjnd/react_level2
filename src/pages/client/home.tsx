@@ -197,7 +197,7 @@ const HomePage = () => {
                     </div>
 
                     {/* Utilities grid */}
-                    <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                    {/* <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
                         {[
                             { label: 'Deal Từ 1.000đ' },
                             { label: 'DJ Xử Lý' },
@@ -213,7 +213,7 @@ const HomePage = () => {
                                 </Card>
                             </Col>
                         ))}
-                    </Row>
+                    </Row> */}
 
                     {/* Promotional Banner Section */}
                     <div style={{ marginBottom: 24 }}>
