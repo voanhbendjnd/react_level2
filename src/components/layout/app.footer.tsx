@@ -1,3 +1,4 @@
+import { Divider } from "antd";
 import { Link } from "react-router-dom";
 
 const AppFooter = () => {
@@ -5,10 +6,20 @@ const AppFooter = () => {
         <footer style={{ background: 'rgb(255, 255, 255)', borderTop: '1px solid #e8e8e8' }}>
             <div style={{ maxWidth: 900, margin: '0 auto', padding: '16px', color: 'black' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 16 }}>
-                    <div>
+                    <div
+                        style={{
+                            borderRight: "1px solid black"
+                        }}
+                    >
+                        <div style={{ fontWeight: 600, marginBottom: 8 }}>Dịch vụ</div>
+
                         <div style={{ color: 'black', fontSize: 12, }}>
                             Cần Thơ, Việt Nam
-                            <br />DJND Company
+                            <Divider />
+                            <br />
+                            Nhà phân sách số 1 Việt Nam
+                            <br />
+                            Cùng nhau chung sức xây dựng cộng đồng đam mê lành mạnh
                         </div>
 
                     </div>

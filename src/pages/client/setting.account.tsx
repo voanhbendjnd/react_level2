@@ -104,7 +104,7 @@ export const SettingAccountPage = () => {
         }
         passwordForm.resetFields();
         forgotPasswordForm.resetFields();
-        setCurrentEmail('');
+        // setCurrentEmail('');
         setLoading(false);
     };
 
@@ -148,7 +148,7 @@ export const SettingAccountPage = () => {
         setLoading(true);
         try {
             // Update user information
-            const res = await updateCurrentUser(values.id, values.email, values.fullName, values.phone, values.gender, values.address);
+            const res = await updateCurrentUser(values.id, user?.email || "", values.fullName, values.phone, values.gender, values.address);
             if (!res || !res.data) {
                 throw new Error("Cập nhật thông tin người dùng thất bại, vui lòng thử lại");
             }
