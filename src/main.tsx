@@ -24,6 +24,8 @@ import CheckoutPage from './pages/client/checkout'
 import ThanksPage from './pages/client/thanks'
 import { HistoryOrderPage } from './components/admin/order/order.history.page'
 import { SettingAccountPage } from './pages/client/setting.account'
+import { DashBoardPage } from '@/pages/admin/DashBoard'
+import { OrderTable } from './components/admin/order/order.table'
 
 
 const router = createBrowserRouter([
@@ -94,9 +96,16 @@ const router = createBrowserRouter([
         index: true,
         element: (
           <ProtectedRoute>
-            <div>Dashboard</div>
+            <DashBoardPage />
           </ProtectedRoute>
         )
+      },
+      {
+        path: "dashboard",
+        element:
+          <ProtectedRoute>
+            <DashBoardPage />
+          </ProtectedRoute>
       },
       {
         path: "book",
@@ -108,7 +117,7 @@ const router = createBrowserRouter([
       {
         path: "order",
         element: <ProtectedRoute>
-          <div>Order page</div>
+          <OrderTable />
         </ProtectedRoute>
       },
       {

@@ -99,7 +99,8 @@ const AdminPage = () => {
                             {
                                 icon: <IdcardOutlined />,
                                 key: 'dashboard',
-                                label: 'Dashboard',
+                                label: <Link to={"/admin/dashboard"}>DashBoard</Link>
+
                             },
                             {
                                 key: 'user',
@@ -121,7 +122,7 @@ const AdminPage = () => {
                             {
                                 key: 'order',
                                 icon: <ShopOutlined />,
-                                label: "Quản lý đơn hàng"
+                                label: <Link to={"/admin/order"}>Quản lý đơn hàng</Link>
                             },
                         ]}
                     />

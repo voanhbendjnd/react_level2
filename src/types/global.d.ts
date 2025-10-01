@@ -146,4 +146,20 @@ declare global {
     updatedAt: string;
     details: IOrderHistoryDetail[];
   }
+
+  interface ICountDashboard{
+orderCount: number;
+  bookCount: number;
+  userCount: number;
+  }
+  interface ITableOrders{
+    id: string;
+    name: string;
+    address: string;
+    totalAmount: number;
+    createdAt: string;
+  }
 }
+
+
+

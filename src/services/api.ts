@@ -1,3 +1,4 @@
+import { url } from "inspector";
 import axios from "services/axios.customize";
 
 export const loginAPI = (username: string, password: string) => {
@@ -340,3 +341,13 @@ export const changePasswordByOtpAPI = (
     confirmPassword,
   });
 };
+
+
+export const countDashboardAPI = () => {
+  const url_backend = `/api/v1/dashboard`;
+  return axios.get<IBackendRes<ICountDashboard>>(url_backend);
+}
+export const getAllOrderAPI = (query : string) => {
+  const url_backend = `/api/v1/orders?${query}`;
+  return axios.get<IBackendRes<IModelPaginate<ITableOrders>>>(url_backend)
+}
