@@ -6,8 +6,12 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input, Menu, Space, type MenuProps, Badge, Popover, Image, Grid, Row, Col, Dropdown } from "antd";
 
-
-const AppHeader = () => {
+interface ISearch {
+    searchItem: string;
+    setSearchItem: (v: string) => void;
+}
+const AppHeader = (props: ISearch) => {
+    const { setSearchItem, searchItem } = props;
     const navigate = useNavigate();
     const { user, setUser, setIsAuthenticated, carts } = useCurrentApp();
     const screens = Grid.useBreakpoint();
@@ -206,7 +210,16 @@ const AppHeader = () => {
                     marginTop: "12px",
                     width: "100vh"
                 }}>
-                <Search placeholder="Bạn muốn tìm kiếm gì?" allowClear />
+                <Search
+                    placeholder="Bạn muốn tìm kiếm gì?"
+                    allowClear
+                    value={searchItem}
+                    onChange={(e) => setSearchItem(e.target.value)}
+                    onSearch={(value) => {
+                        setSearchItem(value);
+                        navigate("/");
+                    }}
+                />
             </Space.Compact>,
             key: 'search'
         },
@@ -238,6 +251,9 @@ const AppHeader = () => {
         }]),
     ];
 
+    const handleOnSearch = (values: any) => {
+        setSearchItem(values);
+    }
     return (
         <>
             <Row>
@@ -259,6 +275,11 @@ const AppHeader = () => {
                                         background: '#ffffff',
                                         borderRadius: 20
                                     }}
+                                    value={searchItem}
+                                    onClick={(values) => {
+                                        handleOnSearch(values)
+                                    }}
+                                    onChange={(e) => setSearchItem(e.target.value)}
                                 />
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

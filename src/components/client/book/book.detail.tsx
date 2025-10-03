@@ -8,6 +8,7 @@ import ModalGallery from "./modal.gallery";
 import "@/styles/productDetail.scss";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { useCurrentApp } from "@/components/context/app.context";
+import { useNavigate } from "react-router-dom";
 interface IProps {
     currentBook: IBooksTable | null;
 
@@ -66,9 +67,9 @@ const BookDetailHome = (props: IProps) => {
             setQuantity(value);
         }
     }
-
+    const navigate = useNavigate();
     // add to cart
-    const handleAddToCart = () => {
+    const handleAddToCart = (isBuyNow = false) => {
         const cartStorage = localStorage.getItem("carts");
         let updatedCarts = [];
         if (cartStorage) {
@@ -100,8 +101,13 @@ const BookDetailHome = (props: IProps) => {
 
         // Luôn cập nhật state toàn cục để các component khác có thể theo dõi
         setCarts(updatedCarts);
+        if (isBuyNow) {
+            navigate('/order')
+        }
+        if (!isBuyNow) {
+            message.success("Thêm vào giỏ hàng thành công");
 
-        message.success("Thêm vào giỏ hàng thành công");
+        }
     }
     useEffect(() => {
         if (currentBook) {
@@ -222,7 +228,11 @@ const BookDetailHome = (props: IProps) => {
                                             <BsCartPlus />
                                             <span>Thêm vào giỏ hàng</span>
                                         </button>
-                                        <button className="btn buy-now">Mua ngay</button>
+                                        <button className="btn buy-now"
+                                            onClick={() => {
+                                                handleAddToCart(true)
+                                            }}
+                                        >Mua ngay</button>
                                     </div>
                                 </Col>
                             </Col>

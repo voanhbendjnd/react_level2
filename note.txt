@@ -15,6 +15,7 @@ npm install --save-exact uuid@11.0.3
 npm i --save-exact react-image-gallery@1.3.0
 npm i --save-exact --save-dev @types/react-image-gallery@1.2.4
 npm install --save-exact react-countup@6.5.3 // count up
+npm i --save-exact react-device-detect@2.2.3
 .env.development la file moi truong
 
 storage là lưu data kể cả khi đóng trình duyệt

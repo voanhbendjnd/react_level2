@@ -24,7 +24,7 @@ import CheckoutPage from './pages/client/checkout'
 import ThanksPage from './pages/client/thanks'
 import { HistoryOrderPage } from './components/admin/order/order.history.page'
 import { SettingAccountPage } from './pages/client/setting.account'
-import { DashBoardPage } from '@/pages/admin/DashBoard'
+import { DashBoardPage } from '@/pages/admin/dashboard'
 import { OrderTable } from './components/admin/order/order.table'
 
 

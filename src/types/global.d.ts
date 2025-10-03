@@ -20,12 +20,15 @@ declare global {
   interface ILogin {
     access_token: string;
     user: {
-      id: string;
-      name: string;
-      email: string;
-      name: string;
-      role: string;
-      avatar: string;
+     id: string;
+    name: string;
+    email: string;
+    name: string;
+    role: string;
+    avatar: String;
+    gender: string;
+    phone: string;
+    address: string;
     };
   }
   interface IRegister {

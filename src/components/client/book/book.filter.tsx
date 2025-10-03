@@ -97,7 +97,7 @@ export const ModalFilter = (props: IProps) => {
                     <Divider />
 
                     {/* Đánh giá */}
-                    <Form.Item label="Đánh giá">
+                    {/* <Form.Item label="Đánh giá">
                         {[5, 4, 3, 2, 1].map((star) => (
                             <div
                                 key={star}
@@ -114,7 +114,7 @@ export const ModalFilter = (props: IProps) => {
                                 <span>{star < 5 ? "Trở lên" : ""}</span>
                             </div>
                         ))}
-                    </Form.Item>
+                    </Form.Item> */}
                 </Form>
 
             </Form>

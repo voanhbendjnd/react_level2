@@ -15,12 +15,12 @@ import "@/styles/homePage.scss";
 import HomeLoader from "./home.loader";
 import { fetchBooksAPI, getAllCategoriesAPI } from "@/services/api";
 import { useEffect, useMemo, useState } from "react";
-import { Carousel, Card } from "antd";
+import { Carousel } from "antd";
 import bannerHome from "/src/assets/banner-home.png";
 import bannerSliderFirst from "/src/assets/bannerSlider.png";
 import bannerSliderSecond from "/src/assets/bannerSliderSecond.png";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { ModalFilter } from "@/components/client/book/book.filter";
 type TypeField = {
     range: {
@@ -32,6 +32,7 @@ type TypeField = {
 
 const HomePage = () => {
     const [form] = Form.useForm();
+    const [searchItem] = useOutletContext() as any;
     const [categories, setCategories] = useState<{ label: string; value: string }[]>([]);
     // const { message, notification } = App.useApp();
     const [isOpenFilterModal, setIsOpenFilterModal] = useState<boolean>(false);
@@ -89,7 +90,7 @@ const HomePage = () => {
 
     useEffect(() => {
         fetchBook();
-    }, [current, pageSize, filter, sortQuery])
+    }, [current, pageSize, filter, sortQuery, searchItem])
     const fetchBook = async () => {
         setIsLoading(true);
         let query = `page=${current}&size=${pageSize}`
@@ -98,6 +99,9 @@ const HomePage = () => {
         query += `&filter=active:true`;
 
         // }
+        if (searchItem) {
+            query += `&filter=title~'${searchItem}'`
+        }
         if (sortQuery) {
             query += `&${sortQuery}`
         }
@@ -477,7 +481,7 @@ const HomePage = () => {
                                         />
                                     </div>
                                 </Col>
-                                <Col xs={24} sm={12} md={6}>
+                                {/* <Col xs={24} sm={12} md={6}>
                                     <div style={{ marginBottom: 4, fontWeight: 500 }}>Đánh giá</div>
                                     <Select
                                         placeholder="Chọn đánh giá"
@@ -495,7 +499,7 @@ const HomePage = () => {
                                         <Select.Option value={2}>2 sao trở lên</Select.Option>
                                         <Select.Option value={1}>1 sao trở lên</Select.Option>
                                     </Select>
-                                </Col>
+                                </Col> */}
                             </Row>
                             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                                 <Col xs={24} sm={8} md={6}>

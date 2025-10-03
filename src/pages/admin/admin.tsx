@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     BookOutlined,
     HomeOutlined,
@@ -13,7 +13,7 @@ import {
 } from '@ant-design/icons';
 
 import { App, Avatar, Button, Dropdown, Layout, Menu, Result, theme } from 'antd';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useCurrentApp } from '@/components/context/app.context';
 import { ClimbingBoxLoader } from 'react-spinners';
 import { logoutAPI } from '@/services/api';
@@ -25,6 +25,8 @@ const AdminPage = () => {
     const [collapsed, setCollapsed] = useState(false);
     const avatarURL = `http://localhost:8080/api/v1/images/user/${user?.avatar}`
     const navigate = useNavigate();
+    const location = useLocation();
+
     const logout = async () => {
         const res = await logoutAPI();
         if (res) {
@@ -71,7 +73,11 @@ const AdminPage = () => {
             </div>
         )
     }
-
+    const [activeMenu, setActiveMenu] = useState("");
+    // useEffect(() => {
+    //     const active: any = items.find(it => location.pathname === (it.key as any)) ?? "/admin";
+    //     setActiveMenu(active.key);
+    // }, [location]);
 
     return (
 
@@ -88,6 +94,7 @@ const AdminPage = () => {
                     />
                     <Menu
                         mode="inline"
+                        selectedKeys={[activeMenu]}
                         defaultSelectedKeys={['1']}
                         items={[
                             {
@@ -108,19 +115,19 @@ const AdminPage = () => {
                                 label: "Quản lý người dùng",
                                 children: [
                                     {
-                                        key: "user-crud",
+                                        key: "/admin/user",
                                         label: <Link to={"/admin/user"}>CRUD</Link>,
                                         icon: <UserOutlined />,
                                     }
                                 ]
                             },
                             {
-                                key: 'book',
+                                key: '/admin/book',
                                 icon: <BookOutlined />,
                                 label: <Link to={"/admin/book"}>Quản lý sách</Link>
                             },
                             {
-                                key: 'order',
+                                key: '/admin/order',
                                 icon: <ShopOutlined />,
                                 label: <Link to={"/admin/order"}>Quản lý đơn hàng</Link>
                             },
