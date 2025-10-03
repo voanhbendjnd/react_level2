@@ -21,7 +21,7 @@ const BookDetailHome = (props: IProps) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const refGallery = useRef<ReactImageGallery>(null);
-    const { setCarts } = useCurrentApp();
+    const { setCarts, isAuthenticated } = useCurrentApp();
     const detailItems = [
         { label: "Mã hàng", value: currentBook?.id ?? "-" },
         { label: "Tên Nhà Cung Cấp", value: currentBook?.publisher || "-" },
@@ -69,7 +69,12 @@ const BookDetailHome = (props: IProps) => {
     }
     const navigate = useNavigate();
     // add to cart
-    const handleAddToCart = (isBuyNow = false) => {
+    const handleAddToCart = (isBuyNow: boolean) => {
+        if (!isAuthenticated) {
+            message.success("Hãy đăng nhập trước khi mua sản phẩm");
+            navigate("/login");
+            return;
+        }
         const cartStorage = localStorage.getItem("carts");
         let updatedCarts = [];
         if (cartStorage) {
@@ -104,7 +109,7 @@ const BookDetailHome = (props: IProps) => {
         if (isBuyNow) {
             navigate('/order')
         }
-        if (!isBuyNow) {
+        if (!isBuyNow && isAuthenticated) {
             message.success("Thêm vào giỏ hàng thành công");
 
         }
@@ -224,7 +229,7 @@ const BookDetailHome = (props: IProps) => {
                                         </span>
                                     </div>
                                     <div className="pd-actions">
-                                        <button className="btn add-cart" onClick={() => handleAddToCart()}>
+                                        <button className="btn add-cart" onClick={() => handleAddToCart(false)}>
                                             <BsCartPlus />
                                             <span>Thêm vào giỏ hàng</span>
                                         </button>

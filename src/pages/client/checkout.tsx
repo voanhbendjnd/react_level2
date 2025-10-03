@@ -32,6 +32,7 @@ export const CheckoutPage = () => {
     const accountAddress: string | undefined = user?.address || undefined;
     const { message } = App.useApp();
     const navigate = useNavigate();
+    // removed VNPay modal state; flow uses confirmation page
     const [loading, setLoading] = useState<boolean>(false);
     const selectedIds = useMemo<number[]>(() => {
         try {
@@ -65,8 +66,14 @@ export const CheckoutPage = () => {
         try {
             const res = await orderAPI(payload);
             if (res?.data) {
+                // Created order successfully
+                const createdOrderId = res.data?.id || res.data?.order?.id || res.data?.orderId;
+                if (method === 'VNPay' && createdOrderId) {
+                    // Navigate to VNPay confirmation page; do not clear carts yet
+                    navigate('/vnpay', { state: { orderId: createdOrderId, amount: total } });
+                    return;
+                }
                 message.success("Đặt hàng thành công");
-                // clear only selected items from carts
                 const remaining = carts.filter((c: ICart) => !selectedIds.includes(c.id!));
                 setCarts(remaining);
                 localStorage.setItem('carts', JSON.stringify(remaining));
@@ -241,6 +248,8 @@ export const CheckoutPage = () => {
                     <div style={{ textAlign: "center", color: "#999", marginTop: 16 }}>Không có sản phẩm nào được chọn.</div>
                 )}
             </Form>
+            {/* VNPay form removed; flow now triggers only after placing order */}
+
         </div>
     );
 }

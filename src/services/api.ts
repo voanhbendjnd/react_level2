@@ -351,3 +351,44 @@ export const getAllOrderAPI = (query : string) => {
   const url_backend = `/api/v1/orders?${query}`;
   return axios.get<IBackendRes<IModelPaginate<ITableOrders>>>(url_backend)
 }
+
+/**
+ * Gọi API Backend để khởi tạo thanh toán VNPAY.
+ * Backend sẽ trả về lệnh Redirect URL đến cổng VNPAY.
+ * Do endpoint hiện tại ở BE là @GetMapping, FE chỉ cần gọi API GET này
+ * và lấy URL chuyển hướng.
+ * * Lưu ý: Endpoint này phải được cấu hình 'permitAll()' trong Spring Security
+ * nếu nó được gọi bằng window.location.href (không kèm token Authorization)
+ * và không được bảo vệ.
+ * * Nếu BE yêu cầu token, bạn cần đổi BE sang @PostMapping và dùng axios.post (xem phần dưới).
+ * * @param orderId Mã đơn hàng cần thanh toán
+ * @returns {Promise<any>} Response chứa dữ liệu, bao gồm cả URL chuyển hướng nếu Backend đã sửa để trả về JSON
+ */
+export const initiateVnpayPaymentAPI_GET = (orderId: number | string) => {
+    // Đường dẫn API hiện tại đang là GET và truyền orderId qua query param
+    // Thêm tiền tố '/api' theo cấu hình proxy trong vite.config.ts
+    const url_backend = `/api/v1/payment/vnpay/create?orderId=${orderId}`;
+    
+    // Sử dụng GET
+    return axios.get(url_backend);
+};
+
+
+/**
+ * HÀM KHUYẾN NGHỊ (NẾU DÙNG @POST Ở BE):
+ * Nếu Backend được sửa thành @PostMapping và yêu cầu Token xác thực
+ * thì bạn nên dùng hàm này.
+ * * @param orderId Mã đơn hàng cần thanh toán
+ * @returns Promise<any> chứa vnpayUrl nếu thành công
+ */
+export const initiateVnpayPaymentAPI_POST = (orderId: number | string) => {
+    // Đường dẫn API POST
+    const url_backend = `/api/v1/payment/vnpay/create`;
+    
+    const data = {
+        orderId: Number(orderId),
+    };
+    
+    // Sử dụng POST, Axios sẽ tự động thêm Token vào Header (nhờ services/axios.customize.ts)
+    return axios.post(url_backend, data);
+};

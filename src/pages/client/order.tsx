@@ -89,6 +89,10 @@ export const OrderPage = () => {
                                             src={`http://localhost:8080/api/v1/images/book/${item.detail?.coverImage}`}
                                             alt={item.detail?.title}
                                             style={{ width: isMobile ? 64 : 72, height: isMobile ? 64 : 72, objectFit: "contain", borderRadius: 6 }}
+
+                                            onClick={() => {
+                                                navigate(`/books/${item.id}`)
+                                            }}
                                         />
                                         <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                                             <div style={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 420 }}>

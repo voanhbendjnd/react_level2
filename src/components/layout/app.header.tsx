@@ -168,41 +168,41 @@ const AppHeader = (props: ISearch) => {
             key: 'home',
             icon: <HomeOutlined />,
         },
-        {
-            label: (
-                <Dropdown
-                    trigger={["hover"]}
-                    dropdownRender={() => (
-                        <div style={{ background: '#fff', padding: 12, width: 680, boxShadow: '0 6px 16px rgba(0,0,0,0.12)' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                                <div>
-                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Văn học</div>
-                                    <div>Tiểu Thuyết</div>
-                                    <div>Truyện Ngắn - Tản Văn</div>
-                                    <div>Light Novel</div>
-                                    <div>Ngôn Tình</div>
-                                </div>
-                                <div>
-                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Kinh tế</div>
-                                    <div>Nhân Vật - Bài Học Kinh Doanh</div>
-                                    <div>Quản Trị - Lãnh Đạo</div>
-                                    <div>Marketing - Bán Hàng</div>
-                                </div>
-                                <div>
-                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Thiếu nhi</div>
-                                    <div>Manga - Comic</div>
-                                    <div>Kiến Thức Bách Khoa</div>
-                                    <div>Tranh Kỹ Năng Sống</div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                >
-                    <span>Danh mục sản phẩm</span>
-                </Dropdown>
-            ),
-            key: 'category',
-        },
+        // {
+        //     label: (
+        //         <Dropdown
+        //             trigger={["hover"]}
+        //             dropdownRender={() => (
+        //                 <div style={{ background: '#fff', padding: 12, width: 680, boxShadow: '0 6px 16px rgba(0,0,0,0.12)' }}>
+        //                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        //                         <div>
+        //                             <div style={{ fontWeight: 600, marginBottom: 8 }}>Văn học</div>
+        //                             <div>Tiểu Thuyết</div>
+        //                             <div>Truyện Ngắn - Tản Văn</div>
+        //                             <div>Light Novel</div>
+        //                             <div>Ngôn Tình</div>
+        //                         </div>
+        //                         <div>
+        //                             <div style={{ fontWeight: 600, marginBottom: 8 }}>Kinh tế</div>
+        //                             <div>Nhân Vật - Bài Học Kinh Doanh</div>
+        //                             <div>Quản Trị - Lãnh Đạo</div>
+        //                             <div>Marketing - Bán Hàng</div>
+        //                         </div>
+        //                         <div>
+        //                             <div style={{ fontWeight: 600, marginBottom: 8 }}>Thiếu nhi</div>
+        //                             <div>Manga - Comic</div>
+        //                             <div>Kiến Thức Bách Khoa</div>
+        //                             <div>Tranh Kỹ Năng Sống</div>
+        //                         </div>
+        //                     </div>
+        //                 </div>
+        //             )}
+        //         >
+        //             <span>Danh mục sản phẩm</span>
+        //         </Dropdown>
+        //     ),
+        //     key: 'category',
+        // },
         {
             label: <Space.Compact
                 className="hide-on-mobile"
@@ -232,7 +232,8 @@ const AppHeader = (props: ISearch) => {
             {
                 label: <Link to={'/order-history'}>Lịch sử mua hàng</Link>,
                 key: 'history',
-                icon: <HistoryOutlined />
+                icon:
+                    <HistoryOutlined />
             }
             ]
             : []),

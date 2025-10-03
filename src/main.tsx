@@ -22,6 +22,7 @@ import BookPage from './components/admin/book/book.table'
 import { OrderPage } from './pages/client/order'
 import CheckoutPage from './pages/client/checkout'
 import ThanksPage from './pages/client/thanks'
+import VnpayConfirmPage from './pages/client/vnpay'
 import { HistoryOrderPage } from './components/admin/order/order.history.page'
 import { SettingAccountPage } from './pages/client/setting.account'
 import { DashBoardPage } from '@/pages/admin/dashboard'
@@ -61,6 +62,13 @@ const router = createBrowserRouter([
         element:
           <ProtectedRoute>
             <ThanksPage />
+          </ProtectedRoute>
+      },
+      {
+        path: "vnpay",
+        element:
+          <ProtectedRoute>
+            <VnpayConfirmPage />
           </ProtectedRoute>
       },
       {
