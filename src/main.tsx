@@ -22,11 +22,11 @@ import BookPage from './components/admin/book/book.table'
 import { OrderPage } from './pages/client/order'
 import CheckoutPage from './pages/client/checkout'
 import ThanksPage from './pages/client/thanks'
-import VnpayConfirmPage from './pages/client/vnpay'
 import { HistoryOrderPage } from './components/admin/order/order.history.page'
 import { SettingAccountPage } from './pages/client/setting.account'
 import { DashBoardPage } from '@/pages/admin/dashboard'
 import { OrderTable } from './components/admin/order/order.table'
+import GoogleCallbackPage from './pages/client/auth/google-callback'
 
 
 const router = createBrowserRouter([
@@ -65,13 +65,6 @@ const router = createBrowserRouter([
           </ProtectedRoute>
       },
       {
-        path: "vnpay",
-        element:
-          <ProtectedRoute>
-            <VnpayConfirmPage />
-          </ProtectedRoute>
-      },
-      {
         path: "order-history",
         element:
           <ProtectedRoute>
@@ -95,6 +88,10 @@ const router = createBrowserRouter([
     path: "/register",
     element:
       <RegisterPage />
+  },
+  {
+    path: "/login/oauth2/code/google",
+    element: <GoogleCallbackPage />
   }, {
     path: "admin",
     element:
