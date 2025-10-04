@@ -134,6 +134,7 @@ declare global {
   interface IOrderHistoryDetail {
     bookName: string;
     quantity: number;
+    coverImage: string;
     id: number;
   }
 
@@ -145,6 +146,7 @@ declare global {
     phone: string;
     userId: number;
     totalAmount: number;
+    status: string;
     createdAt: string;
     updatedAt: string;
     details: IOrderHistoryDetail[];

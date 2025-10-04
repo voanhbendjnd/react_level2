@@ -144,7 +144,7 @@ const AppHeader = (props: ISearch) => {
             </Link>
         ) : (
 
-            <Popover placement="bottomRight" title={textOrder} content={content} trigger="click"
+            <Popover placement="bottomRight" title={textOrder} content={content} trigger="hover"
                 open={open}
                 onOpenChange={() => {
                     setOpen(!open);

@@ -2,7 +2,7 @@ import { loginAPI } from "@/services/api";
 import { App, Button, Checkbox, Divider, Form, Input, type FormProps } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import bgImageMain from "/src/assets/hinh-nen-toi-4k_061742487.jpg"
+import bgImageMain from "/src/assets/books-hd-8k-wallpaper-stock-photographic-image_1064748-3923.jpg"
 import { useCurrentApp } from "@/components/context/app.context";
 // match between backend and frontend
 type FieldType = {

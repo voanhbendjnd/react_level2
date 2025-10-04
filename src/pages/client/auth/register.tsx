@@ -1,6 +1,8 @@
 import { registerAPI } from "@/services/api";
 import { App, Button, Divider, Form, Input } from "antd";
 import { useState } from "react";
+import bgImageMain from "/src/assets/books-hd-8k-wallpaper-stock-photographic-image_1064748-3923.jpg"
+
 import { Link, useNavigate } from "react-router-dom";
 type FieldType = {
     name?: string;
@@ -40,12 +42,21 @@ const RegisterPage = () => {
         setLoading(false)
     };
     return (
-        <div className="login-page">
+        <div className="login-page"
+            style={{
+                margin: "0",
+                minHeight: "100vh",
+                backgroundImage: `url(${bgImageMain})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                color: "white"
+            }}>
             <fieldset
                 className="login-card card fade-in"
                 style={{
                     border: "1px solid #ccc",
                     borderRadius: "10px"
+
                 }}>
                 <legend>Đăng ký</legend>
 
@@ -53,10 +64,12 @@ const RegisterPage = () => {
                     layout="vertical"
                     form={form}
                     onFinish={onFinish}
-                    style={{ padding: "30px", borderRadius: "10px" }}
+                    style={{
+                        padding: "30px", borderRadius: "10px"
+                    }}
                 >
                     <Form.Item<FieldType>
-                        label="Họ và tên"
+                        label={<span style={{ color: "white" }}>Họ và tên</span>}
                         name="name"
                         rules={[
                             { required: true, message: 'Tên không được bỏ trống' },
@@ -66,7 +79,7 @@ const RegisterPage = () => {
 
                     </Form.Item>
                     <Form.Item<FieldType>
-                        label="Email"
+                        label={<span style={{ color: "white" }}>Địa chỉ email</span>}
                         name="email"
                         rules={[
                             { required: true, message: 'Email không được bỏ trống' },
@@ -76,13 +89,13 @@ const RegisterPage = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item<FieldType>
-                        label="Số điện thoại"
+                        label={<span style={{ color: "white" }}>Số điện thoại</span>}
                         name="phone"
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item<FieldType>
-                        label="Mật khẩu"
+                        label={<span style={{ color: "white" }}>Mật khẩu</span>}
                         name="password"
                         rules={[{ required: true, message: 'Mật khẩu không được bỏ trống' }]}
 
@@ -91,7 +104,7 @@ const RegisterPage = () => {
 
                     </Form.Item>
                     <Form.Item<FieldType>
-                        label="Nhập lại mật khẩu"
+                        label={<span style={{ color: "white" }}>Xác nhận mật khẩu</span>}
                         name="confirmPassword"
                         rules={[
                             { required: true, message: 'Mật khẩu không được bỏ trống' },

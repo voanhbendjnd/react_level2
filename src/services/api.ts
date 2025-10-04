@@ -1,4 +1,3 @@
-import { url } from "inspector";
 import axios from "services/axios.customize";
 
 export const loginAPI = (username: string, password: string) => {
@@ -275,9 +274,16 @@ export const orderAPI = (payload: IRequestOrder) => {
   });
 };
 
-export const watchingHistoryAPI = () => {
-  const url_backend = `/api/v1/orders/history`;
-  return axios.get<IBackendRes<IOrderHistory[]>>(url_backend, {
+export const watchingHistoryAPI = (
+  page: number = 1,
+  size: number = 10,
+  status?: string
+) => {
+  let url_backend = `/api/v1/orders/history?page=${page}&size=${size}`;
+  if (status && status !== "all") {
+    url_backend += `&status=${status}`;
+  }
+  return axios.get<IBackendRes<IModelPaginate<IOrderHistory>>>(url_backend, {
     headers: {
       delay: "1000",
     },
@@ -342,15 +348,14 @@ export const changePasswordByOtpAPI = (
   });
 };
 
-
 export const countDashboardAPI = () => {
   const url_backend = `/api/v1/dashboard`;
   return axios.get<IBackendRes<ICountDashboard>>(url_backend);
-}
-export const getAllOrderAPI = (query : string) => {
+};
+export const getAllOrderAPI = (query: string) => {
   const url_backend = `/api/v1/orders?${query}`;
-  return axios.get<IBackendRes<IModelPaginate<ITableOrders>>>(url_backend)
-}
+  return axios.get<IBackendRes<IModelPaginate<ITableOrders>>>(url_backend);
+};
 
 /**
  * Gọi API Backend để khởi tạo thanh toán VNPAY.
@@ -365,14 +370,13 @@ export const getAllOrderAPI = (query : string) => {
  * @returns {Promise<any>} Response chứa dữ liệu, bao gồm cả URL chuyển hướng nếu Backend đã sửa để trả về JSON
  */
 export const initiateVnpayPaymentAPI_GET = (orderId: number | string) => {
-    // Đường dẫn API hiện tại đang là GET và truyền orderId qua query param
-    // Thêm tiền tố '/api' theo cấu hình proxy trong vite.config.ts
-    const url_backend = `/api/v1/payment/vnpay/create?orderId=${orderId}`;
-    
-    // Sử dụng GET
-    return axios.get(url_backend);
-};
+  // Đường dẫn API hiện tại đang là GET và truyền orderId qua query param
+  // Thêm tiền tố '/api' theo cấu hình proxy trong vite.config.ts
+  const url_backend = `/api/v1/payment/vnpay/create?orderId=${orderId}`;
 
+  // Sử dụng GET
+  return axios.get(url_backend);
+};
 
 /**
  * HÀM KHUYẾN NGHỊ (NẾU DÙNG @POST Ở BE):
@@ -382,13 +386,13 @@ export const initiateVnpayPaymentAPI_GET = (orderId: number | string) => {
  * @returns Promise<any> chứa vnpayUrl nếu thành công
  */
 export const initiateVnpayPaymentAPI_POST = (orderId: number | string) => {
-    // Đường dẫn API POST
-    const url_backend = `/api/v1/payment/vnpay/create`;
-    
-    const data = {
-        orderId: Number(orderId),
-    };
-    
-    // Sử dụng POST, Axios sẽ tự động thêm Token vào Header (nhờ services/axios.customize.ts)
-    return axios.post(url_backend, data);
+  // Đường dẫn API POST
+  const url_backend = `/api/v1/payment/vnpay/create`;
+
+  const data = {
+    orderId: Number(orderId),
+  };
+
+  // Sử dụng POST, Axios sẽ tự động thêm Token vào Header (nhờ services/axios.customize.ts)
+  return axios.post(url_backend, data);
 };

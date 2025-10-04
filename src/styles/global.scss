@@ -148,6 +148,7 @@ small,
   }
 }
 
+
 /* Mobile search bar below header */
 .header-search-mobile {
   display: none;
@@ -240,7 +241,7 @@ small,
 }
 .header-search__input .ant-input:focus {
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(241, 244, 247, 0.952);
 }
 .header-search__input .ant-input-search-button {
   border-radius: 0 999px 999px 0 !important;
@@ -287,7 +288,7 @@ small,
 
 /* App menu professional active style */
 .app-menu.ant-menu-dark {
-  background: #0d3b66;
+  background: #ebeff3;
 }
 .app-menu.ant-menu-dark .ant-menu-item {
   color: rgba(255, 255, 255, 0.82);
@@ -304,7 +305,7 @@ small,
 }
 // sau khi đưa chuột vào thì đổi màuàu
 .app-menu.ant-menu-dark .ant-menu-item:hover {
-  background: #3b80c0;
+  background: rgb(212, 48, 48);
   color: #fff;
 }
 

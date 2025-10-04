@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Button, Card, Col, Row, Tabs, Typography, Space, Tag, Modal, Descriptions, Divider, Spin, Empty } from "antd";
+import { Button, Card, Col, Row, Tabs, Typography, Space, Tag, Modal, Descriptions, Divider, Spin, Empty, Pagination } from "antd";
 import { EyeOutlined, ShoppingCartOutlined, MessageOutlined, ShopOutlined, HeartOutlined } from "@ant-design/icons";
-import { watchingHistoryAPI, getBookByIdAPI } from "@/services/api";
+import { watchingHistoryAPI } from "@/services/api";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
@@ -14,28 +14,61 @@ export const HistoryOrderPage = () => {
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<IOrderHistory | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
-    const [bookIdToCover, setBookIdToCover] = useState<Record<number, string>>({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [activeTab, setActiveTab] = useState("all");
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchOrderHistory();
-    }, []);
+    }, [currentPage, pageSize, activeTab]);
 
     const fetchOrderHistory = async () => {
         try {
             setLoading(true);
-            const response = await watchingHistoryAPI();
+            const response = await watchingHistoryAPI(currentPage, pageSize, activeTab);
+            console.log("Full API Response:", response);
+            console.log("Response Data:", response?.data);
+
             const payload: any = response?.data ?? response;
-            const list: IOrderHistory[] = Array.isArray(payload)
-                ? payload
-                : Array.isArray(payload?.result)
-                    ? payload.result
-                    : Array.isArray(payload?.orders)
-                        ? payload.orders
-                        : [];
-            setOrders(list);
+            console.log("Payload:", payload);
+
+            // Try multiple possible response structures
+            let ordersData = null;
+            let totalCount = 0;
+
+            if (payload?.data?.result && Array.isArray(payload.data.result)) {
+                // Structure: { data: { result: [...], meta: {...} } }
+                ordersData = payload.data.result;
+                totalCount = payload.data.meta?.total || payload.data.result.length;
+                console.log("Orders found (data.result structure):", ordersData);
+            } else if (payload?.result && Array.isArray(payload.result)) {
+                // Structure: { result: [...], meta: {...} }
+                ordersData = payload.result;
+                totalCount = payload.meta?.total || payload.result.length;
+                console.log("Orders found (result structure):", ordersData);
+            } else if (Array.isArray(payload)) {
+                // Structure: [...] (direct array)
+                ordersData = payload;
+                totalCount = payload.length;
+                console.log("Orders found (direct array):", ordersData);
+            } else {
+                console.log("No orders found. Payload structure:", Object.keys(payload || {}));
+                console.log("Full payload:", JSON.stringify(payload, null, 2));
+            }
+
+            if (ordersData) {
+                setOrders(ordersData);
+                setTotalOrders(totalCount);
+            } else {
+                setOrders([]);
+                setTotalOrders(0);
+            }
         } catch (error) {
             console.error("Error fetching order history:", error);
+            setOrders([]);
+            setTotalOrders(0);
         } finally {
             setLoading(false);
         }
@@ -51,16 +84,29 @@ export const HistoryOrderPage = () => {
         });
     };
 
-    const getStatusTag = (type: string) => {
-        const statusMap: { [key: string]: { color: string; text: string } } = {
+    const getPaymentMethodTag = (type: string) => {
+        const paymentMap: { [key: string]: { color: string; text: string } } = {
             "CASH_ON_DELIVERY": { color: "green", text: "Thanh toán khi nhận hàng" },
             "VNPay": { color: "blue", text: "VNPay" },
             "NAPAS": { color: "purple", text: "NAPAS" },
             "Google_Pay": { color: "orange", text: "Google Pay" },
         };
-        const status = statusMap[type] || { color: "default", text: type };
-        return <Tag color={status.color}>{status.text}</Tag>;
+        const payment = paymentMap[type] || { color: "default", text: type };
+        return <Tag color={payment.color}>{payment.text}</Tag>;
     };
+
+    const getStatusTag = (status: string) => {
+        const statusMap: { [key: string]: { color: string; text: string } } = {
+            "PENDING": { color: "orange", text: "Đang xử lý" },
+            "SHIPPED": { color: "blue", text: "Đã vận chuyển" },
+            "DELIVERED": { color: "green", text: "Đã giao" },
+            "CANCELED": { color: "red", text: "Đã hủy" },
+            "FAILED": { color: "red", text: "Thất bại" },
+        };
+        const statusInfo = statusMap[status] || { color: "default", text: status };
+        return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
+    };
+
 
     const handleViewDetails = (order: IOrderHistory) => {
         setSelectedOrder(order);
@@ -73,29 +119,10 @@ export const HistoryOrderPage = () => {
 
     const backendUrl = "http://localhost:8080";
 
-    const ensureCoversForOrder = async (order: IOrderHistory) => {
-        const missingIds = order.details
-            .map((d) => d.id)
-            .filter((id) => typeof id === "number" && !bookIdToCover[id as number]) as number[];
-        if (missingIds.length === 0) return;
-        const updates: Record<number, string> = {};
-        await Promise.all(missingIds.map(async (id) => {
-            try {
-                const res = await getBookByIdAPI(id);
-                const cover = res?.data?.coverImage;
-                if (cover) updates[id] = cover;
-            } catch { /* ignore */ }
-        }));
-        if (Object.keys(updates).length > 0) {
-            setBookIdToCover((prev) => ({ ...prev, ...updates }));
-        }
-    };
-
     const OrderCard = ({ order }: { order: IOrderHistory }) => (
         <Card
             style={{ marginBottom: 16, borderRadius: 8 }}
             bodyStyle={{ padding: 16 }}
-            onMouseEnter={() => ensureCoversForOrder(order)}
         >
             {/* Header with seller info */}
             <Row justify="space-between" align="middle" style={{ marginBottom: 12 }}>
@@ -123,8 +150,7 @@ export const HistoryOrderPage = () => {
             <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
                 <Col>
                     <Space>
-                        <Tag color="blue" icon="✓">Giao hàng thành công</Tag>
-                        <Tag color="red">HOÀN THÀNH</Tag>
+                        {getStatusTag(order.status)}
                     </Space>
                 </Col>
             </Row>
@@ -134,9 +160,9 @@ export const HistoryOrderPage = () => {
                 <div key={index}>
                     <Row gutter={[16, 16]} align="middle">
                         <Col xs={24} sm={6} md={4}>
-                            {bookIdToCover[detail.id] ? (
+                            {detail.coverImage ? (
                                 <img
-                                    src={`${backendUrl}/api/v1/images/book/${bookIdToCover[detail.id]}`}
+                                    src={`${backendUrl}/api/v1/images/book/${detail.coverImage}`}
                                     alt={detail.bookName}
                                     style={{ width: "100%", height: 80, objectFit: "contain", borderRadius: 6, background: "#fafafa" }}
                                 />
@@ -190,7 +216,7 @@ export const HistoryOrderPage = () => {
                     </Space>
                 </Col>
                 <Col>
-                    {getStatusTag(order.type)}
+                    {getPaymentMethodTag(order.type)}
                 </Col>
             </Row>
 
@@ -244,7 +270,10 @@ export const HistoryOrderPage = () => {
                             {selectedOrder.phone}
                         </Descriptions.Item>
                         <Descriptions.Item label="Phương thức thanh toán">
-                            {getStatusTag(selectedOrder.type)}
+                            {getPaymentMethodTag(selectedOrder.type)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Trạng thái đơn hàng">
+                            {getStatusTag(selectedOrder.status)}
                         </Descriptions.Item>
                         <Descriptions.Item label="Tổng tiền">
                             <Text strong style={{ color: "#ff4d4f", fontSize: 16 }}>
@@ -265,9 +294,9 @@ export const HistoryOrderPage = () => {
                         <Card key={index} style={{ marginBottom: 8 }}>
                             <Row gutter={[16, 16]} align="middle">
                                 <Col xs={24} sm={6} md={4}>
-                                    {bookIdToCover[detail.id] ? (
+                                    {detail.coverImage ? (
                                         <img
-                                            src={`${backendUrl}/api/v1/images/book/${bookIdToCover[detail.id]}`}
+                                            src={`${backendUrl}/api/v1/images/book/${detail.coverImage}`}
                                             alt={detail.bookName}
                                             style={{ width: "100%", height: 80, objectFit: "contain", borderRadius: 6, background: "#fafafa" }}
                                         />
@@ -333,7 +362,14 @@ export const HistoryOrderPage = () => {
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px" }}>
                 {/* Tabs */}
                 <Card style={{ marginBottom: 16 }}>
-                    <Tabs defaultActiveKey="all" centered>
+                    <Tabs
+                        activeKey={activeTab}
+                        onChange={(key) => {
+                            setActiveTab(key);
+                            setCurrentPage(1); // Reset to first page when changing tabs
+                        }}
+                        centered
+                    >
                         <TabPane tab="Tất cả" key="all">
                             {orders.length === 0 ? (
                                 <Empty
@@ -346,32 +382,70 @@ export const HistoryOrderPage = () => {
                                 ))
                             )}
                         </TabPane>
-                        <TabPane tab="Chờ xác nhận" key="pending">
-                            <Empty description="Không có đơn hàng chờ xác nhận" />
-                        </TabPane>
-                        <TabPane tab="Vận chuyển" key="shipping">
-                            <Empty description="Không có đơn hàng đang vận chuyển" />
-                        </TabPane>
-                        <TabPane tab="Chờ giao hàng" key="delivery">
-                            <Empty description="Không có đơn hàng chờ giao" />
-                        </TabPane>
-                        <TabPane tab="Hoàn thành" key="completed">
+                        <TabPane tab="Đang xử lý" key="PENDING">
                             {orders.length === 0 ? (
-                                <Empty description="Chưa có đơn hàng hoàn thành" />
+                                <Empty description="Không có đơn hàng đang xử lý" />
                             ) : (
                                 orders.map((order) => (
                                     <OrderCard key={order.id} order={order} />
                                 ))
                             )}
                         </TabPane>
-                        <TabPane tab="Đã hủy" key="cancelled">
-                            <Empty description="Không có đơn hàng đã hủy" />
+                        <TabPane tab="Đã vận chuyển" key="SHIPPED">
+                            {orders.length === 0 ? (
+                                <Empty description="Không có đơn hàng đã vận chuyển" />
+                            ) : (
+                                orders.map((order) => (
+                                    <OrderCard key={order.id} order={order} />
+                                ))
+                            )}
                         </TabPane>
-                        <TabPane tab="Trả hàng/Hoàn tiền" key="refund">
-                            <Empty description="Không có đơn hàng trả hàng/hoàn tiền" />
+                        <TabPane tab="Đã giao" key="DELIVERED">
+                            {orders.length === 0 ? (
+                                <Empty description="Chưa có đơn hàng đã giao" />
+                            ) : (
+                                orders.map((order) => (
+                                    <OrderCard key={order.id} order={order} />
+                                ))
+                            )}
+                        </TabPane>
+                        <TabPane tab="Đã hủy" key="CANCELED">
+                            {orders.length === 0 ? (
+                                <Empty description="Không có đơn hàng đã hủy" />
+                            ) : (
+                                orders.map((order) => (
+                                    <OrderCard key={order.id} order={order} />
+                                ))
+                            )}
+                        </TabPane>
+                        <TabPane tab="Thất bại" key="FAILED">
+                            {orders.length === 0 ? (
+                                <Empty description="Không có đơn hàng thất bại" />
+                            ) : (
+                                orders.map((order) => (
+                                    <OrderCard key={order.id} order={order} />
+                                ))
+                            )}
                         </TabPane>
                     </Tabs>
                 </Card>
+
+                {/* Pagination */}
+                {totalOrders > pageSize && (
+                    <div style={{ textAlign: "center", marginTop: 16 }}>
+                        <Pagination
+                            current={currentPage}
+                            pageSize={pageSize}
+                            total={totalOrders}
+                            onChange={(page) => setCurrentPage(page)}
+                            showSizeChanger={false}
+                            showQuickJumper
+                            showTotal={(total, range) =>
+                                `${range[0]}-${range[1]} của ${total} đơn hàng`
+                            }
+                        />
+                    </div>
+                )}
             </div>
 
             <OrderDetailModal />
