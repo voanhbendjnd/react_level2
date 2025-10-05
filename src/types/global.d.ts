@@ -20,15 +20,15 @@ declare global {
   interface ILogin {
     access_token: string;
     user: {
-     id: string;
-    name: string;
-    email: string;
-    name: string;
-    role: string;
-    avatar: String;
-    gender: string;
-    phone: string;
-    address: string;
+      id: string;
+      name: string;
+      email: string;
+      name: string;
+      role: string;
+      avatar: String;
+      gender: string;
+      phone: string;
+      address: string;
     };
   }
   interface IRegister {
@@ -152,19 +152,17 @@ declare global {
     details: IOrderHistoryDetail[];
   }
 
-  interface ICountDashboard{
-orderCount: number;
-  bookCount: number;
-  userCount: number;
+  interface ICountDashboard {
+    orderCount: number;
+    bookCount: number;
+    userCount: number;
   }
-  interface ITableOrders{
+  interface ITableOrders {
     id: string;
     name: string;
     address: string;
     totalAmount: number;
     createdAt: string;
+    status: string;
   }
 }
-
-
-

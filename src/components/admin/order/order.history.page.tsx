@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Button, Card, Col, Row, Tabs, Typography, Space, Tag, Modal, Descriptions, Divider, Spin, Empty, Pagination } from "antd";
-import { EyeOutlined, ShoppingCartOutlined, MessageOutlined, ShopOutlined, HeartOutlined } from "@ant-design/icons";
-import { watchingHistoryAPI } from "@/services/api";
+import { Button, Card, Col, Row, Tabs, Typography, Space, Tag, Modal, Descriptions, Divider, Spin, Empty, Pagination, message, Popconfirm, Grid } from "antd";
+import { EyeOutlined, ShoppingCartOutlined, MessageOutlined, ShopOutlined, HeartOutlined, CloseSquareOutlined } from "@ant-design/icons";
+import { handleOrderStatusAPI, watchingHistoryAPI } from "@/services/api";
 import { useNavigate } from "react-router-dom";
+import type { PopconfirmProps } from "antd/lib";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -18,11 +19,16 @@ export const HistoryOrderPage = () => {
     const [pageSize] = useState(10);
     const [totalOrders, setTotalOrders] = useState(0);
     const [activeTab, setActiveTab] = useState("all");
+    const [isLoaderPage, setIsLoaderPage] = useState<boolean>();
     const navigate = useNavigate();
+
+    // Add responsive detection
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens?.md;
 
     useEffect(() => {
         fetchOrderHistory();
-    }, [currentPage, pageSize, activeTab]);
+    }, [currentPage, pageSize, activeTab, isLoaderPage]);
 
     const fetchOrderHistory = async () => {
         try {
@@ -70,6 +76,7 @@ export const HistoryOrderPage = () => {
             setOrders([]);
             setTotalOrders(0);
         } finally {
+            setIsLoaderPage(false);
             setLoading(false);
         }
     };
@@ -107,6 +114,24 @@ export const HistoryOrderPage = () => {
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
     };
 
+    const handleOrderStatus = async (id: number, status: string) => {
+        try {
+            const res = await handleOrderStatusAPI(id, status);
+            if (!res || !res.data) {
+                message.error("Cập nhật trạng thái đơn hàng thất bại");
+            } else {
+                // Tối ưu: chỉ fetch lại data thay vì reload toàn bộ trang
+                await fetchOrderHistory();
+            }
+        } catch (error) {
+            console.error("Error updating order status:", error);
+            message.error("Có lỗi xảy ra khi cập nhật trạng thái đơn hàng");
+        }
+    }
+    const cancel: PopconfirmProps['onCancel'] = () => {
+        // Cancel action - do nothing
+    };
+
 
     const handleViewDetails = (order: IOrderHistory) => {
         setSelectedOrder(order);
@@ -119,135 +144,231 @@ export const HistoryOrderPage = () => {
 
     const backendUrl = "http://localhost:8080";
 
-    const OrderCard = ({ order }: { order: IOrderHistory }) => (
-        <Card
-            style={{ marginBottom: 16, borderRadius: 8 }}
-            bodyStyle={{ padding: 16 }}
-        >
-            {/* Header with seller info */}
-            <Row justify="space-between" align="middle" style={{ marginBottom: 12 }}>
-                <Col>
-                    <Space>
-                        <Tag color="red" icon={<HeartOutlined />}>
-                            Yêu thích
-                        </Tag>
-                        <Text strong>Đơn hàng #{order.id}</Text>
-                    </Space>
-                </Col>
-                <Col>
-                    <Space>
-                        <Button type="text" icon={<MessageOutlined />}>
-                            Chat
-                        </Button>
-                        <Button type="text" icon={<ShopOutlined />}>
-                            Xem Shop
-                        </Button>
-                    </Space>
-                </Col>
-            </Row>
+    const OrderCard = ({ order }: { order: IOrderHistory }) => {
+        const screens = Grid.useBreakpoint();
+        const isMobile = !screens?.md;
 
-            {/* Status */}
-            <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-                <Col>
-                    <Space>
-                        {getStatusTag(order.status)}
-                    </Space>
-                </Col>
-            </Row>
+        return (
+            <Card
+                style={{ marginBottom: 16, borderRadius: 8 }}
+                bodyStyle={{ padding: 16 }}
+            >
+                {/* Header with seller info */}
+                <Row justify="space-between" align="middle" style={{ marginBottom: 12 }}>
+                    <Col xs={24} sm={12}>
+                        <Space wrap>
+                            <Tag color="red" icon={<HeartOutlined />}>
+                                Yêu thích
+                            </Tag>
+                            <Text strong>Đơn hàng #{order.id}</Text>
+                        </Space>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                        <Space wrap style={{ justifyContent: isMobile ? 'flex-start' : 'flex-end', width: '100%' }}>
+                            <Button type="text" icon={<MessageOutlined />} size="small">
+                                {isMobile ? 'Chat' : 'Chat'}
+                            </Button>
+                            <Button type="text" icon={<ShopOutlined />} size="small">
+                                {isMobile ? 'Shop' : 'Xem Shop'}
+                            </Button>
+                        </Space>
+                    </Col>
+                </Row>
 
-            {/* Product details */}
-            {order.details.map((detail, index) => (
-                <div key={index}>
-                    <Row gutter={[16, 16]} align="middle">
-                        <Col xs={24} sm={6} md={4}>
-                            {detail.coverImage ? (
-                                <img
-                                    src={`${backendUrl}/api/v1/images/book/${detail.coverImage}`}
-                                    alt={detail.bookName}
-                                    style={{ width: "100%", height: 80, objectFit: "contain", borderRadius: 6, background: "#fafafa" }}
-                                />
-                            ) : (
-                                <div
-                                    style={{
-                                        width: "100%",
-                                        height: 80,
-                                        backgroundColor: "#f5f5f5",
-                                        borderRadius: 6,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                    }}
-                                >
-                                    <Text type="secondary">📚</Text>
-                                </div>
-                            )}
-                        </Col>
-                        <Col xs={24} sm={18} md={20}>
-                            <Space direction="vertical" size={4} style={{ width: "100%" }}>
-                                <Text strong style={{ fontSize: 14 }}>
-                                    {detail.bookName}
-                                </Text>
-                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Phân loại hàng: Mặc định
-                                </Text>
-                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Số lượng: x{detail.quantity}
-                                </Text>
+                {/* Status */}
+                <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+                    <Col>
+                        <Space>
+                            {getStatusTag(order.status)}
+                        </Space>
+                    </Col>
+                </Row>
+
+                {/* Product details */}
+                {order.details.map((detail, index) => (
+                    <div key={index}>
+                        <Row gutter={[16, 16]} align="middle">
+                            <Col xs={24} sm={6} md={4}>
+                                {detail.coverImage ? (
+                                    <img
+                                        src={`${backendUrl}/api/v1/images/book/${detail.coverImage}`}
+                                        alt={detail.bookName}
+                                        style={{ width: "100%", height: 80, objectFit: "contain", borderRadius: 6, background: "#fafafa" }}
+                                    />
+                                ) : (
+                                    <div
+                                        style={{
+                                            width: "100%",
+                                            height: 80,
+                                            backgroundColor: "#f5f5f5",
+                                            borderRadius: 6,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <Text type="secondary">📚</Text>
+                                    </div>
+                                )}
+                            </Col>
+                            <Col xs={24} sm={18} md={20}>
+                                <Space direction="vertical" size={4} style={{ width: "100%" }}>
+                                    <Text strong style={{ fontSize: 14 }}>
+                                        {detail.bookName}
+                                    </Text>
+                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                        Phân loại hàng: Mặc định
+                                    </Text>
+                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                        Số lượng: x{detail.quantity}
+                                    </Text>
+                                </Space>
+                            </Col>
+                        </Row>
+                        {index < order.details.length - 1 && <Divider style={{ margin: "12px 0" }} />}
+                    </div>
+                ))}
+
+                {/* Pricing and dates */}
+                <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
+                    <Col>
+                        <Space direction="vertical" size={4}>
+                            <Text strong style={{ color: "#ff4d4f", fontSize: 16 }}>
+                                Thành tiền: {currency.format(order.totalAmount)}
+                            </Text>
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                Ngày đặt: {formatDate(order.createdAt)}
+                            </Text>
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                Cập nhật: {formatDate(order.updatedAt)}
+                            </Text>
+                        </Space>
+                    </Col>
+                    <Col>
+                        {getPaymentMethodTag(order.type)}
+                    </Col>
+                </Row>
+
+                {/* Action buttons */}
+                {isMobile ? (
+                    // Mobile layout - cải thiện để không bị tràn
+                    <Row gutter={[8, 8]} style={{ marginTop: 16 }}>
+                        <Col xs={24}>
+                            <Space wrap style={{ width: '100%', justifyContent: 'space-between' }}>
+                                <Space wrap>
+                                    <Button
+                                        type="primary"
+                                        icon={<EyeOutlined />}
+                                        onClick={() => handleViewDetails(order)}
+                                        size="small"
+                                    >
+                                        Chi tiết
+                                    </Button>
+                                    <Button
+                                        icon={<MessageOutlined />}
+                                        size="small"
+                                    >
+                                        Liên hệ
+                                    </Button>
+                                </Space>
+                                <Space wrap>
+                                    {/* Chỉ hiển thị nút hủy đơn khi đơn hàng đang ở trạng thái PENDING */}
+                                    {order.status === "PENDING" && (
+                                        <Popconfirm
+                                            title="Xác nhận hủy đơn hàng"
+                                            description="Bạn chắc chắn muốn hủy đơn hàng này chứ!"
+                                            onConfirm={() => {
+                                                handleOrderStatus(order.id, "CANCELED")
+                                            }}
+                                            onCancel={cancel}
+                                            okText="Đồng ý"
+                                            cancelText="Hủy"
+                                        >
+                                            <Button
+                                                icon={<CloseSquareOutlined />}
+                                                size="small"
+                                                danger
+                                            >
+                                                Hủy
+                                            </Button>
+                                        </Popconfirm>
+                                    )}
+
+                                    {/* Hiển thị nút mua lại khi đơn hàng đã được giao thành công hoặc đã hủy */}
+                                    {(order.status === "DELIVERED" || order.status === "CANCELED") && (
+                                        <Button
+                                            type="default"
+                                            icon={<ShoppingCartOutlined />}
+                                            onClick={handleBuyAgain}
+                                            size="small"
+                                        >
+                                            Mua lại
+                                        </Button>
+                                    )}
+                                </Space>
                             </Space>
                         </Col>
                     </Row>
-                    {index < order.details.length - 1 && <Divider style={{ margin: "12px 0" }} />}
-                </div>
-            ))}
-
-            {/* Pricing and dates */}
-            <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
-                <Col>
-                    <Space direction="vertical" size={4}>
-                        <Text strong style={{ color: "#ff4d4f", fontSize: 16 }}>
-                            Thành tiền: {currency.format(order.totalAmount)}
-                        </Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                            Ngày đặt: {formatDate(order.createdAt)}
-                        </Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                            Cập nhật: {formatDate(order.updatedAt)}
-                        </Text>
-                    </Space>
-                </Col>
-                <Col>
-                    {getPaymentMethodTag(order.type)}
-                </Col>
-            </Row>
-
-            {/* Action buttons */}
-            <Row justify="space-between" style={{ marginTop: 16 }}>
-                <Col>
-                    <Space>
-                        <Button
-                            type="primary"
-                            icon={<EyeOutlined />}
-                            onClick={() => handleViewDetails(order)}
-                        >
-                            Xem chi tiết
-                        </Button>
-                        <Button icon={<MessageOutlined />}>
-                            Liên hệ người bán
-                        </Button>
-                    </Space>
-                </Col>
-                <Col>
-                    <Button
-                        type="default"
-                        icon={<ShoppingCartOutlined />}
-                        onClick={handleBuyAgain}
-                    >
-                        Mua lại
-                    </Button>
-                </Col>
-            </Row>
-        </Card>
-    );
+                ) : (
+                    // Desktop layout - nút hủy đơn ở góc phải
+                    <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
+                        <Col>
+                            <Space wrap>
+                                <Button
+                                    type="primary"
+                                    icon={<EyeOutlined />}
+                                    onClick={() => handleViewDetails(order)}
+                                    size="small"
+                                >
+                                    Xem chi tiết
+                                </Button>
+                                <Button
+                                    icon={<MessageOutlined />}
+                                    size="small"
+                                >
+                                    Liên hệ người bán
+                                </Button>
+                                {/* Hiển thị nút mua lại khi đơn hàng đã được giao thành công hoặc đã hủy */}
+                                {(order.status === "DELIVERED" || order.status === "CANCELED") && (
+                                    <Button
+                                        type="default"
+                                        icon={<ShoppingCartOutlined />}
+                                        onClick={handleBuyAgain}
+                                        size="small"
+                                    >
+                                        Mua lại
+                                    </Button>
+                                )}
+                            </Space>
+                        </Col>
+                        <Col>
+                            {/* Chỉ hiển thị nút hủy đơn khi đơn hàng đang ở trạng thái PENDING - ở góc phải */}
+                            {order.status === "PENDING" && (
+                                <Popconfirm
+                                    title="Xác nhận hủy đơn hàng"
+                                    description="Bạn chắc chắn muốn hủy đơn hàng này chứ!"
+                                    onConfirm={() => {
+                                        handleOrderStatus(order.id, "CANCELED")
+                                    }}
+                                    onCancel={cancel}
+                                    okText="Đồng ý"
+                                    cancelText="Hủy"
+                                >
+                                    <Button
+                                        icon={<CloseSquareOutlined />}
+                                        size="small"
+                                        danger
+                                    >
+                                        Hủy đơn
+                                    </Button>
+                                </Popconfirm>
+                            )}
+                        </Col>
+                    </Row>
+                )}
+            </Card>
+        );
+    };
 
     const OrderDetailModal = () => (
         <Modal
@@ -350,6 +471,28 @@ export const HistoryOrderPage = () => {
 
     return (
         <div style={{ background: "#f5f5f5", minHeight: "100vh" }}>
+            <style>
+                {`
+                    .ant-tabs-tab-bar {
+                        overflow-x: auto !important;
+                        scrollbar-width: thin !important;
+                        -webkit-overflow-scrolling: touch !important;
+                    }
+                    .ant-tabs-tab-bar::-webkit-scrollbar {
+                        height: 4px !important;
+                    }
+                    .ant-tabs-tab-bar::-webkit-scrollbar-track {
+                        background: #f1f1f1 !important;
+                    }
+                    .ant-tabs-tab-bar::-webkit-scrollbar-thumb {
+                        background: #c1c1c1 !important;
+                        border-radius: 2px !important;
+                    }
+                    .ant-tabs-tab-bar::-webkit-scrollbar-thumb:hover {
+                        background: #a8a8a8 !important;
+                    }
+                `}
+            </style>
             {/* Header */}
             <div style={{ background: "#fff", padding: "16px 0", marginBottom: 16 }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px" }}>
@@ -368,9 +511,24 @@ export const HistoryOrderPage = () => {
                             setActiveTab(key);
                             setCurrentPage(1); // Reset to first page when changing tabs
                         }}
-                        centered
+                        centered={!isMobile}
+                        tabPosition="top"
+                        style={{
+                            overflowX: 'auto',
+                            scrollbarWidth: 'thin'
+                        }}
+                        tabBarStyle={{
+                            marginBottom: 0,
+                            overflowX: 'auto',
+                            scrollbarWidth: 'thin',
+                            ...(isMobile && {
+                                justifyContent: 'flex-start',
+                                paddingLeft: 0,
+                                paddingRight: 0
+                            })
+                        }}
                     >
-                        <TabPane tab="Tất cả" key="all">
+                        <TabPane tab={isMobile ? "Tất cả" : "Tất cả"} key="all">
                             {orders.length === 0 ? (
                                 <Empty
                                     description="Chưa có đơn hàng nào"
@@ -382,7 +540,7 @@ export const HistoryOrderPage = () => {
                                 ))
                             )}
                         </TabPane>
-                        <TabPane tab="Đang xử lý" key="PENDING">
+                        <TabPane tab={isMobile ? "Xử lý" : "Đang xử lý"} key="PENDING">
                             {orders.length === 0 ? (
                                 <Empty description="Không có đơn hàng đang xử lý" />
                             ) : (
@@ -391,7 +549,7 @@ export const HistoryOrderPage = () => {
                                 ))
                             )}
                         </TabPane>
-                        <TabPane tab="Đã vận chuyển" key="SHIPPED">
+                        <TabPane tab={isMobile ? "Vận chuyển" : "Đã vận chuyển"} key="SHIPPED">
                             {orders.length === 0 ? (
                                 <Empty description="Không có đơn hàng đã vận chuyển" />
                             ) : (
@@ -400,7 +558,7 @@ export const HistoryOrderPage = () => {
                                 ))
                             )}
                         </TabPane>
-                        <TabPane tab="Đã giao" key="DELIVERED">
+                        <TabPane tab={isMobile ? "Đã giao" : "Đã giao"} key="DELIVERED">
                             {orders.length === 0 ? (
                                 <Empty description="Chưa có đơn hàng đã giao" />
                             ) : (
@@ -409,7 +567,7 @@ export const HistoryOrderPage = () => {
                                 ))
                             )}
                         </TabPane>
-                        <TabPane tab="Đã hủy" key="CANCELED">
+                        <TabPane tab={isMobile ? "Hủy" : "Đã hủy"} key="CANCELED">
                             {orders.length === 0 ? (
                                 <Empty description="Không có đơn hàng đã hủy" />
                             ) : (
@@ -418,7 +576,7 @@ export const HistoryOrderPage = () => {
                                 ))
                             )}
                         </TabPane>
-                        <TabPane tab="Thất bại" key="FAILED">
+                        <TabPane tab={isMobile ? "Thất bại" : "Thất bại"} key="FAILED">
                             {orders.length === 0 ? (
                                 <Empty description="Không có đơn hàng thất bại" />
                             ) : (

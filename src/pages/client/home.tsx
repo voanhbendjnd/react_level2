@@ -20,7 +20,7 @@ import bannerHome from "/src/assets/banner-home.png";
 import bannerSliderFirst from "/src/assets/bannerSlider.png";
 import bannerSliderSecond from "/src/assets/bannerSliderSecond.png";
 
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
 import { ModalFilter } from "@/components/client/book/book.filter";
 type TypeField = {
     range: {
@@ -33,6 +33,7 @@ type TypeField = {
 const HomePage = () => {
     const [form] = Form.useForm();
     const [searchItem] = useOutletContext() as any;
+    const [searchParams] = useSearchParams();
     const [categories, setCategories] = useState<{ label: string; value: string }[]>([]);
     // const { message, notification } = App.useApp();
     const [isOpenFilterModal, setIsOpenFilterModal] = useState<boolean>(false);
@@ -90,7 +91,16 @@ const HomePage = () => {
 
     useEffect(() => {
         fetchBook();
-    }, [current, pageSize, filter, sortQuery, searchItem])
+    }, [current, pageSize, filter, sortQuery, searchItem, searchParams])
+
+    // Handle search from URL parameter
+    useEffect(() => {
+        const searchParam = searchParams.get('search');
+        if (searchParam && searchParam !== searchItem) {
+            // Update searchItem if it's different from URL parameter
+            // This will trigger a new search
+        }
+    }, [searchParams, searchItem])
     const fetchBook = async () => {
         setIsLoading(true);
         let query = `page=${current}&size=${pageSize}`
@@ -99,8 +109,12 @@ const HomePage = () => {
         query += `&filter=active:true`;
 
         // }
-        if (searchItem) {
-            query += `&filter=title~'${searchItem}'`
+        // Check for search parameter from URL first, then fallback to searchItem
+        const searchParam = searchParams.get('search');
+        const searchTerm = searchParam || searchItem;
+
+        if (searchTerm) {
+            query += `&filter=title~'${searchTerm}'`
         }
         if (sortQuery) {
             query += `&${sortQuery}`
@@ -199,6 +213,24 @@ const HomePage = () => {
                             </div>
                         </Carousel>
                     </div>
+
+                    {/* Search Results Header */}
+                    {searchParams.get('search') && (
+                        <div style={{
+                            marginBottom: 16,
+                            padding: '16px',
+                            background: '#f8f9fa',
+                            borderRadius: '8px',
+                            border: '1px solid #e9ecef'
+                        }}>
+                            <h3 style={{ margin: 0, color: '#495057' }}>
+                                Kết quả tìm kiếm cho: "{searchParams.get('search')}"
+                            </h3>
+                            <p style={{ margin: '8px 0 0 0', color: '#6c757d', fontSize: '14px' }}>
+                                Tìm thấy {total} sản phẩm
+                            </p>
+                        </div>
+                    )}
 
                     {/* Utilities grid */}
                     {/* <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>

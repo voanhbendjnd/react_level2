@@ -4,14 +4,10 @@ import { AliwangwangOutlined, HistoryOutlined, HomeOutlined, LoginOutlined, Shop
 import { useCurrentApp } from "components/context/app.context";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Input, Menu, Space, type MenuProps, Badge, Popover, Image, Grid, Row, Col, Dropdown } from "antd";
+import { Menu, type MenuProps, Badge, Popover, Image, Grid, Row, Col } from "antd";
+import SearchComponent from "./search.component";
 
-interface ISearch {
-    searchItem: string;
-    setSearchItem: (v: string) => void;
-}
-const AppHeader = (props: ISearch) => {
-    const { setSearchItem, searchItem } = props;
+const AppHeader = () => {
     const navigate = useNavigate();
     const { user, setUser, setIsAuthenticated, carts } = useCurrentApp();
     const screens = Grid.useBreakpoint();
@@ -31,7 +27,6 @@ const AppHeader = (props: ISearch) => {
     // const dropdownTextStyle = {
     //     color: '#ffff', // Màu xám đậm cho chữ dễ đọc trên nền trắng
     // };
-    const { Search } = Input;
     const backendUrl = "http://localhost:8080";
     const textOrder = <div style={{
         display: 'flex',
@@ -116,17 +111,17 @@ const AppHeader = (props: ISearch) => {
             type: 'group',
             children: [
                 {
-                    label: <Link to={"/my-account"}>Tài khoản của tôi</Link>
+                    label: <Link to={"/my-account"} style={{ color: '#fff' }}>Tài khoản của tôi</Link>
                 },
                 {
-                    label: <Link to={"/order-history"}>Lịch sử mua hàng</Link>
+                    label: <Link to={"/order-history"} style={{ color: '#fff' }}>Lịch sử mua hàng</Link>
                 },
                 // Admin link only for SUPER_ADMIN
                 ...(user?.role === "SUPER_ADMIN" ? [{
-                    label: <Link to={"/admin"}>Quản trị viên</Link>
+                    label: <Link to={"/admin"} style={{ color: '#fff' }}>Quản trị viên</Link>
                 }] : []),
                 {
-                    label: <span onClick={() => handleLogout()}>Đăng xuất</span>
+                    label: <span onClick={() => handleLogout()} style={{ color: '#fff' }}>Đăng xuất</span>
 
                 }
             ]
@@ -143,30 +138,32 @@ const AppHeader = (props: ISearch) => {
                 </Badge>
             </Link>
         ) : (
-
-            <Popover placement="bottomRight" title={textOrder} content={content} trigger="hover"
-                open={open}
-                onOpenChange={() => {
-                    setOpen(!open);
-                }}
-            >
-
-                <Badge
-
-                    count={carts?.length ?? 0}
-                    size={"small"}
-                    showZero>
-                    <ShoppingCartOutlined style={{ color: "white" }} />
-                </Badge>
-            </Popover>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff', fontSize: '14px' }}>
+                <Popover placement="bottomRight" title={textOrder} content={content} trigger="hover"
+                    open={open}
+                    onOpenChange={() => {
+                        setOpen(!open);
+                    }}
+                >
+                    <Badge
+                        count={carts?.length ?? 0}
+                        size={"small"}
+                        showZero>
+                        <ShoppingCartOutlined style={{ color: "white", fontSize: '16px' }} />
+                    </Badge>
+                </Popover>
+                <span>Giỏ hàng</span>
+            </div>
         )
     );
 
     const items = [
         {
-            label: <Link to={"/"}>Trang chủ</Link>,
+            label: <Link to={"/"} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                <HomeOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                Trang chủ
+            </Link>,
             key: 'home',
-            icon: <HomeOutlined />,
         },
         // {
         //     label: (
@@ -204,23 +201,14 @@ const AppHeader = (props: ISearch) => {
         //     key: 'category',
         // },
         {
-            label: <Space.Compact
-                className="hide-on-mobile"
-                style={{
-                    marginTop: "12px",
-                    width: "100vh"
-                }}>
-                <Search
+            label: <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                <SearchComponent
                     placeholder="Bạn muốn tìm kiếm gì?"
-                    allowClear
-                    value={searchItem}
-                    onChange={(e) => setSearchItem(e.target.value)}
-                    onSearch={(value) => {
-                        setSearchItem(value);
-                        navigate("/");
+                    style={{
+                        width: '600px'
                     }}
                 />
-            </Space.Compact>,
+            </div>,
             key: 'search'
         },
         // Ẩn icon cart trong Menu khi là mobile để tránh trùng với header mobile
@@ -230,85 +218,176 @@ const AppHeader = (props: ISearch) => {
                 icon: cartIcon
             },
             {
-                label: <Link to={'/order-history'}>Lịch sử mua hàng</Link>,
+                label: <Link to={'/order-history'} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                    <HistoryOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                    Lịch sử mua hàng
+                </Link>,
                 key: 'history',
-                icon:
-                    <HistoryOutlined />
             }
             ]
             : []),
         ...(!user?.id ? [
             {
-                label: <Link to={"/login"}>Đăng nhập</Link>,
+                label: <Link to={"/login"} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                    <LoginOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                    Đăng nhập
+                </Link>,
                 key: 'login',
-                icon: <LoginOutlined />,
             },
 
         ] : [{
-            label: `Wellcome, ${user.name}`,
+            label: <span style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                <AliwangwangOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                Wellcome, {user.name}
+            </span>,
             key: 'SubMenu',
-            icon: <AliwangwangOutlined />,
             children: children,
         }]),
     ];
 
-    const handleOnSearch = (values: any) => {
-        setSearchItem(values);
-    }
     return (
         <>
             <Row>
                 <Col xs={24}>
-                    {/* Header cho mobile: search + icon */}
+                    {/* Header cho mobile: chỉ hiển thị search bar */}
                     {isMobile && (
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 12,
-                            padding: '10px 12px',
+                            padding: '12px 16px',
                             backgroundColor: headerBg
                         }}>
                             <div style={{ flex: 1 }}>
-                                <Search
+                                <SearchComponent
                                     placeholder="Bạn muốn tìm kiếm gì?"
-                                    allowClear
                                     style={{
                                         background: '#ffffff',
                                         borderRadius: 20
                                     }}
-                                    value={searchItem}
-                                    onClick={(values) => {
-                                        handleOnSearch(values)
-                                    }}
-                                    onChange={(e) => setSearchItem(e.target.value)}
                                 />
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <Link to={"/order"} style={{ display: 'inline-block' }}>
-                                    <Badge count={carts?.length ?? 0} size={"small"} showZero>
-                                        <ShoppingCartOutlined style={{ fontSize: 20, color: '#fff' }} />
-                                    </Badge>
-                                </Link>
-                                {/* <Link to={user?.id ? (user.role === 'SUPER_ADMIN' ? '/admin' : '/') : '/login'}>
-                            <AliwangwangOutlined style={{ fontSize: 20, color: '#fff' }} />
-                        </Link> */}
-                                <Link to={"/order-history"}>
-                                    <HistoryOutlined />
-                                </Link>
                             </div>
                         </div>
                     )}
 
-                    <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            backgroundColor: headerBg,
-                            borderBottom: 'none'
-                        }}
-                        theme="dark"
-                        className="app-menu"
-                    />
+                    {/* Menu chỉ hiển thị trên desktop */}
+                    {!isMobile && (
+                        <>
+                            <style>
+                                {`
+                                    .app-menu {
+                                        background-color: ${headerBg} !important;
+                                        display: flex !important;
+                                        justify-content: space-between !important;
+                                        align-items: center !important;
+                                    }
+                                    .app-menu .ant-menu-item {
+                                        color: #fff !important;
+                                        background-color: ${headerBg} !important;
+                                        display: flex !important;
+                                        align-items: center !important;
+                                        justify-content: center !important;
+                                        padding: 0 12px !important;
+                                        height: 60px !important;
+                                        line-height: 60px !important;
+                                        margin: 0 !important;
+                                        border: none !important;
+                                        flex: 0 0 auto !important;
+                                    }
+                                    .app-menu .ant-menu-item:hover {
+                                        color: #fff !important;
+                                        background-color: rgba(255, 255, 255, 0.1) !important;
+                                    }
+                                    .app-menu .ant-menu-item a {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-item a:hover {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-item span {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-item span:hover {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-submenu {
+                                        background-color: ${headerBg} !important;
+                                        display: flex !important;
+                                        align-items: center !important;
+                                        justify-content: center !important;
+                                        padding: 0 12px !important;
+                                        height: 60px !important;
+                                        line-height: 60px !important;
+                                        margin: 0 !important;
+                                        border: none !important;
+                                        flex: 0 0 auto !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup {
+                                        background-color: ${headerBg} !important;
+                                        border: none !important;
+                                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu {
+                                        background-color: ${headerBg} !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu-item {
+                                        background-color: ${headerBg} !important;
+                                        color: #fff !important;
+                                        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu-item:hover {
+                                        background-color: rgba(255, 255, 255, 0.1) !important;
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu-item a {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu-item a:hover {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu-item span {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu-item span:hover {
+                                        color: #fff !important;
+                                    }
+                                    .app-menu .ant-menu-submenu-popup .ant-menu-item:last-child {
+                                        border-bottom: none !important;
+                                    }
+                                    .app-menu .ant-menu-item[data-menu-id*="search"] {
+                                        flex: 2 !important;
+                                        justify-content: center !important;
+                                        max-width: 800px !important;
+                                    }
+                                    .app-menu .ant-menu-item[data-menu-id*="home"] {
+                                        flex: 0 0 auto !important;
+                                        justify-content: flex-start !important;
+                                    }
+                                    .app-menu .ant-menu-item[data-menu-id*="cart"],
+                                    .app-menu .ant-menu-item[data-menu-id*="history"],
+                                    .app-menu .ant-menu-item[data-menu-id*="login"],
+                                    .app-menu .ant-menu-submenu[data-menu-id*="SubMenu"] {
+                                        flex: 0 0 auto !important;
+                                        justify-content: flex-end !important;
+                                    }
+                                `}
+                            </style>
+                            <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    backgroundColor: headerBg,
+                                    borderBottom: 'none',
+                                    height: '60px',
+                                    lineHeight: '60px',
+                                    padding: '0 20px',
+                                    width: '100%'
+                                }}
+                                theme="dark"
+                                className="app-menu"
+                            />
+                        </>
+                    )}
                 </Col>
             </Row>
 
