@@ -8,7 +8,7 @@ import { Badge } from 'antd';
 const AppBottomNav = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, setUser, setIsAuthenticated, carts } = useCurrentApp();
+    const { user, setUser, setIsAuthenticated, carts, isAuthenticated } = useCurrentApp();
 
     const handleLogout = async () => {
         const res = await logoutAPI();
@@ -27,28 +27,34 @@ const AppBottomNav = () => {
             label: 'Trang chủ',
             path: '/'
         },
-        {
-            key: 'order',
-            icon: (
-                <Badge count={carts?.length ?? 0} size="small" showZero>
-                    <ShoppingCartOutlined />
-                </Badge>
-            ),
-            label: 'Giỏ hàng',
-            path: '/order'
-        },
-        {
-            key: 'order-history',
-            icon: <HistoryOutlined />,
-            label: 'Lịch sử',
-            path: '/order-history'
-        },
-        {
-            key: 'my-account',
-            icon: <UserOutlined />,
-            label: 'Tài khoản',
-            path: '/my-account'
-        },
+        ...(isAuthenticated ? [
+            {
+                key: 'order',
+                icon: (
+                    <Badge count={carts?.length ?? 0} size="small" showZero>
+                        <ShoppingCartOutlined />
+                    </Badge>
+                ),
+                label: 'Giỏ hàng',
+                path: '/order'
+            }] : []),
+        ...(isAuthenticated ? [
+            {
+                key: 'order-history',
+                icon: <HistoryOutlined />,
+                label: 'Lịch sử',
+                path: '/order-history'
+            }
+        ] : [
+        ]),
+        ... (isAuthenticated ? [
+            {
+                key: 'my-account',
+                icon: <UserOutlined />,
+                label: 'Tài khoản',
+                path: '/my-account'
+            }
+        ] : []),
         ...(user?.id ? [
             {
                 key: 'logout',
