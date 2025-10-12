@@ -81,6 +81,12 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     };
 
     const handleSelect = (_value: string, option: any) => {
+        if (option.value === 'view-all') {
+            navigate(`/?search=${encodeURIComponent(searchValue)}`);
+            setSearchValue('');
+            setIsOpen(false);
+            return;
+        }
         navigate(`/books/${option.id}`);
         setSearchValue('');
         setIsOpen(false);
@@ -145,7 +151,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     if (searchResults.length > 0) {
         options.push({
             value: 'view-all',
-            id: 'view-all',
+            id: `${searchValue}`,
             label: (
                 <div style={{
                     textAlign: 'center',
