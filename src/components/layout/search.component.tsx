@@ -43,6 +43,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         setIsOpen(true);
 
         try {
+            // preview trước cho người dùng thấy
             const query = `page=1&size=10&filter=active:true&filter=title~'${value}'`;
             const res = await fetchBooksAPI(query);
 
@@ -82,6 +83,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
 
     const handleSelect = (_value: string, option: any) => {
         if (option.value === 'view-all') {
+            //searchValue giá trị được đem qua home.tsx cho filter
             navigate(`/?search=${encodeURIComponent(searchValue)}`);
             setSearchValue('');
             setIsOpen(false);

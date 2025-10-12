@@ -4,6 +4,7 @@ import AppFooter from "components/layout/app.footer"
 import AppBottomNav from "components/layout/app.bottom.nav"
 import { useState } from "react"
 import { Grid } from "antd"
+import AuthDebugger from "@/components/debug/AuthDebugger"
 
 const Layout = () => {
     const [searchItem, setSearchItem] = useState<string>("");
@@ -25,6 +26,7 @@ const Layout = () => {
 
             {/* Bottom Navigation chỉ hiển thị trên mobile */}
             {isMobile && <AppBottomNav />}
+            {/* <AuthDebugger /> */}
         </div>
     )
 }

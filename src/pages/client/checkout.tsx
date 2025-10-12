@@ -202,10 +202,10 @@ export const CheckoutPage = () => {
                             <div style={{ padding: 12, color: "#555" }}>Nhanh - Dự kiến giao trong 2-4 ngày. Phí: {currency.format(shippingFee)}</div>
                         </div>
 
-                        <div style={{ marginTop: 16, border: "1px solid #f0f0f0", borderRadius: 6 }}>
+                        {/* <div style={{ marginTop: 16, border: "1px solid #f0f0f0", borderRadius: 6 }}>
                             <div style={{ padding: 12, borderBottom: "1px solid #f5f5f5", fontWeight: 600 }}>Shopee Voucher</div>
                             <div style={{ padding: 12, color: "#999" }}>Không có voucher áp dụng</div>
-                        </div>
+                        </div> */}
                     </Col>
 
                     {/* Right: Payment and place order */}
@@ -214,9 +214,9 @@ export const CheckoutPage = () => {
                             <div style={{ padding: 12, borderBottom: "1px solid #f5f5f5", fontWeight: 600 }}>Phương thức thanh toán</div>
                             <div style={{ padding: 12 }}>
                                 <Radio.Group value={method} onChange={(e) => setMethod(e.target.value)} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                    <Radio.Button value="VNPay">VNPay</Radio.Button>
+                                    {/* <Radio.Button value="VNPay">VNPay</Radio.Button>
                                     <Radio.Button value="NAPAS">Thẻ nội địa NAPAS</Radio.Button>
-                                    <Radio.Button value="Google_Pay">Google Pay</Radio.Button>
+                                    <Radio.Button value="Google_Pay">Google Pay</Radio.Button> */}
                                     <Radio.Button value="CASH_ON_DELIVERY">Thanh toán khi nhận hàng</Radio.Button>
                                 </Radio.Group>
                             </div>
