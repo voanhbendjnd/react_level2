@@ -165,6 +165,37 @@ const AppHeader = () => {
             </Link>,
             key: 'home',
         },
+        ...(!isMobile && user?.id ?
+            [{
+                key: 'cart',
+                icon: cartIcon
+            },
+            {
+                label: <Link to={'/order-history'} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                    <HistoryOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                    Lịch sử mua hàng
+                </Link>,
+                key: 'history',
+            }
+            ]
+            : []),
+        ...(!user?.id ? [
+            {
+                label: <Link to={"/login"} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                    <LoginOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                    Đăng nhập
+                </Link>,
+                key: 'login',
+            },
+
+        ] : [{
+            label: <span style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                <AliwangwangOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                Wellcome, {user.name}
+            </span>,
+            key: 'SubMenu',
+            children: children,
+        }]),
         // {
         //     label: (
         //         <Dropdown
@@ -212,37 +243,7 @@ const AppHeader = () => {
             key: 'search'
         },
         // Ẩn icon cart trong Menu khi là mobile để tránh trùng với header mobile
-        ...(!isMobile && user?.id ?
-            [{
-                key: 'cart',
-                icon: cartIcon
-            },
-            {
-                label: <Link to={'/order-history'} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
-                    <HistoryOutlined style={{ color: '#fff', fontSize: '16px' }} />
-                    Lịch sử mua hàng
-                </Link>,
-                key: 'history',
-            }
-            ]
-            : []),
-        ...(!user?.id ? [
-            {
-                label: <Link to={"/login"} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
-                    <LoginOutlined style={{ color: '#fff', fontSize: '16px' }} />
-                    Đăng nhập
-                </Link>,
-                key: 'login',
-            },
 
-        ] : [{
-            label: <span style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
-                <AliwangwangOutlined style={{ color: '#fff', fontSize: '16px' }} />
-                Wellcome, {user.name}
-            </span>,
-            key: 'SubMenu',
-            children: children,
-        }]),
     ];
 
     return (
@@ -374,7 +375,7 @@ const AppHeader = () => {
                             <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items}
                                 style={{
                                     display: "flex",
-                                    justifyContent: "space-between",
+                                    justifyContent: "space-around",
                                     alignItems: "center",
                                     backgroundColor: headerBg,
                                     borderBottom: 'none',
