@@ -27,8 +27,8 @@ const Layout = () => {
 
             {/* Bottom Navigation chỉ hiển thị trên mobile */}
             {isMobile && <AppBottomNav />}
-            <AuthDebugger />
-            <UserDataSyncDemo />
+            {/* <AuthDebugger />
+            <UserDataSyncDemo /> */}
         </div>
     )
 }
