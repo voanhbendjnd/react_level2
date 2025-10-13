@@ -15,7 +15,7 @@ interface IAppContext {
     setIsAppLoading: (v: boolean) => void;
     carts: ICart[];
     setCarts: (v: ICart[]) => void;
-
+    refreshUserData: () => Promise<void>; // Function để refresh user data
 }
 
 const CurrentAppContext = createContext<IAppContext | null>(null);
@@ -35,6 +35,21 @@ export const AppProvider = (props: TProps) => {
         setUser(null);
         // Có thể giữ lại carts hoặc xóa tùy theo yêu cầu business
         // setCarts([]);
+    };
+
+    // Function để refresh user data từ backend
+    const refreshUserData = async () => {
+        try {
+            console.log('Refreshing user data...');
+            const res = await fetchAccountAPI();
+            if (res.data) {
+                setUser(res.data.user);
+                console.log('User data refreshed successfully:', res.data.user);
+            }
+        } catch (error) {
+            console.error('Error refreshing user data:', error);
+            // Không throw error để tránh crash app
+        }
     };
 
     // get account 
@@ -86,7 +101,7 @@ export const AppProvider = (props: TProps) => {
             {!isAppLoading ?
                 <CurrentAppContext.Provider
                     value={{
-                        isAuthenticated, user, isAppLoading, setIsAppLoading, setUser, setIsAuthenticated, carts, setCarts
+                        isAuthenticated, user, isAppLoading, setIsAppLoading, setUser, setIsAuthenticated, carts, setCarts, refreshUserData
                     }}
                 >
                     {props.children}

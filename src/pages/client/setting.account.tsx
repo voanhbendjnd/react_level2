@@ -47,7 +47,7 @@ export const SettingAccountPage = () => {
     const [forgotPasswordForm] = Form.useForm();
     const [changePasswordForm] = Form.useForm();
     const [otpForm] = Form.useForm();
-    const { user } = useCurrentApp();
+    const { user, refreshUserData } = useCurrentApp();
     const [isOpenChangePassword, setIsOpenChangePassword] = useState<boolean>(false);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
@@ -58,7 +58,7 @@ export const SettingAccountPage = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const avatarURL = `http://localhost:8080/api/v1/images/user/${user?.avatar}`
     const [currentEmail, setCurrentEmail] = useState<string>('');
-    // Mock user data - replace with actual user data from context/API
+    // User data state - sync với context user
     const [userInfo, setUserInfo] = useState<UserInfo>({
         id: user?.id || "",
         fullName: user?.name || "",
@@ -68,6 +68,34 @@ export const SettingAccountPage = () => {
         address: user?.address || "",
         avatar: [],
     });
+
+    // Sync userInfo với context user khi user data thay đổi
+    useEffect(() => {
+        if (user) {
+            setUserInfo({
+                id: user.id || "",
+                fullName: user.name || "",
+                email: user.email || "",
+                phone: user.phone || "",
+                gender: user.gender || "",
+                address: user.address || "",
+                avatar: [],
+            });
+        }
+    }, [user]);
+
+    // Cập nhật form values khi user data thay đổi
+    useEffect(() => {
+        if (user) {
+            form.setFieldsValue({
+                id: user.id,
+                fullName: user.name,
+                phone: user.phone,
+                gender: user.gender,
+                address: user.address,
+            });
+        }
+    }, [user, form]);
     // const initialValues = {
     //     email: user?.email
     // }
@@ -153,7 +181,10 @@ export const SettingAccountPage = () => {
                 throw new Error("Cập nhật thông tin người dùng thất bại, vui lòng thử lại");
             }
 
-            // Update local state
+            // Refresh user data từ backend để cập nhật context
+            await refreshUserData();
+
+            // Update local state để sync với form
             setUserInfo(prev => ({
                 ...prev,
                 fullName: values.fullName,
@@ -184,9 +215,11 @@ export const SettingAccountPage = () => {
                 throw new Error("Cập nhật avatar thất bại");
             }
 
+            // Refresh user data từ backend để cập nhật context với avatar mới
+            await refreshUserData();
+
             message.success("Cập nhật avatar thành công!");
             setSelectedImage(''); // Reset preview
-            // Refresh user data or update context here
         } catch (error: any) {
             message.error(error.message || "Có lỗi xảy ra khi cập nhật avatar!");
         } finally {
@@ -239,11 +272,11 @@ export const SettingAccountPage = () => {
                                 form={form}
                                 layout="vertical"
                                 initialValues={{
-                                    id: userInfo.id,
-                                    fullName: userInfo.fullName,
-                                    phone: userInfo.phone,
-                                    gender: userInfo.gender,
-                                    address: userInfo.address,
+                                    id: user?.id,
+                                    fullName: user?.name,
+                                    phone: user?.phone,
+                                    gender: user?.gender,
+                                    address: user?.address,
                                 }}
                                 onFinish={handleUpdateProfile}
                             >
