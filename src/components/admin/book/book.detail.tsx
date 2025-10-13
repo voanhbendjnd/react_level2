@@ -81,7 +81,7 @@ const BookDetail = (props: IProps) => {
         {
             key: "categories",
             label: "Thể loại",
-            children: <p>{dataDetail?.categories}</p>,
+            children: <p>{dataDetail?.categories.join(', ')}</p>,
             span: 2
         },
         {

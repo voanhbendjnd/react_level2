@@ -1,5 +1,5 @@
 import { logoutAPI } from "@/services/api";
-import { AliwangwangOutlined, HistoryOutlined, HomeOutlined, LoginOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { AliwangwangOutlined, HistoryOutlined, HomeOutlined, LoginOutlined, ShoppingCartOutlined, UserAddOutlined } from '@ant-design/icons';
 
 import { useCurrentApp } from "components/context/app.context";
 import { useEffect, useState } from "react";
@@ -187,6 +187,13 @@ const AppHeader = () => {
                 </Link>,
                 key: 'login',
             },
+            {
+                label: <Link to={"/register"} style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                    <UserAddOutlined style={{ color: '#fff', fontSize: '16px' }} />
+                    Đăng ký
+                </Link>,
+                key: 'register',
+            },
 
         ] : [{
             label: <span style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
@@ -236,7 +243,7 @@ const AppHeader = () => {
                 <SearchComponent
                     placeholder="Bạn muốn tìm kiếm gì?"
                     style={{
-                        width: '600px'
+                        width: '750px'
                     }}
                 />
             </div>,
@@ -278,7 +285,7 @@ const AppHeader = () => {
                                     .app-menu {
                                         background-color: ${headerBg} !important;
                                         display: flex !important;
-                                        justify-content: space-between !important;
+                                        justify-content: center !important;
                                         align-items: center !important;
                                     }
                                     .app-menu .ant-menu-item {

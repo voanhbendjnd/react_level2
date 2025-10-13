@@ -160,7 +160,7 @@ const AdminPage = () => {
                                         icon: <SettingOutlined />,
 
                                         key: 'setting',
-                                        label: 'Cài đặt',
+                                        label: <Link to={'/my-account'}>Cài đặt</Link>
                                     },
 
                                     {
