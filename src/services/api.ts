@@ -260,7 +260,7 @@ export const getBookByIdAPI = (id: any) => {
   const url_backend = `/api/v1/books/${id}`;
   return axios.get<IBackendRes<IBooksTable>>(url_backend, {
     headers: {
-      delay: "3000",
+      delay: "0000",
     },
   });
 };
@@ -377,11 +377,11 @@ export const initiateVnpayPaymentAPI_GET = (orderId: number | string) => {
   // Sử dụng GET
   return axios.get(url_backend);
 };
- export const handleOrderStatusAPI = (id: number, status: string) => {
-    const url_backend = `/api/v1/orders/${id}`;
+export const handleOrderStatusAPI = (id: number, status: string) => {
+  const url_backend = `/api/v1/orders/${id}`;
 
-    return axios.patch<IBackendRes<string>>(url_backend, { status });
-  }
+  return axios.patch<IBackendRes<string>>(url_backend, { status });
+};
 
 /**
  * HÀM KHUYẾN NGHỊ (NẾU DÙNG @POST Ở BE):
@@ -400,7 +400,4 @@ export const initiateVnpayPaymentAPI_POST = (orderId: number | string) => {
 
   // Sử dụng POST, Axios sẽ tự động thêm Token vào Header (nhờ services/axios.customize.ts)
   return axios.post(url_backend, data);
-
-
- 
 };
